@@ -50,6 +50,8 @@ pub extern fn startup() {
 
     kprintln!("OS is running ...");
 
+    kprintln!("Different Output!");
+
 	//cga::clear();
 	
 
