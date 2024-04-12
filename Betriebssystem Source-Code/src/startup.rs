@@ -40,7 +40,8 @@ use user::aufgabe1::keyboard_demo;
 fn aufgabe1() {
    cga::clear();
    text_demo::run();
-   keyboard_demo::run();
+   kprintln!("Textdemo run");
+   //keyboard_demo::run();
 }
 
 
@@ -50,12 +51,10 @@ pub extern fn startup() {
 
     kprintln!("OS is running ...");
 
-    kprintln!("Different Output!");
+	cga::clear();
 
-	//cga::clear();
+    kprintln!("Screen Cleared ...");
 	
-
-
     aufgabe1();
     
     loop{}

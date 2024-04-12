@@ -11,6 +11,10 @@
 
 use crate::kernel::cpu as cpu;
 
+use super::{cga_print::print, kprint};
+
+
+
 
 // make type comparable, printable and enable copy semantics
 #[allow(dead_code)]   // avoid warnings for unused colors
@@ -47,12 +51,32 @@ const CGA_HIGH_BYTE_CMD: u8  = 14;     // cursor high byte
 const CGA_LOW_BYTE_CMD: u8   = 15;     // cursor high byte
 
 
+// Cursor-Possition als Statische Variable
+// Noch etwas unschön, aber mir fällt grad nix besseres ein
+static mut CURSOR_POS: (u32, u32) = (0, 0);
+
+
 /**
  Description: Clear text screen
 */
 pub fn clear() {
+   // Cursor an Anfang setzten
+   setpos(0, 0);
 
-   /* Hier muss Code eingefuegt werden */
+   // Kompletten Bildschirm mit Leerzeichen füllen
+   // Für alle Zeilen
+   for row in 0..CGA_ROWS{
+      // Jedes Zeichen pro Spalte
+      for column in 0..CGA_COLUMNS{
+         // Leerzeichen schreiben
+         print_byte(' ' as u8);
+      }
+
+   }
+   
+   
+   // Cursor wieder an Anfang setzten
+   setpos(0, 0);
 
 }
 
@@ -81,10 +105,11 @@ pub fn show (x: u32, y: u32, character: char, attrib: u8) {
  Description: Return cursor position `x`,`y` 
 */
 pub fn getpos () -> (u32, u32) {
-
-   /* Hier muss Code eingefuegt werden */
-
-   (0,0) // Platzhalter, entfernen und durch sinnvollen Rueckgabewert ersetzen 
+   // Noch etwas primitiv da mit Statischem Feld gelöst,
+   // aber noch keine bessere Idee
+   unsafe{
+      return CURSOR_POS;
+   }
 }
 
 
@@ -92,8 +117,11 @@ pub fn getpos () -> (u32, u32) {
  Description: Set cursor position `x`,`y` 
 */
 pub fn setpos (x:u32, y:u32) {
-
-   /* Hier muss Code eingefuegt werden */
+   // Noch etwas primitiv da mit Statischem Feld gelöst,
+   // aber noch keine bessere Idee
+   unsafe{ 
+      CURSOR_POS = (x, y) 
+   };
 
 }
 
@@ -103,8 +131,35 @@ pub fn setpos (x:u32, y:u32) {
 */
 pub fn print_byte (b: u8) {
 
-   /* Hier muss Code eingefuegt werden */
+   // Possition des Cursers holen
+   let pos = getpos();
 
+   // An diese Stelle das Byte Printen
+   // Prüfen ob es eine neue Zeile ist
+   if b == '\n' as u8 {
+      setpos(0, pos.1 + 1);
+      return;
+   }
+
+   // Ansonsten normal Ausgeben
+   show(pos.0, pos.1, b as char, 0x2);
+
+   // Curser eins weiter gehen lassen
+   // Line-Wrap wenn Zeile voll
+   if pos.0 == CGA_COLUMNS{
+      setpos(0, pos.1 + 1);
+      return;
+   }
+
+   // Abruch wenn Bildschirm voll
+   if pos.1 == CGA_ROWS {
+      // Kompiliert nicht, weil er das Makro nicht findet
+      //kprintln!("WARNING: Screen is full, wrote no Byte");
+      return
+   }
+   // Curser normal eins weiter setzten
+   setpos(pos.0 + 1, pos.1);
+   
 }
 
 
@@ -128,3 +183,4 @@ pub fn attribute (bg: Color, fg: Color, blink: bool) -> u8 {
    
    0 // Platzhalter, entfernen und durch sinnvollen Rueckgabewert ersetzen 
 }
+
