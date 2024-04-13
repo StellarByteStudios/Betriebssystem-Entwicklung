@@ -92,6 +92,13 @@ dependencies = [ "grub-copy-kernel", "grub-copy-cfg" ]
 [tasks.qemu.linux]
 command = "qemu-system-x86_64"
 args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
+#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
+dependencies = [ "iso" ]
+
+[tasks.qemu-ubuntu.linux]
+command = "qemu-system-x86_64"
+#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
+args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
 dependencies = [ "iso" ]
 
 [tasks.qemu.mac]
