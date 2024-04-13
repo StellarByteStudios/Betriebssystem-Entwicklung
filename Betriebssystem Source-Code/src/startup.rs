@@ -36,17 +36,16 @@ use kernel::cpu;
 use user::aufgabe1::text_demo;
 use user::aufgabe1::keyboard_demo;
 
+use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
 
 
 fn own_tests(){
     kprintln!("Testing get-Bytes Function");
 
-    let testbyte: u16 = 0xF39A;
+    let attribute: u8 = attribute(cga::Color::Black, cga::Color::Black, true);
 
-    let bytes: (u8, u8) = get_bytes(testbyte);
-
-    kprintln!("The Two Bytes are: {:#2x} and {:#2x}", bytes.0, bytes.1);
+    kprintln!("The Two Byte is: {:>8b}", attribute);
 
 }
 

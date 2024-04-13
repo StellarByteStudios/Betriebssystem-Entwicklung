@@ -171,8 +171,11 @@ pub fn print_byte (b: u8) {
       return;
    }
 
+   // Formatierung holen
+   let attribute: u8 = attribute(Color::Black, Color::Green, false);
+
    // Ansonsten normal Ausgeben
-   show(pos.0, pos.1, b as char, 0x2);
+   show(pos.0, pos.1, b as char, attribute);
 
    // Curser eins weiter gehen lassen
    // Line-Wrap wenn Zeile voll
@@ -209,9 +212,11 @@ pub fn scrollup () {
 */
 pub fn attribute (bg: Color, fg: Color, blink: bool) -> u8 {
 
-   // Einzelne Eigenschaften zu u8 umwandeln und auf richtige Position shiften
-   
-   0 // Platzhalter, entfernen und durch sinnvollen Rueckgabewert ersetzen 
+   let fg_byte: u8 = fg as u8;
+   let bg_byte: u8 = (bg as u8) << 4;
+   let blink_byte: u8 = (blink as u8) << 7;
+
+   return bg_byte | fg_byte | blink_byte;
 }
 
 
