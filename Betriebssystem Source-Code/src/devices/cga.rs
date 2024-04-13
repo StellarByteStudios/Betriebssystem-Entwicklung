@@ -51,9 +51,6 @@ const CGA_HIGH_BYTE_CMD: u8  = 14;     // cursor high byte
 const CGA_LOW_BYTE_CMD: u8   = 15;     // cursor high byte
 
 
-// Cursor-Possition als Statische Variable
-// Noch etwas unschön, aber mir fällt grad nix besseres ein
-static mut CURSOR_POS: (u32, u32) = (0, 0);
 
 
 /**
@@ -107,26 +104,22 @@ pub fn show (x: u32, y: u32, character: char, attrib: u8) {
 pub fn getpos () -> (u32, u32) {
    // Low-Byte holen
    cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
-   let b_low: (u8) = cpu::inb(CGA_DATA_PORT);
+   let b_low: u8 = cpu::inb(CGA_DATA_PORT);
 
    // Highbyte holen
    cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
-   let b_high: (u8) = cpu::inb(CGA_DATA_PORT);
+   let b_high: u8 = cpu::inb(CGA_DATA_PORT);
 
    // Offset zusammenkleben
+   let offset: u32 = clue_bytes(b_low, b_high) as u32;
 
    // x-Wert berechnen
+   let x: u32 = offset % CGA_COLUMNS;
 
    // y-Wert berechnen
-   
-   
-   /*
-   // Noch etwas primitiv da mit Statischem Feld gelöst,
-   // aber noch keine bessere Idee
-   unsafe{
-      return CURSOR_POS;
-   }
-   */
+   let y: u32 = (offset - x) / CGA_COLUMNS;
+
+   return (x, y);
 }
 
 
@@ -144,8 +137,9 @@ pub fn setpos (x:u32, y:u32) {
 
 
    // Possitionsoffset berechnen
-   let cursor_offset: u32 = x * CGA_COLUMNS + y;
+   let cursor_offset: u32 = y * CGA_COLUMNS + x;
    let cursor_bytes: (u8, u8) = get_bytes(cursor_offset as u16);
+
 
    // Low-Byte setzen
    // Richtige Registerstelle auswählen
@@ -158,16 +152,6 @@ pub fn setpos (x:u32, y:u32) {
    cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
    // Daten (Possition) rein schreiben
    cpu::outb(CGA_DATA_PORT, cursor_bytes.1);
-
-
-
-   
-   /*
-   // Noch etwas primitiv da mit Statischem Feld gelöst,
-   // aber noch keine bessere Idee
-   unsafe{ 
-      CURSOR_POS = (x, y) 
-   }; */
 
 }
 
@@ -225,10 +209,14 @@ pub fn scrollup () {
 */
 pub fn attribute (bg: Color, fg: Color, blink: bool) -> u8 {
 
-   /* Hier muss Code eingefuegt werden */
+   // Einzelne Eigenschaften zu u8 umwandeln und auf richtige Position shiften
    
    0 // Platzhalter, entfernen und durch sinnvollen Rueckgabewert ersetzen 
 }
+
+
+
+
 
 
 
@@ -249,11 +237,12 @@ pub fn get_bytes (num: u16) -> (u8, u8){
 */
 pub fn clue_bytes (low: u8, high: u8) -> u16{
    // Beide Bytes zu u16 Konvertieren
-   let low_big: (u16) = low as u16;
+   let low_big: u16 = low as u16;
    // 8 hits in das high-Byte shiften
-   let high_big: (u16) = (high as u16) << 8;
+   let high_big: u16 = (high as u16) << 8;
 
    // Beide Bytes verodern
    return high_big | low_big   
 }
+
 
