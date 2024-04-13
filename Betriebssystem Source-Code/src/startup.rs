@@ -36,6 +36,22 @@ use kernel::cpu;
 use user::aufgabe1::text_demo;
 use user::aufgabe1::keyboard_demo;
 
+use crate::devices::cga::get_bytes;
+
+
+fn own_tests(){
+    kprintln!("Testing get-Bytes Function");
+
+    let testbyte: u16 = 0xF39A;
+
+    let bytes: (u8, u8) = get_bytes(testbyte);
+
+    kprintln!("The Two Bytes are: {:#2x} and {:#2x}", bytes.0, bytes.1);
+
+}
+
+
+
 
 fn aufgabe1() {
    cga::clear();
@@ -43,6 +59,7 @@ fn aufgabe1() {
    kprintln!("Textdemo run");
    //keyboard_demo::run();
 }
+
 
 
 #[no_mangle]
@@ -54,6 +71,8 @@ pub extern fn startup() {
 	cga::clear();
 
     kprintln!("Screen Cleared ...");
+
+    own_tests();
 	
     aufgabe1();
     

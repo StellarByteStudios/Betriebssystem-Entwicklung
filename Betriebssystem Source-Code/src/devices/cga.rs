@@ -105,11 +105,28 @@ pub fn show (x: u32, y: u32, character: char, attrib: u8) {
  Description: Return cursor position `x`,`y` 
 */
 pub fn getpos () -> (u32, u32) {
+   // Low-Byte holen
+   cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
+   let b_low: (u8) = cpu::inb(CGA_DATA_PORT);
+
+   // Highbyte holen
+   cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
+   let b_high: (u8) = cpu::inb(CGA_DATA_PORT);
+
+   // Offset zusammenkleben
+
+   // x-Wert berechnen
+
+   // y-Wert berechnen
+   
+   
+   /*
    // Noch etwas primitiv da mit Statischem Feld gelöst,
    // aber noch keine bessere Idee
    unsafe{
       return CURSOR_POS;
    }
+   */
 }
 
 
@@ -117,11 +134,40 @@ pub fn getpos () -> (u32, u32) {
  Description: Set cursor position `x`,`y` 
 */
 pub fn setpos (x:u32, y:u32) {
+   // Ist der Cursor im Scope des Bildschirms
+   if x < 0 || x > CGA_COLUMNS {
+      return;
+   }
+   if y < 0 || y > CGA_ROWS {
+      return;
+   }
+
+
+   // Possitionsoffset berechnen
+   let cursor_offset: u32 = x * CGA_COLUMNS + y;
+   let cursor_bytes: (u8, u8) = get_bytes(cursor_offset as u16);
+
+   // Low-Byte setzen
+   // Richtige Registerstelle auswählen
+   cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
+   // Daten (Possition) rein schreiben
+   cpu::outb(CGA_DATA_PORT, cursor_bytes.0);
+
+   // High-Byte setzen
+   // Richtige Registerstelle auswählen
+   cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
+   // Daten (Possition) rein schreiben
+   cpu::outb(CGA_DATA_PORT, cursor_bytes.1);
+
+
+
+   
+   /*
    // Noch etwas primitiv da mit Statischem Feld gelöst,
    // aber noch keine bessere Idee
    unsafe{ 
       CURSOR_POS = (x, y) 
-   };
+   }; */
 
 }
 
@@ -132,7 +178,7 @@ pub fn setpos (x:u32, y:u32) {
 pub fn print_byte (b: u8) {
 
    // Possition des Cursers holen
-   let pos = getpos();
+   let pos: (u32, u32) = getpos();
 
    // An diese Stelle das Byte Printen
    // Prüfen ob es eine neue Zeile ist
@@ -182,5 +228,32 @@ pub fn attribute (bg: Color, fg: Color, blink: bool) -> u8 {
    /* Hier muss Code eingefuegt werden */
    
    0 // Platzhalter, entfernen und durch sinnvollen Rueckgabewert ersetzen 
+}
+
+
+
+
+
+// * * * * Eigene Helperfunktionen * * * * //
+/**
+ Description: Zerlegt einen 16 Bit Integer in ein 2 Byte Tupel
+            ret.0 ist erstes Byte (smallest) ret.1 zweites Byte
+*/
+pub fn get_bytes (num: u16) -> (u8, u8){
+   return( num as u8, (num >> 8) as u8);
+}
+
+/**
+ Description: Zerlegt einen 16 Bit Integer in ein 2 Byte Tupel
+            ret.0 ist erstes Byte (smallest) ret.1 zweites Byte
+*/
+pub fn clue_bytes (low: u8, high: u8) -> u16{
+   // Beide Bytes zu u16 Konvertieren
+   let low_big: (u16) = low as u16;
+   // 8 hits in das high-Byte shiften
+   let high_big: (u16) = (high as u16) << 8;
+
+   // Beide Bytes verodern
+   return high_big | low_big   
 }
 
