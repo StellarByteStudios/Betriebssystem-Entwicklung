@@ -32,6 +32,9 @@ Xorriso installieren:
 * `sudo apt-add-repository universe`
 * `sudo apt-get install xorriso`
 
+Ubuntu machte probleme mit ``qemu-system-x86_64: Property '.pcspk-audiodev' not found`
+Temporäre Lösung bisher ist in der `Makefile.toml` eine weitere eigene Regel `qemu-ubuntu` einzubauen, welche diese Property nicht hat 
+
 ## Build
 
 For a full build run: 
