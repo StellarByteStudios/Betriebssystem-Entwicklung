@@ -128,10 +128,10 @@ pub fn getpos () -> (u32, u32) {
 */
 pub fn setpos (x:u32, y:u32) {
    // Ist der Cursor im Scope des Bildschirms
-   if x < 0 || x > CGA_COLUMNS {
+   if x > CGA_COLUMNS {
       return;
    }
-   if y < 0 || y > CGA_ROWS {
+   if y > CGA_ROWS {
       return;
    }
 
