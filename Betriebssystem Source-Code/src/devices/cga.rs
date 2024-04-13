@@ -206,6 +206,8 @@ pub fn scrollup () {
 }
  
  
+ // = = = NOTE: Blinkenbit verstellt nur die Backgroundfarbe = = = //
+ // ==> Bit 0-3 Vordergrund. Bit 4-7 Hintergrund
 /**
  Description: Helper function returning an attribute byte for the given 
               parameters `bg`, `fg`, and `blink`

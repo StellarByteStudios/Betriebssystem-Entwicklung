@@ -43,9 +43,13 @@ use crate::devices::cga::get_bytes;
 fn own_tests(){
     kprintln!("Testing get-Bytes Function");
 
-    let attribute: u8 = attribute(cga::Color::Black, cga::Color::Black, true);
+    let attribute1: u8 = attribute(cga::Color::Black, cga::Color::Green, false);
 
-    kprintln!("The Two Byte is: {:>8b}", attribute);
+    kprintln!("The False-Blinking is: {:>8b}", attribute1);
+
+    let attribute2: u8 = attribute(cga::Color::Black, cga::Color::Green, true);
+
+    kprintln!("The False-Blinking is: {:>8b}", attribute2);
 
 }
 
