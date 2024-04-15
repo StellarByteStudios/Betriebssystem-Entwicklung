@@ -225,7 +225,8 @@ pub fn scrollup () {
 
          // Zeichen da hin schreiben
          setpos(column, row);
-         print_byte(symbol_tupel.0);
+         //print_byte(symbol_tupel.0);
+         print_byte('~');
       }
 
    }
