@@ -49,7 +49,7 @@ fn own_tests(){
 
     let attribute2: u8 = attribute(cga::Color::Black, cga::Color::Green, true);
 
-    kprintln!("The False-Blinking is: {:>8b}", attribute2);
+    kprintln!("The True-Blinking is: {:>8b}", attribute2);
 
 }
 
@@ -60,7 +60,7 @@ fn aufgabe1() {
    //cga::clear();
    text_demo::run();
    kprintln!("Textdemo run");
-   //keyboard_demo::run();
+   keyboard_demo::run();
 }
 
 
@@ -78,6 +78,8 @@ pub extern fn startup() {
     own_tests();
 	
     aufgabe1();
+
+
     
     loop{}
 }

@@ -168,6 +168,13 @@ pub fn print_byte (b: u8) {
    // Prüfen ob es eine neue Zeile ist
    if b == '\n' as u8 {
       setpos(0, pos.1 + 1);
+      
+      // Scoll wenn Bildschirm voll
+      if pos.1 == CGA_ROWS-1 {
+         // Kompiliert nicht, weil er das Makro nicht findet
+         kprintln!("WARNING: Screen is full, scrolling with newline");
+         scrollup();
+      }
       return;
    }
 
@@ -177,21 +184,23 @@ pub fn print_byte (b: u8) {
    // Ansonsten normal Ausgeben
    show(pos.0, pos.1, b as char, attribute);
 
+   
+
+   // Curser normal eins weiter setzten
+   setpos(pos.0 + 1, pos.1);
+
    // Curser eins weiter gehen lassen
    // Line-Wrap wenn Zeile voll
    if pos.0 == CGA_COLUMNS{
       setpos(0, pos.1 + 1);
-      return;
    }
 
-   // Abruch wenn Bildschirm voll
+   // Scoll wenn Bildschirm voll
    if pos.1 == CGA_ROWS {
       // Kompiliert nicht, weil er das Makro nicht findet
-      //kprintln!("WARNING: Screen is full, wrote no Byte");
-      return
+      kprintln!("WARNING: Screen is full, scrolling: y = {}; CGA_ROWS = {}", pos.1, CGA_ROWS);
+      scrollup();
    }
-   // Curser normal eins weiter setzten
-   setpos(pos.0 + 1, pos.1);
    
 }
 
@@ -199,10 +208,37 @@ pub fn print_byte (b: u8) {
 /**
  Description: Scroll text lines by one to the top.
 */
+// ================ FUNKTINIERT NOCH NICHT!!! ============== //
 pub fn scrollup () {
 
-   /* Hier muss Code eingefuegt werden */
+   // Cursor an erste Possition stellen
+   setpos(0, 0);
 
+   // Für alle Zeilen die darunterliegenden Werte Kopieren
+   for row in 0..CGA_ROWS-1{
+      // Einzelne Zeichen kopieren
+      for column in 0..CGA_COLUMNS{
+         // Zeichen untendrunter holen
+         setpos(column, row+1);
+         //kprintln!("Setzte Cursor jetzt an ({}, {})", column, row+1);
+         let symbol_tupel: (u8, u8) = get_symbol_of_screen();
+
+         // Zeichen da hin schreiben
+         setpos(column, row);
+         print_byte(symbol_tupel.0);
+      }
+
+   }
+
+   // Letzte Zeile ausschwärzen
+   for i in 0..CGA_ROWS{
+      setpos(i, CGA_COLUMNS-1);
+      print_byte(' ' as u8);
+   }
+
+   // Cursor wieder eine Zeile nach oben setzen
+   setpos(0, CGA_ROWS-1);
+   
 }
  
  
@@ -253,3 +289,33 @@ pub fn clue_bytes (low: u8, high: u8) -> u16{
 }
 
 
+
+/**
+Description: Holt ein Zeichen auf dem Bildschirm
+   ret.0 Zeichen; ret.1 Attribut
+*/
+pub fn get_symbol_of_screen() -> (u8, u8){
+
+   // Possitionnsoffset berechen
+   let cursor_pos: (u32, u32) = getpos();
+   let pos_offset = (cursor_pos.1 * CGA_COLUMNS + cursor_pos.0) * 2;
+
+   // Daten aus Speicher lesen
+   let character: u8;
+   let attr: u8;
+
+   unsafe{
+      character = *((CGA_BASE_ADDR + pos_offset) as *mut u8);
+      attr      = *((CGA_BASE_ADDR + pos_offset + 1) as *mut u8);
+   }
+
+
+   //cpu::outb(CGA_DATA_PORT, CGA_LOW_BYTE_CMD);
+   //let pos: u8 = cpu::inb(CGA_DATA_PORT);
+
+   // Highbyte holen
+   //cpu::outb(CGA_DATA_PORT, CGA_HIGH_BYTE_CMD);
+   //let attr: u8 = cpu::inb(CGA_DATA_PORT);
+
+   return (character, attr);
+}

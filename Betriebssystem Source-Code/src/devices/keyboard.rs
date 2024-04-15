@@ -300,7 +300,28 @@ impl Keyboard {
    fn key_hit(&mut self) -> key::Key {
       let invalid: key::Key = Default::default();  // nicht explizit initialisierte Tasten sind ungueltig
 
-      /* Hier muss Code eingefuegt werden. */
+      // Endloschleife bis Byte abholbereit 
+      loop{
+         // Richtige Registerstelle auswählen
+         let controll_byte: u8 = cpu::inb(KBD_CTRL_PORT);
+
+         let buffer_ready: bool = controll_byte & KBD_OUTB != 0;
+         let is_mouse: bool = controll_byte & KBD_AUXB != 0;
+         
+         
+         if buffer_ready && !is_mouse {
+            break;
+         }
+      }
+      
+      // Byte aus Port lesen
+      let keyboard_code: u8 = cpu::inb(KBD_DATA_PORT);
+      self.code = keyboard_code;
+
+      // Ist der Key fertig
+      if self.key_decoded(){
+         return self.gather;
+      }
       
       return invalid;
    }

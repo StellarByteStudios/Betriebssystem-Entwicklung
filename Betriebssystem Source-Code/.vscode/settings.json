@@ -1,0 +1,18 @@
+{
+    "rust-analyzer.cargo.target": "hhu_tosr",
+    "rust-analyzer.check.allTargets": false,
+    "rust-analyzer.check.extraArgs": [
+        "--target",
+        "hhu_tosr"
+    ],
+    "rust-analyzer.check.overrideCommand": [
+        "cargo",
+        "make",
+        "check"
+    ],
+    "rust-analyzer.cargo.buildScripts.overrideCommand": [
+        "cargo",
+        "make",
+        "compile" // leave out if "iso" target works on your machine
+    ]
+}
