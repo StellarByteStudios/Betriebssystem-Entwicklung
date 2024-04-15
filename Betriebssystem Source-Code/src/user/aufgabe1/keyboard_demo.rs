@@ -1,20 +1,23 @@
 
+use crate::devices::cga::print_backspace;
 use crate::devices::cga::print_byte;
 use crate::devices::cga as cga;  // shortcut for cga
 use crate::devices::cga_print;   // used to import code needed by println! 
-use crate::devices::key as key;      use crate::devices::keyboard::key_hit;
-// shortcut for key
+use crate::devices::key as key;
 use crate::devices::keyboard as keyboard;  // shortcut for keyboard
 
-
+// ===== ggf noch einen Buffer der Asciis einbauen für befehle
 pub fn run() {
+   // Terminalfarbe wählen
+   cga::set_attribute(cga::Color::Black, cga::Color::Green, false);
+
 
    loop {
       // Warten bis ein Valid Key da ist
       let mut key: key::Key;
       
       loop {
-         key = key_hit();
+         key = keyboard::key_hit();
 
          if key.valid(){
             break;
@@ -23,18 +26,15 @@ pub fn run() {
 
       // Das Symbol auslesen
       let ascii_byte: u8 = key.get_ascii();
+   
 
       // Sonderfälle für bestimmte Tasten
-      if ascii_byte == 0b1101 {
-         print_byte(0b1010 as u8);
-         continue;
-      }
-
-      //kprintln!("Das gelesene Byte der Tastatur war: {:4b}", ascii_byte);
-      //kprintln!("Newline: {:4b}", '\n' as u8);
-
-      // Symbol auf die Konsole schreiben
-      print_byte(ascii_byte);
+      // Weiß noch nicht, ob ich das hier so gut finde
+      match ascii_byte{
+         0xd => print_byte(0xa as u8), // Newline
+         0x8 => print_backspace(),     // Backspace
+         _ => print_byte(ascii_byte)   // normale Zeichen
+      }      
    }
 
 }

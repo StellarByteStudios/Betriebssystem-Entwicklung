@@ -50,7 +50,8 @@ const CGA_DATA_PORT: u16     = 0x3d5;  // read/write register
 const CGA_HIGH_BYTE_CMD: u8  = 14;     // cursor high byte
 const CGA_LOW_BYTE_CMD: u8   = 15;     // cursor high byte
 
-
+// Attribut mit welchem man Dynamisch die Farben auswählen kann
+static mut CGA_DYN_ATTR: u8      = CGA_STD_ATTR;
 
 
 /**
@@ -66,7 +67,7 @@ pub fn clear() {
       // Jedes Zeichen pro Spalte
       for column in 0..CGA_COLUMNS{
          // Leerzeichen schreiben
-         print_byte(' ' as u8);
+         print_byte('\0' as u8);
       }
 
    }
@@ -161,6 +162,9 @@ pub fn setpos (x:u32, y:u32) {
 */
 pub fn print_byte (b: u8) {
 
+   // Muss man vielleicht hochscrollen?
+   scroll_with_check();
+
    // Possition des Cursers holen
    let pos: (u32, u32) = getpos();
 
@@ -168,40 +172,33 @@ pub fn print_byte (b: u8) {
    // Prüfen ob es eine neue Zeile ist
    if b == '\n' as u8 {
       setpos(0, pos.1 + 1);
-      
-      // Scoll wenn Bildschirm voll
-      if pos.1 == CGA_ROWS-1 {
-         // Kompiliert nicht, weil er das Makro nicht findet
-         kprintln!("WARNING: Screen is full, scrolling with newline");
-         scrollup();
-      }
+      scroll_with_check();
       return;
    }
 
-   
-   // Line-Wrap wenn Zeile voll
-   if pos.0 == CGA_COLUMNS{
-      setpos(0, pos.1 + 1);
-   }
 
    
 
    // Formatierung holen
-   let attribute: u8 = attribute(Color::Black, Color::Green, false);
+   //let attribute: u8 = attribute(Color::Black, Color::Green, false);
 
    // Ansonsten normal Ausgeben
-   show(pos.0, pos.1, b as char, attribute);
+   // unsafe, wegen dem Dynamischen Farb Attribut
+   unsafe{
+      show(pos.0, pos.1, b as char, CGA_DYN_ATTR);
+   }
+   
 
 
    // Curser normal eins weiter setzten
    setpos(pos.0 + 1, pos.1);
 
-  // Scoll wenn Bildschirm voll
-  if pos.1 == CGA_ROWS {
-      kprintln!("WARNING: Screen is full, scrolling: y = {}; CGA_ROWS = {}", pos.1, CGA_ROWS);
-      scrollup();
+   // Line-Wrap wenn Zeile voll
+   if pos.0 >= CGA_COLUMNS{
+      setpos(0, pos.1 + 1);
    }
 
+   
    
    
 }
@@ -210,35 +207,31 @@ pub fn print_byte (b: u8) {
 /**
  Description: Scroll text lines by one to the top.
 */
-// ================ FUNKTINIERT NOCH NICHT!!! ============== //
 pub fn scrollup () {
 
    // Cursor an erste Possition stellen
    setpos(0, 0);
 
    // Für alle Zeilen die darunterliegenden Werte Kopieren
-   for row in 0..CGA_ROWS-1{
+   for row in 0..CGA_ROWS{
       // Einzelne Zeichen kopieren
       for column in 0..CGA_COLUMNS{
          // Zeichen untendrunter holen
-         setpos(column, row+1);
-         //kprintln!("Setzte Cursor jetzt an ({}, {})", column, row+1);
+         setpos(column, row+1);        
          let symbol_tupel: (u8, u8) = get_symbol_of_screen();
 
-         // Zeichen da hin schreiben
-         setpos(column, row);
-         print_byte(symbol_tupel.0);
-         //print_byte('~' as u8);
+         // Zeichen eins drüber schreiben
+         show(column, row, symbol_tupel.0 as char, symbol_tupel.1);
       }
-      kprintln!("Betrachte Reihe {}", row);
-
    }
+   
 
    // Letzte Zeile ausschwärzen
-   for i in 0..CGA_COLUMNS{
-      setpos(i, CGA_COLUMNS-1);
+   for i in 0..CGA_COLUMNS-1{
+      setpos(i, CGA_ROWS-1);
       print_byte(' ' as u8);
    }
+   kprintln!("=========================== Finished Scrollup");
 
    // Cursor wieder eine Zeile nach oben setzen
    setpos(0, CGA_ROWS-1);
@@ -313,13 +306,61 @@ pub fn get_symbol_of_screen() -> (u8, u8){
       attr      = *((CGA_BASE_ADDR + pos_offset + 1) as *mut u8);
    }
 
-
-   //cpu::outb(CGA_DATA_PORT, CGA_LOW_BYTE_CMD);
-   //let pos: u8 = cpu::inb(CGA_DATA_PORT);
-
-   // Highbyte holen
-   //cpu::outb(CGA_DATA_PORT, CGA_HIGH_BYTE_CMD);
-   //let attr: u8 = cpu::inb(CGA_DATA_PORT);
-
    return (character, attr);
+}
+
+
+
+/**
+Description: Checkt ob gescrollt werden muss und macht das dann ggf
+*/
+pub fn scroll_with_check(){
+   // Cursorpossition holen
+   let cursor_pos: (u32, u32) = getpos();
+   // Scoll wenn Bildschirm voll
+   if cursor_pos.1 >= CGA_ROWS {   
+      kprintln!("WARNING: Scrollup after checker!");
+      scrollup();
+   }
+}
+
+
+/**
+Description: Löscht letztes Zeichen
+Note: Springt einfach in der Zeile nach oben, auch wenn diese am Ende noch leer ist
+*/
+pub fn print_backspace(){
+   // Cursor-Possition holen
+   let cursor_pos: (u32, u32) = getpos();
+
+   // Neue Possition berechnen
+   let new_pos: (u32, u32);
+
+   // EdgeCase bei Linewrap
+   if cursor_pos.0 == 0{
+      new_pos = (CGA_COLUMNS - 1, cursor_pos.1 - 1);
+   } else {
+      // Normal Case
+      new_pos = (cursor_pos.0 - 1, cursor_pos.1);
+   }
+
+   // Position setzten
+   setpos(new_pos.0, new_pos.1);
+
+   // Byte Löschen
+   print_byte('\0' as u8);
+
+   // Nochmal zurück gehen (print_byte geht wieder eins vor)
+   setpos(new_pos.0, new_pos.1);
+}
+
+
+pub fn set_attribute(bg: Color, fg: Color, blink: bool){
+
+   // Neues Format-Byte zusammenbauen
+   let new_attr: u8 = attribute(bg, fg, blink);
+
+   // Neues Format abspeichern
+   unsafe { CGA_DYN_ATTR = new_attr; }
+
 }

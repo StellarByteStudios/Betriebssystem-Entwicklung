@@ -57,7 +57,7 @@ fn own_tests(){
 
 
 fn aufgabe1() {
-   //cga::clear();
+   cga::clear();
    text_demo::run();
    kprintln!("Textdemo run");
    keyboard_demo::run();
