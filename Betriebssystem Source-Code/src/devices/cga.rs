@@ -178,29 +178,31 @@ pub fn print_byte (b: u8) {
       return;
    }
 
+   
+   // Line-Wrap wenn Zeile voll
+   if pos.0 == CGA_COLUMNS{
+      setpos(0, pos.1 + 1);
+   }
+
+   
+
    // Formatierung holen
    let attribute: u8 = attribute(Color::Black, Color::Green, false);
 
    // Ansonsten normal Ausgeben
    show(pos.0, pos.1, b as char, attribute);
 
-   
 
    // Curser normal eins weiter setzten
    setpos(pos.0 + 1, pos.1);
 
-   // Curser eins weiter gehen lassen
-   // Line-Wrap wenn Zeile voll
-   if pos.0 == CGA_COLUMNS{
-      setpos(0, pos.1 + 1);
-   }
-
-   // Scoll wenn Bildschirm voll
-   if pos.1 == CGA_ROWS {
-      // Kompiliert nicht, weil er das Makro nicht findet
+  // Scoll wenn Bildschirm voll
+  if pos.1 == CGA_ROWS {
       kprintln!("WARNING: Screen is full, scrolling: y = {}; CGA_ROWS = {}", pos.1, CGA_ROWS);
       scrollup();
    }
+
+   
    
 }
 
@@ -225,14 +227,15 @@ pub fn scrollup () {
 
          // Zeichen da hin schreiben
          setpos(column, row);
-         //print_byte(symbol_tupel.0);
-         print_byte('~');
+         print_byte(symbol_tupel.0);
+         //print_byte('~' as u8);
       }
+      kprintln!("Betrachte Reihe {}", row);
 
    }
 
    // Letzte Zeile ausschwärzen
-   for i in 0..CGA_ROWS{
+   for i in 0..CGA_COLUMNS{
       setpos(i, CGA_COLUMNS-1);
       print_byte(' ' as u8);
    }
