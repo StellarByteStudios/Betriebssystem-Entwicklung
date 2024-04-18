@@ -387,6 +387,79 @@ impl Keyboard {
      *****************************************************************************/
     fn set_led(&mut self, led: u8, on: bool) {
 
-        /* Hier muss Code eingefuegt werden. */
+        loop{
+            // Prüfe ob INPB in Status-Register 0 ist
+            loop {
+                let status: u8 = cpu::inb(KBD_CTRL_PORT);
+                if status & KBD_INPB == 0 {
+                    break;
+                }
+            }
+            kprintln!("Nach INPB");
+            
+            // Sagen, dass wir LED schreiben wollen
+            loop{
+                // Set Byte in Data Port
+                cpu::outb(KBD_DATA_PORT, KBD_CMD_SET_LED);
+                // Warte auf Out Byte
+                loop {
+                    let status: u8 = cpu::inb(KBD_CTRL_PORT);
+
+                    if status & KBD_OUTB != 0{
+                        break;
+                    }
+                }
+                kprintln!("Nach SET_LED");
+
+                // Prüfe ob das Ack gesetzt wurde
+                let status: u8 = cpu::inb(KBD_DATA_PORT);
+                if status != KBD_REPLY_ACK{
+                    kprintln!("Noch kein Ack bekommen");
+                    continue;
+                }
+                kprintln!("Nach ACK 1");
+                break;
+            }
+
+            // LED Byte in Datenport setzten
+            // Prüfe ob INPB in Status-Register 0 ist
+            loop {
+                let status: u8 = cpu::inb(KBD_CTRL_PORT);
+                if status & KBD_INPB == 0 {
+                    break;
+                }
+            }
+            kprintln!("Nach INPB2");
+            
+            // Sagen, dass wir LED schreiben wollen
+            loop{
+                // Set Byte in Data Port
+                // Abhängig davon ob ich an oder aus machen will
+                // Auf Struct zugreifen
+                if on {
+                    self.leds |= led;
+                } else {
+                    self.leds &= !led;
+                }
+                kprintln!("LEDs gesetzt {:#2x}", self.leds);
+
+                cpu::outb(KBD_DATA_PORT, self.leds);
+                // Warte auf Out Byte
+                loop {
+                    let status: u8 = cpu::inb(KBD_CTRL_PORT);
+
+                    if status & KBD_OUTB != 0{
+                        break;
+                    }
+                }
+
+                // Prüfe ob das Ack gesetzt wurde
+                let status: u8 = cpu::inb(KBD_DATA_PORT);
+                if status != KBD_REPLY_ACK {
+                    continue;
+                }
+                break;
+            }
+        }
     }
 }

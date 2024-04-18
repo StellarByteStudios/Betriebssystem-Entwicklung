@@ -10,6 +10,8 @@ pub fn run() {
     // Terminalfarbe wählen
     cga::set_attribute(cga::Color::Black, cga::Color::Green, false);
 
+    //kprint!("Die gedrückten Tasten sind: ");
+
     loop {
         // Warten bis ein Valid Key da ist
         let mut key: key::Key;
@@ -24,6 +26,8 @@ pub fn run() {
 
         // Das Symbol auslesen
         let ascii_byte: u8 = key.get_ascii();
+
+        //kprint!("{:#2x} ", ascii_byte);
 
         // Sonderfälle für bestimmte Tasten
         // Weiß noch nicht, ob ich das hier so gut finde
