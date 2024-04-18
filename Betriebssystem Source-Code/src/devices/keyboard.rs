@@ -456,10 +456,12 @@ impl Keyboard {
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
                 if status != KBD_REPLY_ACK {
+                    kprintln!("Noch kein Ack2 bekommen");
                     continue;
                 }
                 break;
             }
+            break;
         }
     }
 }
