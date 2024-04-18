@@ -9,19 +9,17 @@
    ║            https://os.phil-opp.com/vga-text-mode/                       ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
+use crate::devices::cga;
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
-use crate::devices::cga as cga;
-
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'
-pub static WRITER: Mutex<Writer> = Mutex::new( Writer{} );
+pub static WRITER: Mutex<Writer> = Mutex::new(Writer {});
 
 // Defining a Writer for writing formatted strings to the CGA screen
-pub struct Writer { }
-
+pub struct Writer {}
 
 // Implementation of the 'core::fmt::Write' trait for our Writer
 // Required to output formatted strings
@@ -29,10 +27,10 @@ pub struct Writer { }
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for byte in s.bytes() {
-			 match byte {
+            match byte {
                 // printable ASCII byte or newline
                 0x20..=0x7e | b'\n' => cga::print_byte(byte),
-                
+
                 // not part of printable ASCII range
                 _ => cga::print_byte(0xfe),
             }
@@ -41,9 +39,8 @@ impl fmt::Write for Writer {
     }
 }
 
-
 // Provide macros like in the 'io' module of Rust
-// The $crate variable ensures that the macro also works 
+// The $crate variable ensures that the macro also works
 // from outside the 'std' crate.
 macro_rules! print {
     ($($arg:tt)*) => ({
@@ -58,6 +55,5 @@ macro_rules! println {
 
 // Helper function of print macros (must be public)
 pub fn print(args: fmt::Arguments) {
-   WRITER.lock().write_fmt(args).unwrap();
+    WRITER.lock().write_fmt(args).unwrap();
 }
-

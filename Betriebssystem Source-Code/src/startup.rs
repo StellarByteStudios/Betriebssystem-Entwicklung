@@ -19,28 +19,27 @@ extern crate alloc;
 extern crate spin; // we need a mutex in devices::cga_print
 
 // insert other modules
-#[macro_use]   // import macros, too
+#[macro_use] // import macros, too
 mod devices;
+mod consts;
 mod kernel;
 mod user;
-mod consts;
 
 use core::panic::PanicInfo;
 
-use devices::cga;         // shortcut for cga
-use devices::cga_print;   // used to import code needed by println! 
-use devices::keyboard;    // shortcut for keyboard
+use devices::cga; // shortcut for cga
+use devices::cga_print; // used to import code needed by println!
+use devices::keyboard; // shortcut for keyboard
 
 use kernel::cpu;
 
-use user::aufgabe1::text_demo;
 use user::aufgabe1::keyboard_demo;
+use user::aufgabe1::text_demo;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
 
-
-fn own_tests(){
+fn own_tests() {
     kprintln!("Testing get-Bytes Function");
 
     let attribute1: u8 = attribute(cga::Color::Black, cga::Color::Green, false);
@@ -50,42 +49,29 @@ fn own_tests(){
     let attribute2: u8 = attribute(cga::Color::Black, cga::Color::Green, true);
 
     kprintln!("The True-Blinking is: {:>8b}", attribute2);
-
 }
-
-
-
 
 fn aufgabe1() {
-   cga::clear();
-   text_demo::run();
-   kprintln!("Textdemo run");
-   keyboard_demo::run();
+    cga::clear();
+    text_demo::run();
+    kprintln!("Textdemo run");
+    keyboard_demo::run();
 }
 
-
-
 #[no_mangle]
-pub extern fn startup() {
-	 
-
+pub extern "C" fn startup() {
     kprintln!("OS is running ...");
 
-	cga::clear();
+    cga::clear();
 
     kprintln!("Screen Cleared ...");
 
     own_tests();
-	
+
     aufgabe1();
 
-
-    
-    loop{}
+    loop {}
 }
-
-
-
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -93,4 +79,3 @@ fn panic(info: &PanicInfo) -> ! {
     //	kprintln!("{:?}", Backtrace::new());
     loop {}
 }
-
