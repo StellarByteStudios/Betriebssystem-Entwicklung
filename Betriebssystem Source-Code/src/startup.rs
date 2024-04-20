@@ -33,29 +33,23 @@ use devices::keyboard; // shortcut for keyboard
 
 use kernel::cpu;
 
+use user::applications::keyboard_handler;
 use user::aufgabe1::keyboard_demo;
 use user::aufgabe1::text_demo;
+use user::applications; // Eigene geschriebene Anwendunden
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
 
 fn own_tests() {
-    kprintln!("Testing get-Bytes Function");
-
-    let attribute1: u8 = attribute(cga::Color::Black, cga::Color::Green, false);
-
-    kprintln!("The False-Blinking is: {:>8b}", attribute1);
-
-    let attribute2: u8 = attribute(cga::Color::Black, cga::Color::Green, true);
-
-    kprintln!("The True-Blinking is: {:>8b}", attribute2);
+    keyboard_handler::run();
 }
 
 fn aufgabe1() {
     cga::clear();
     text_demo::run();
     kprintln!("Textdemo run");
-    keyboard_demo::run();
+    //keyboard_demo::run();
 }
 
 #[no_mangle]
@@ -66,11 +60,13 @@ pub extern "C" fn startup() {
 
     kprintln!("Screen Cleared ...");
 
-    own_tests();
-
     aufgabe1();
 
-    loop {}
+    own_tests();
+
+    kprintln!(" = = Closing OS = =");
+
+    //loop {}
 }
 
 #[panic_handler]

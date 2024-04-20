@@ -14,5 +14,9 @@
         "cargo",
         "make",
         "compile" // leave out if "iso" target works on your machine
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml"
     ]
 }

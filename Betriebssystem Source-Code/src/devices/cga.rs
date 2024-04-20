@@ -308,6 +308,8 @@ pub fn print_backspace() {
     setpos(new_pos.0, new_pos.1);
 }
 
+
+/* * == Legt fest, wie zukünftig Symbole auf dem Bildschirm gezeigt werden sollen  == * */
 pub fn set_attribute(bg: Color, fg: Color, blink: bool) {
     // Neues Format-Byte zusammenbauen
     let new_attr: u8 = attribute(bg, fg, blink);
@@ -316,4 +318,68 @@ pub fn set_attribute(bg: Color, fg: Color, blink: bool) {
     unsafe {
         CGA_DYN_ATTR = new_attr;
     }
+}
+
+
+/* * == Gibt die Breite des Bildschirms zurück  == * */
+pub const fn get_screen_width() -> u32 {
+    return CGA_COLUMNS;
+}
+
+/* * == Gibt die Größe des Bildschirms zurück  == * */
+pub const fn get_screen_height() -> u32 {
+    return CGA_ROWS;
+}
+
+
+
+/* * == liest die letzte Zeile in dem Buffer und gibt die Größe zurück  == * */
+pub fn read_line_into_buffer(buffer:&mut [char; CGA_COLUMNS as usize]) -> u32{
+
+    // Ende der Zeile Finden (Leerzeicheichen überspringen)
+    // Dabei immer weiter mit dem Cursor nach hinten springen
+    loop {
+        let symbol: (u8, u8) = get_symbol_of_screen();
+        // Wurde etwas anderes als ein Leerzeichen gefunden
+        if symbol.0 as char != ' ' {
+            break;
+        }
+        // Cursorpossition holen
+        let pos: (u32, u32) = getpos();
+        // Aber sind wir vielleicht am Ende der Zeile?
+        if pos.0 <= 0 {
+            return 0;
+        }
+        // Ansonsten Cursor eins zurück setzen
+        setpos(pos.0 - 1, pos.1);
+    }
+
+    // = = =  Cursor ist jetzt beim ersten Zeichen, welches kein Leerzeichen ist
+
+    // Possition des Cursers bestimmen, damit wir rückwärts laufen können
+    let command_size = getpos().0;
+
+    // Command einlesen
+    // Iteratorvariable
+    let mut i: u32 = 0;
+
+    loop {
+        // Symbol holen
+        let symbol: (u8, u8) = get_symbol_of_screen();
+
+        // Symbol an richtiger Stelle im Buffer abspeichern
+        buffer[(command_size-i) as usize] = symbol.0 as char;
+
+        // Iterator weiterschieben
+        i += 1;
+
+        // Weiter zurück gehen oder Ende der Zeile erreicht??
+        let pos: (u32, u32) = getpos();
+        // Aber sind wir vielleicht am Ende der Zeile?
+        if pos.0 <= 0 { break; }
+        // Ansonsten Cursor eins zurück setzen
+        setpos(pos.0 - 1, pos.1);
+    }
+    
+    return command_size;
 }
