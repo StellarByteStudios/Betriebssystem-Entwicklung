@@ -10,7 +10,7 @@
 */
 use super::{align_up, Locked};
 use alloc::alloc::{GlobalAlloc, Layout};
-use core::ptr;
+use core::ptr::{self, null, null_mut};
 
 
 /**
@@ -27,8 +27,14 @@ impl BumpAllocator {
    // Creates a new empty bump allocator.
    pub const fn new() -> Self {
 
-      /* Hier muss Code eingefuegt werden */
+      let allocator:BumpAllocator = BumpAllocator{
+         heap_start: 0,
+         heap_end: 0,
+         next: 0,
+         allocations: 0
+      };
 
+      return allocator;
    }
 
    // Initialize the allocator with the given heap bounds.
@@ -38,20 +44,31 @@ impl BumpAllocator {
    pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
 
       /* Hier muss Code eingefuegt werden */
+      self.heap_start = heap_start;
+      self.heap_end = heap_start + heap_size; 
+      self.next = 0;
+      self.allocations = 0;
 
    }
 
    // Dump free list
    pub fn dump_free_list(&mut self) {
 
-      /* Hier muss Code eingefuegt werden */
+      println!("Memory-Dump of Bump-Allocator:");
+      println!("- - Heap Start: {:#x}", self.heap_start);
+      println!("- - Heap End: {:#x}", self.heap_end);
+      println!("- - Heap Next-Pointer offset: {:#x}", self.next);
+      println!("- - Next free memory: {:#x}\n", self.heap_start + self.next);
+
 
    }
 	
    pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
+      let memory_pointer: *mut u8 = self.next as *mut u8;
 
-      /* Hier muss Code eingefuegt werden */
+      self.next = self.next + layout.size();
 
+      return memory_pointer;
    }
    	
    pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {

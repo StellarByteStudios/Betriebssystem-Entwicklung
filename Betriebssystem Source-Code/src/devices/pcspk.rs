@@ -98,6 +98,7 @@ pub fn speaker_off() {
 fn read_counter() -> u32 {
 
    /* Hier muss Code eingefuegt werden */
+   return 0;
 
 }
 

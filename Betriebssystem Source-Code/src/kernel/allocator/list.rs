@@ -10,7 +10,7 @@
 
 use super::{align_up, Locked};
 use alloc::alloc::{GlobalAlloc, Layout};
-use core::{mem, ptr};
+use core::{mem, ptr::{self, null, null_mut}};
 use crate::kernel::cpu as cpu;
 
 
@@ -62,7 +62,15 @@ impl LinkedListAllocator {
     // Creates an empty LinkedListAllocator.
     pub const fn new() -> Self {
 
-        /* Hier muss Code eingefuegt werden */
+
+
+        let allocator:LinkedListAllocator = LinkedListAllocator{
+            heap_start: 0,
+            heap_end: 0,
+            head: ListNode::new(0)
+         };
+   
+         return allocator;
 
     }
 
@@ -110,6 +118,7 @@ impl LinkedListAllocator {
     {
 
        /* Hier muss Code eingefuegt werden */
+       return Result::Ok(0);
 
     }
 
@@ -140,6 +149,7 @@ impl LinkedListAllocator {
        kprint!("list-alloc: size={}, align={}", layout.size(), layout.align());
 
        /* Hier muss Code eingefuegt werden */
+       return null_mut();
 
    }
     

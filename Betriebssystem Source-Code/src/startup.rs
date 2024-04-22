@@ -15,6 +15,8 @@
 #![allow(unused_imports)]
 #![allow(unused_macros)]
 
+#![feature(allocator_api)]
+
 extern crate alloc;
 extern crate spin; // we need a mutex in devices::cga_print
 
@@ -32,11 +34,14 @@ use devices::cga_print; // used to import code needed by println!
 use devices::keyboard; // shortcut for keyboard
 
 use kernel::cpu;
+use kernel::allocator;
 
+use user::applications; // Eigene geschriebene Anwendunden
 use user::applications::keyboard_handler;
 use user::aufgabe1::keyboard_demo;
 use user::aufgabe1::text_demo;
-use user::applications; // Eigene geschriebene Anwendunden
+use user::aufgabe2::heap_demo;
+use user::aufgabe2::sound_demo;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -52,21 +57,30 @@ fn aufgabe1() {
     //keyboard_demo::run();
 }
 
+fn aufgabe2() {
+    heap_demo::run();
+    //sound_demo::run();
+ }
+ 
+
 #[no_mangle]
 pub extern "C" fn startup() {
-    kprintln!("OS is running ...");
+    kprintln!("OS startup...");
+
+    allocator::init();
 
     cga::clear();
 
-    kprintln!("Screen Cleared ...");
+    kprintln!("Initializing finished!");
 
-    aufgabe1();
+    //aufgabe1();
+    aufgabe2();
 
     own_tests();
 
     kprintln!(" = = Closing OS = =");
 
-    //loop {}
+    loop {}
 }
 
 #[panic_handler]
