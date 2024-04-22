@@ -5,7 +5,7 @@
    ║         compiler. The function 'init' must be called early in 'startup'.║
    ║                                                                         ║ 
    ║         Memory-Laylout                                                  ║
-   ║            0x0        real mode & bios stuff       	                 ║
+   ║            0x0        real mode & bios stuff       	                   ║
    ║            0x100000   our OS image, including global variables          ║ 
    ║            0x500000   Start address of our heap                         ║ 
    ║                                                                         ║ 
