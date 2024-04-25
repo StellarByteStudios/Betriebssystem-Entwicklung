@@ -48,6 +48,7 @@ pub fn init() {
              Compiler generates code calling this function.
 */
 pub fn alloc(layout: Layout) -> *mut u8 {
+    kprintln!("================Gehe in den globalen Allokator");
     unsafe {
         ALLOCATOR.lock().alloc(layout)
     }

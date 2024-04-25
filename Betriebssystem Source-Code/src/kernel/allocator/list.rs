@@ -30,7 +30,8 @@ struct ListNode {
 
 impl ListNode {
 	
-	// must be 'const' 
+  	// Create new ListMode on Stack
+  	// (must be 'const') 
     const fn new(size: usize) -> Self {
         ListNode { size, next: None }
     }
@@ -60,18 +61,16 @@ pub struct LinkedListAllocator {
 impl LinkedListAllocator {
 	
     // Creates an empty LinkedListAllocator.
+    // 
+    // Must be const because needs to be evaluated at compile time 
+    // because it will be used for initializing the ALLOCATOR static
+    // see 'allocator.rs'
     pub const fn new() -> Self {
-
-
-
-        let allocator:LinkedListAllocator = LinkedListAllocator{
+        Self {
+            head: ListNode::new(0),
             heap_start: 0,
             heap_end: 0,
-            head: ListNode::new(0)
-         };
-   
-         return allocator;
-
+        }
     }
 
 
@@ -80,17 +79,34 @@ impl LinkedListAllocator {
     // This function is unsafe because the caller must guarantee that 
     // the given heap bounds are valid. This method must be called only once.
     pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
+        self.add_free_block(heap_start, heap_size); 
         
-       /* Hier muss Code eingefuegt werden */
-
+        self.heap_start = heap_start;
+        self.heap_end   = heap_start + heap_size;
     }
 
 
     // Adds the given free memory block 'addr' to the front of the free list.
     unsafe fn add_free_block(&mut self, addr: usize, size: usize) {
+		
+        // ensure that the freed block is capable of holding ListNode
+        assert_eq!(align_up(addr, mem::align_of::<ListNode>()), addr);
+        assert!(size >= mem::size_of::<ListNode>());
 
-       /* Hier muss Code eingefuegt werden */
-
+        // create a new ListNode (on stack)
+        let mut node = ListNode::new(size);
+        
+        // set next ptr of new ListNode to existing 1st block
+        node.next = self.head.next.take(); 
+        
+        // create a pointer to 'addr' of Type ListNode
+        let node_ptr = addr as *mut ListNode;   
+        
+         // copy content of new ListeNode to 'addr'
+        node_ptr.write(node); 
+        
+        // update ptr. to 1st block in global variable 'head'
+        self.head.next = Some(&mut *node_ptr); 
     }
     
     
@@ -117,8 +133,7 @@ impl LinkedListAllocator {
         -> Result<usize, ()>
     {
 
-       /* Hier muss Code eingefuegt werden */
-       return Result::Ok(0);
+       return Ok(0);
 
     }
 
@@ -148,7 +163,6 @@ impl LinkedListAllocator {
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
        kprint!("list-alloc: size={}, align={}", layout.size(), layout.align());
 
-       /* Hier muss Code eingefuegt werden */
        return null_mut();
 
    }

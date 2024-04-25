@@ -7,8 +7,10 @@ use crate::devices::cga_print;
 use crate::devices::key as key;     
 use crate::devices::keyboard as keyboard;  
 use crate::kernel::allocator as allocator;  
+use alloc::string::ToString;
 use alloc::{boxed::Box, vec::Vec};
 
+#[derive(Debug)]
 struct VectorStruct{
     x: u32,
     y: u32
@@ -35,24 +37,25 @@ fn demo() {
     allocator::dump_free_list();
     println!("");
 
-    let layout: Layout = Layout::new::<VectorStruct>();
-    let ptr: *mut VectorStruct = allocator::alloc(layout) as *mut VectorStruct;
+    //let layout: Layout = Layout::new::<VectorStruct>();
+    //let mut heap_vector:Box<VectorStruct> = Box::new(VectorStruct{x: 5, y: 4});
 
-    
-    unsafe {
-        (*ptr).x = 42;
-        (*ptr).y = 69;
-    }
+    let s = "Moooin".to_string();
+
     println!("- - Pointer allocated");
+
+    println!("{}", s);
+
+    //println!("Struct: {:#?}", heap_vector);
+
+    println!("Struct wird verändert");
     
-    unsafe{
-        println!("- - Content: Vector x = {}, y = {}", (*ptr).x, (*ptr).y);
-    }
-    
-    
-    //unsafe {
-    //    let bx = Box::from_raw(ptr);
-    //}
+
+    //heap_vector.x = 555;
+
+    //println!("Struct neu: {:#?}", heap_vector);
+
+    println!("Struct wird verändert");
     
     allocator::dump_free_list();
 

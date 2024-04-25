@@ -48,7 +48,6 @@ impl BumpAllocator {
       self.heap_end = heap_start + heap_size; 
       self.next = 0;
       self.allocations = 0;
-
    }
 
    // Dump free list
@@ -64,9 +63,14 @@ impl BumpAllocator {
    }
 	
    pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
+
+      kprintln!("Wir sind in Alloc angekommen");
+
       let memory_pointer: *mut u8 = self.next as *mut u8;
+      kprintln!("Pointer anglegt");
 
       self.next = self.next + layout.size();
+      kprintln!("Next umgeschoben");
 
       return memory_pointer;
    }
