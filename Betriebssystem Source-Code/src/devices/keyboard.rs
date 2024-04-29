@@ -386,8 +386,7 @@ impl Keyboard {
      *      on:         0 = aus, 1 = an                                          *
      *****************************************************************************/
     fn set_led(&mut self, led: u8, on: bool) {
-
-        loop{
+        loop {
             // Prüfe ob INPB in Status-Register 0 ist
             loop {
                 let status: u8 = cpu::inb(KBD_CTRL_PORT);
@@ -396,16 +395,16 @@ impl Keyboard {
                 }
             }
             kprintln!("Nach INPB");
-            
+
             // Sagen, dass wir LED schreiben wollen
-            loop{
+            loop {
                 // Set Byte in Data Port
                 cpu::outb(KBD_DATA_PORT, KBD_CMD_SET_LED);
                 // Warte auf Out Byte
                 loop {
                     let status: u8 = cpu::inb(KBD_CTRL_PORT);
 
-                    if status & KBD_OUTB != 0{
+                    if status & KBD_OUTB != 0 {
                         break;
                     }
                 }
@@ -413,7 +412,7 @@ impl Keyboard {
 
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
-                if status != KBD_REPLY_ACK{
+                if status != KBD_REPLY_ACK {
                     kprintln!("Noch kein Ack bekommen");
                     continue;
                 }
@@ -430,9 +429,9 @@ impl Keyboard {
                 }
             }
             kprintln!("Nach INPB2");
-            
+
             // Sagen, dass wir LED schreiben wollen
-            loop{
+            loop {
                 // Set Byte in Data Port
                 // Abhängig davon ob ich an oder aus machen will
                 // Auf Struct zugreifen
@@ -448,7 +447,7 @@ impl Keyboard {
                 loop {
                     let status: u8 = cpu::inb(KBD_CTRL_PORT);
 
-                    if status & KBD_OUTB != 0{
+                    if status & KBD_OUTB != 0 {
                         break;
                     }
                 }

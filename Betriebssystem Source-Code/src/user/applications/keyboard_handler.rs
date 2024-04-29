@@ -1,6 +1,7 @@
 use alloc::string::String; // String-Klasse für einfacheres Matching der Commands
 
-use crate::devices::cga; use crate::devices::cga::print_byte;
+use crate::devices::cga;
+use crate::devices::cga::print_byte;
 // shortcut for cga
 //use crate::devices::cga::print_backspace;
 //use crate::devices::cga::print_byte;
@@ -8,19 +9,13 @@ use crate::devices::cga_print; // used to import code needed by println!
 use crate::devices::key;
 use crate::devices::keyboard; // shortcut for keyboard
 
-
-
-
 // Enum für Pfeiltasten
-enum Direction{
+enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
-
-
-
 
 // ===== ggf noch einen Buffer der Asciis einbauen für befehle
 pub fn run() {
@@ -42,7 +37,6 @@ pub fn run() {
             }
         }
 
-
         // Das Symbol auslesen
         let ascii_byte: u8 = key.get_ascii();
 
@@ -53,36 +47,33 @@ pub fn run() {
 
         // Im fehlerfall abbrechen
         if error_code {
-           return; 
+            return;
         }
     }
 }
 
-
 // === Behandelt je nach Zeichen, was gemacht werden soll
-fn handle_keystroke(code: u8) -> bool{
-
+fn handle_keystroke(code: u8) -> bool {
     let mut error_code: bool = false;
-    
+
     match code {
         0xd => error_code = handle_enter(), // Newline
         0x8 => cga::print_backspace(),      // Backspace
         0x0 => print!("    "),              // Tab
 
         // Pfeiltasten funktionieren nicht. Daher erstmal nummernblock zum ausprobieren
-        0x38 => move_cursor(Direction::Up),            
+        0x38 => move_cursor(Direction::Up),
         0x32 => move_cursor(Direction::Down),
         0x34 => move_cursor(Direction::Left),
         0x36 => move_cursor(Direction::Right),
 
-
-        _ => print_byte(code),  // normale Zeichen
+        _ => print_byte(code), // normale Zeichen
     }
 
     return error_code;
 }
 
-fn move_cursor(dir: Direction){
+fn move_cursor(dir: Direction) {
     // Cursorpossition bestimmen
     let pos: (u32, u32) = cga::getpos();
 
@@ -96,16 +87,16 @@ fn move_cursor(dir: Direction){
             }
             cga::setpos(pos.0, pos.1 - 1);
             return;
-        },
+        }
         // Runter
         Direction::Down => {
             // Testen ob noch Platz ist
-            if pos.1 >= cga::get_screen_height() - 1{
+            if pos.1 >= cga::get_screen_height() - 1 {
                 return;
             }
             cga::setpos(pos.0, pos.1 + 1);
             return;
-        },
+        }
         // Links
         Direction::Left => {
             // Testen ob noch Platz ist
@@ -114,7 +105,7 @@ fn move_cursor(dir: Direction){
             }
             cga::setpos(pos.0 - 1, pos.1);
             return;
-        },
+        }
         // Rechts
         Direction::Right => {
             // Testen ob noch Platz ist
@@ -125,16 +116,12 @@ fn move_cursor(dir: Direction){
             return;
         }
     }
-
 }
 
-
-
-
-fn handle_enter() -> bool{ 
+fn handle_enter() -> bool {
     println!("");
     return false;
-    
+
     /*
     // ============= Geht noch nicht, weil es noch keinen Heap gibt... ===================== //
 
@@ -145,7 +132,7 @@ fn handle_enter() -> bool{
     let mut command_buffer: [char; SCREEN_WIDTH as usize] =  [0 as char; SCREEN_WIDTH as usize];
 
     kprintln!("Erfolgreich Buffer angelegt");
-    
+
     // Aktuelle Zeile in Buffer einlesen
     let command_size: u32 = cga::read_line_into_buffer(&mut command_buffer);
 
@@ -171,7 +158,6 @@ fn handle_enter() -> bool{
      */
 }
 
-
-fn command_clear(){
+fn command_clear() {
     cga::clear();
 }

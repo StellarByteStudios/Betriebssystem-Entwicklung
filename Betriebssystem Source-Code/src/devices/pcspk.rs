@@ -70,7 +70,6 @@ const C3: f32 = 1046.50;
 pub fn play(f: f32, d: u32) {
 
     /* Hier muss Code eingefuegt werden */
-
 }
 
 /**
@@ -79,7 +78,6 @@ pub fn play(f: f32, d: u32) {
 pub fn speaker_on() {
 
     /* Hier muss Code eingefuegt werden */
-
 }
 
 /**
@@ -88,7 +86,6 @@ pub fn speaker_on() {
 pub fn speaker_off() {
 
     /* Hier muss Code eingefuegt werden */
-
 }
 
 /**
@@ -96,10 +93,8 @@ pub fn speaker_off() {
               of the counter 0 of the PIT.
 */
 fn read_counter() -> u32 {
-
-   /* Hier muss Code eingefuegt werden */
-   return 0;
-
+    /* Hier muss Code eingefuegt werden */
+    return 0;
 }
 
 /**
@@ -115,7 +110,6 @@ fn read_counter() -> u32 {
 fn delay(mut d: u32) {
 
     /* Hier muss Code eingefuegt werden */
-
 }
 
 /**

@@ -308,7 +308,6 @@ pub fn print_backspace() {
     setpos(new_pos.0, new_pos.1);
 }
 
-
 /* * == Legt fest, wie zukünftig Symbole auf dem Bildschirm gezeigt werden sollen  == * */
 pub fn set_attribute(bg: Color, fg: Color, blink: bool) {
     // Neues Format-Byte zusammenbauen
@@ -320,7 +319,6 @@ pub fn set_attribute(bg: Color, fg: Color, blink: bool) {
     }
 }
 
-
 /* * == Gibt die Breite des Bildschirms zurück  == * */
 pub const fn get_screen_width() -> u32 {
     return CGA_COLUMNS;
@@ -331,11 +329,8 @@ pub const fn get_screen_height() -> u32 {
     return CGA_ROWS;
 }
 
-
-
 /* * == liest die letzte Zeile in dem Buffer und gibt die Größe zurück  == * */
-pub fn read_line_into_buffer(buffer:&mut [char; CGA_COLUMNS as usize]) -> u32{
-
+pub fn read_line_into_buffer(buffer: &mut [char; CGA_COLUMNS as usize]) -> u32 {
     // Ende der Zeile Finden (Leerzeicheichen überspringen)
     // Dabei immer weiter mit dem Cursor nach hinten springen
     loop {
@@ -368,7 +363,7 @@ pub fn read_line_into_buffer(buffer:&mut [char; CGA_COLUMNS as usize]) -> u32{
         let symbol: (u8, u8) = get_symbol_of_screen();
 
         // Symbol an richtiger Stelle im Buffer abspeichern
-        buffer[(command_size-i) as usize] = symbol.0 as char;
+        buffer[(command_size - i) as usize] = symbol.0 as char;
 
         // Iterator weiterschieben
         i += 1;
@@ -376,10 +371,12 @@ pub fn read_line_into_buffer(buffer:&mut [char; CGA_COLUMNS as usize]) -> u32{
         // Weiter zurück gehen oder Ende der Zeile erreicht??
         let pos: (u32, u32) = getpos();
         // Aber sind wir vielleicht am Ende der Zeile?
-        if pos.0 <= 0 { break; }
+        if pos.0 <= 0 {
+            break;
+        }
         // Ansonsten Cursor eins zurück setzen
         setpos(pos.0 - 1, pos.1);
     }
-    
+
     return command_size;
 }

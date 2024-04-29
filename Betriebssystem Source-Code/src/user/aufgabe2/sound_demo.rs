@@ -1,9 +1,6 @@
-
-use crate::devices::pcspk;  
-
+use crate::devices::pcspk;
 
 pub fn run() {
- 
-   /* Hier muss Code eingefuegt werden */
- 
+
+    /* Hier muss Code eingefuegt werden */
 }

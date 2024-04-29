@@ -14,7 +14,6 @@
 #![allow(unused_variables)] // avoid warnings
 #![allow(unused_imports)]
 #![allow(unused_macros)]
-
 #![feature(allocator_api)]
 
 extern crate alloc;
@@ -33,8 +32,8 @@ use devices::cga; // shortcut for cga
 use devices::cga_print; // used to import code needed by println!
 use devices::keyboard; // shortcut for keyboard
 
-use kernel::cpu;
 use kernel::allocator;
+use kernel::cpu;
 
 use user::applications; // Eigene geschriebene Anwendunden
 use user::applications::keyboard_handler;
@@ -60,8 +59,7 @@ fn aufgabe1() {
 fn aufgabe2() {
     heap_demo::run();
     //sound_demo::run();
- }
- 
+}
 
 #[no_mangle]
 pub extern "C" fn startup() {
