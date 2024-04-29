@@ -110,15 +110,15 @@ impl LinkedListAllocator {
         /* Hier muss Code eingefuegt werden */
 
         // Anfang der Liste holen
-        //let current_node: Option<&'static mut ListNode> = self.head.borrow_mut();
+        let current_node: &mut ListNode = self.head.borrow_mut();
 
         // Solange es noch Listenelemente gibt
-        while current_node.is_some() {
+        while current_node.next.is_some() {
             // Checken ob Platz groß genug ist
             // = = = check_block_for_alloc lässt sich grade nicht aufrufen...
             if true {
                 // Diesen Knoten zurückgeben
-                return current_node;
+                return Some(current_node);
             }
 
             // Ansonsten weiterschieben
@@ -183,6 +183,9 @@ impl LinkedListAllocator {
         // Freien Block zurückgeben
         return free_block.start_addr() as *mut u8;
     }
+
+
+
 
     pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
         kprintln!(
