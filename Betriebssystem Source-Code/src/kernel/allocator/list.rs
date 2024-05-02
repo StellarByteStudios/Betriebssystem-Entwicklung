@@ -11,6 +11,7 @@
 use super::{align_up, Locked};
 use crate::kernel::cpu;
 use alloc::alloc::{GlobalAlloc, Layout};
+use x86_64::registers::debug;
 use core::{
     borrow::{Borrow, BorrowMut}, mem, ptr::{self, null, null_mut}
 };
@@ -18,6 +19,7 @@ use core::{
 /**
  Description: Metadata of a free memory block in the list allocator
 */
+#[derive(Debug)]
 struct ListNode {
     // size of the memory block
     size: usize,
@@ -107,22 +109,33 @@ impl LinkedListAllocator {
     //
     // Return: 'ListNode' or 'None'
     fn find_free_block(&mut self, size: usize, align: usize) -> Option<&'static mut ListNode> {
-        /* Hier muss Code eingefuegt werden */
+
+        kprintln!("Suche freien Block im Speicher");
 
         // Anfang der Liste holen
-        let current_node: &mut ListNode = self.head.borrow_mut();
+        let mut current_node: &mut ListNode = self.head.borrow_mut();
 
         // Solange es noch Listenelemente gibt
         while current_node.next.is_some() {
+
+            kprintln!("Iteration in der Whileschleife");
+            
             // Checken ob Platz groß genug ist
-            // = = = check_block_for_alloc lässt sich grade nicht aufrufen...
-            if true {
-                // Diesen Knoten zurückgeben
-                return Some(current_node);
+            if Self::check_block_for_alloc(current_node.next.as_mut().unwrap(), size, align).is_err() {
+                // Falls nicht einfach weitersuchen
+                current_node = current_node.next.as_mut().unwrap();
+                continue;
             }
 
-            // Ansonsten weiterschieben
-            // = = = Fehlt Auch noch
+            // Freien Block speichern
+            let mut free_block =  current_node.next.take();
+
+            // Block rauslöschen
+            current_node.next = free_block.as_mut().unwrap().next.take();
+
+            // Freien Block zurückgeben
+            return free_block;
+
         }
         
         // no suitable block found
@@ -134,7 +147,12 @@ impl LinkedListAllocator {
     //
     // Return: OK(allocation start address) or Err
     fn check_block_for_alloc(block: &ListNode, size: usize, align: usize) -> Result<usize, ()> {
-        return Ok(0);
+
+        if block.size < size  {
+            return Err(());
+        }
+
+        return Ok(block.start_addr());
     }
 
     // Adjust the given layout so that the resulting allocated memory
@@ -152,9 +170,24 @@ impl LinkedListAllocator {
 
     // Dump free list
     pub fn dump_free_list(&mut self) {
-        kprintln!("Freispeicherliste (mit Dummy-Element)");
+        println!("Freispeicherliste (mit Dummy-Element)");
+        println!("Kopf: {:?}", self.head);
+        println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
+        println!("Alle Elemente in der Liste ausgeben:");
 
-        /* Hier muss Code eingefuegt werden */
+        // Anfang der Liste holen
+        let mut current_node: &mut ListNode = self.head.borrow_mut();
+
+        // Solange es noch Listenelemente gibt
+        while current_node.next.is_some() {
+            // Element ausgeben 
+            println!("{:?} --> ", current_node);
+
+            // Element weitergehen
+            current_node = current_node.next.as_mut().unwrap();
+        }
+        // Letztes Element ausgeben
+        println!(" --> {:?}", current_node);
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
@@ -178,7 +211,7 @@ impl LinkedListAllocator {
         let free_block = free_block_option.unwrap();
 
         // Reste als neuen Block speichern
-        self.add_free_block(free_block.end_addr(), free_block.size - layout.size());
+        self.add_free_block(free_block.start_addr() + layout.size(), free_block.size - layout.size());
 
         // Freien Block zurückgeben
         return free_block.start_addr() as *mut u8;

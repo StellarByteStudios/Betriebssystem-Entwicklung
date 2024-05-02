@@ -23,7 +23,7 @@ pub fn run() {
     cga::set_attribute(cga::Color::Black, cga::Color::Green, false);
 
     // ================= NOTIZ: Pfeiltasten werden nicht richtig übersetzt ================= //
-    kprint!("Die gedrückten Tasten sind: ");
+    //kprint!("Die gedrückten Tasten sind: ");
 
     // Dauerhaft die Tastatur einlesen
     loop {
@@ -40,7 +40,7 @@ pub fn run() {
         // Das Symbol auslesen
         let ascii_byte: u8 = key.get_ascii();
 
-        kprint!("{:#2x} ", ascii_byte);
+        //kprint!("{:#2x} ", ascii_byte);
 
         // Handler aufrufen
         let error_code: bool = handle_keystroke(ascii_byte);
