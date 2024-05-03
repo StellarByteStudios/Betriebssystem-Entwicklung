@@ -71,6 +71,7 @@ fn demo4() {}
 pub fn run() {
     //demo();
     demo1();
+    wait_for_return();
     cga::clear();
 
     demo2();

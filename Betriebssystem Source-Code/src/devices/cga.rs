@@ -202,7 +202,7 @@ pub fn scrollup() {
         setpos(i, CGA_ROWS - 1);
         print_byte(' ' as u8);
     }
-    kprintln!("=========================== Finished Scrollup");
+    //kprintln!("=========================== Finished Scrollup");
 
     // Cursor wieder eine Zeile nach oben setzen
     setpos(0, CGA_ROWS - 1);
@@ -274,7 +274,7 @@ pub fn scroll_with_check() {
     let cursor_pos: (u32, u32) = getpos();
     // Scoll wenn Bildschirm voll
     if cursor_pos.1 >= CGA_ROWS {
-        kprintln!("WARNING: Scrollup after checker!");
+        //kprintln!("WARNING: Scrollup after checker!");
         scrollup();
     }
 }
