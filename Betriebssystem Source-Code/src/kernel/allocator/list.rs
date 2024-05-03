@@ -185,7 +185,7 @@ impl LinkedListAllocator {
     // Return: OK(allocation start address) or Err
     fn check_block_for_alloc(block: &ListNode, size: usize, align: usize) -> Result<usize, ()> {
 
-        if block.size < size  {
+        if block.size < size + align  {
             return Err(());
         }
 
