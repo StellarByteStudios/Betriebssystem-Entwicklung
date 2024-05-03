@@ -49,7 +49,7 @@ impl ListNode {
 
     fn print(&self) {
         // Ausgabe der eingenen Daten
-        print!("Node: Size = {0:#x}; Address = {1:#8x};  Next = ", 
+        print!("Node: Size = Dec: {0:} | Hex: {0:#x}; Addr = {1:#8x};  Next = ", 
         self.size, self.start_addr());
 
         // Ausgabe der Next Referenz wenn sie existiert
@@ -62,7 +62,7 @@ impl ListNode {
     }
 
     fn k_print(&self) {
-        kprint!("Node ausgegeben: Size = {0:#x}; Address = {1:#8x};  Next = ", 
+        kprint!("Node: Size = Dec: {0:} | Hex: {0:#x}; Addr = {1:#8x};  Next = ", 
         self.size, self.start_addr());
 
         // Ausgabe der Next Referenz wenn sie existiert
@@ -116,7 +116,7 @@ impl LinkedListAllocator {
         assert_eq!(align_up(addr, mem::align_of::<ListNode>()), addr);
         assert!(size >= mem::size_of::<ListNode>());
 
-        kprintln!("Lege neue Node mit Größe {:#x} an", size);
+        kprintln!("Lege neue Node mit Größe {:} Byte (Hex: {:#x}) an", size, size);
         // create a new ListNode (on stack)
         let mut node = ListNode::new(size);
 
@@ -185,7 +185,7 @@ impl LinkedListAllocator {
     // Return: OK(allocation start address) or Err
     fn check_block_for_alloc(block: &ListNode, size: usize, align: usize) -> Result<usize, ()> {
 
-        if block.size < size + align  {
+        if block.size < size {
             return Err(());
         }
 
@@ -207,11 +207,11 @@ impl LinkedListAllocator {
 
     // Dump free list
     pub fn dump_free_list(&mut self) {
-        kprintln!("= = = List Dump Started = = =");
+        //kprintln!("= = = List Dump Started = = =");
         println!("Freispeicherliste (mit Dummy-Element)");
-        print!("Kopf: ");
+        print!("    Kopf: ");
         self.head.print();
-        println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
+        //println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
         println!("Alle Elemente in der Liste ausgeben:");
 
         // Anfang der Liste holen
@@ -219,18 +219,22 @@ impl LinkedListAllocator {
 
         // Solange es noch Listenelemente gibt
         while current_node.next.is_some() {
+            // Einrückung
+            print!("    ");
             // Element ausgeben 
             current_node.print();
-            current_node.k_print();
+            //current_node.k_print();
 
             // Element weitergehen
             current_node = current_node.next.as_mut().unwrap();
         }
         // Letztes Element ausgeben
+        // Einrückung
+        print!("    ");
         current_node.print();
-        current_node.k_print();
+        //current_node.k_print();
 
-        kprintln!("= = = List Dump Ended = = =");
+        //kprintln!("= = = List Dump Ended = = =");
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
@@ -240,9 +244,19 @@ impl LinkedListAllocator {
             layout.align()
         );
 
+        // Ist der Angeforderte Platz mind. 16 Byte? Wichtig für Node
+        // Wenn nicht, dann stretchen
+        let mut good_size: usize = layout.size();
+
+        if  good_size < 0x10{
+            kprintln!("Streched Size in Allocation");
+            good_size = 0x10;
+        }
+
+
         // Freien Block suchen
         let free_block_option: Option<&mut ListNode> =
-            self.find_free_block(layout.size(), layout.align());
+            self.find_free_block(good_size, layout.align());
 
         // Kurze Abfrage ob das funktioniert hat
         if free_block_option.is_none() {
@@ -254,7 +268,7 @@ impl LinkedListAllocator {
         let free_block = free_block_option.unwrap();
 
         // Reste als neuen Block speichern
-        self.add_free_block(free_block.start_addr() + layout.size(), free_block.size - layout.size());
+        self.add_free_block(free_block.start_addr() + good_size, free_block.size - good_size);
 
         // Freien Block zurückgeben
         return free_block.start_addr() as *mut u8;
@@ -264,15 +278,27 @@ impl LinkedListAllocator {
 
 
     pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
+        /*
         kprintln!(
             "list-dealloc: size={}, align={}",
             layout.size(),
             layout.align()
-        );
+        ); */
 
         let (size, _) = LinkedListAllocator::size_align(layout);
-        kprintln!("\nDeallocating block of Size {0:#x} on addr {1:#x}\n", size, ptr as usize);
-        self.add_free_block(ptr as usize, size)
+
+        // Ist der Angeforderte Platz mind. 16 Byte Wichtig für Node
+        // Wenn nicht, dann stretchen
+        let mut good_size: usize = size;
+
+        if  good_size < 0x10{
+            kprintln!("Streched Size in Dealloc");
+            good_size = 0x10;
+        }
+
+        kprintln!("\nDeallocating block of Size {0:#x} on addr {1:#x}\n", good_size, ptr as usize);
+
+        self.add_free_block(ptr as usize, good_size)
     }
 }
 

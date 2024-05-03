@@ -37,7 +37,7 @@ fn demo1() {
     println!("=========================================\n");
 
     allocator::dump_free_list();
-    println!("Structs anlegen");
+    println!("\nStructs anlegen");
 
     // Structs anlegen
     let s1: Box<VectorStruct> = Box::new(VectorStruct { x: 5, y: 4 });
@@ -71,7 +71,6 @@ fn demo4() {}
 pub fn run() {
     //demo();
     demo1();
-    wait_for_return();
     cga::clear();
 
     demo2();
