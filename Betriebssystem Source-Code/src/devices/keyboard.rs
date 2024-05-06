@@ -15,6 +15,8 @@ use crate::kernel::cpu; // shortcut for key
 
 use crate::kernel::interrupts;
 use crate::kernel::interrupts::isr;
+use crate::kernel::interrupts::pic;
+use crate::kernel::interrupts::pic::IRQ_KEYBOARD;
 
 // Für Interruptsyncronisierung
 use core::sync::atomic::{AtomicU8, Ordering};
@@ -353,9 +355,8 @@ impl Keyboard {
      *                  wird bei einem Tastendruck die Methode 'trigger'         *
      *                  aufgerufen.                                              *
      *****************************************************************************/
-    pub fn plugin() {
-
-        /* Hier muss Code eingefuegt werden */
+    pub fn plugin(&mut self) {
+       pic::allow(IRQ_KEYBOARD);
     }
 
     /*****************************************************************************

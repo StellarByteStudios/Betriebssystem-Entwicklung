@@ -49,6 +49,7 @@ use user::aufgabe3;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
+use crate::kernel::interrupts::intdispatcher;
 
 fn own_tests() {
     keyboard_handler::run();
@@ -61,8 +62,10 @@ fn init_all() {
     allocator::init();
 
     // init interrupts
+    intdispatcher::init();
 
     // register keyboard ISR
+    keyboard::plugin();
 
     // CPU enable ints
 
@@ -87,8 +90,24 @@ fn aufgabe2() {
 
 fn aufgabe3() {
     cga::clear();
+    
+    /*
+    pic::forbid(IRQ_KEYBOARD);
+    pic::forbid(IRQ_TIMER);
+    
+    kprintln!("Beide Interrupts sind jetzt deaktiviert");
+    kprintln!("Status Keyboard {}", pic::status(IRQ_KEYBOARD));
+    kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
+    
     pic::allow(IRQ_KEYBOARD);
     pic::allow(IRQ_TIMER);
+
+    kprintln!("Beide Interrupts sind jetzt wieder aktiviert");
+    kprintln!("Status Keyboard {}", pic::status(IRQ_KEYBOARD));
+    kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
+
+    */
+
     //keyboard_demo::run();
 }
 
@@ -99,7 +118,7 @@ pub extern "C" fn startup() {
     init_all();
 
     //aufgabe1();
-    aufgabe2();
+    //aufgabe2();
     aufgabe3();
 
     own_tests();
