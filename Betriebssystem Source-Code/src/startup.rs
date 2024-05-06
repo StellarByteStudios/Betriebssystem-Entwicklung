@@ -31,7 +31,7 @@ use core::panic::PanicInfo;
 use devices::cga; // shortcut for cga
 use devices::cga_print; // used to import code needed by println!
 use devices::keyboard; // shortcut for keyboard
-//use devices::
+                       //use devices::
 
 use kernel::allocator;
 use kernel::cpu;
@@ -51,6 +51,24 @@ fn own_tests() {
     keyboard_handler::run();
 }
 
+fn init_all() {
+    kprintln!("OS initializing...");
+
+    // init allocator
+    allocator::init();
+
+    // init interrupts
+
+    // register keyboard ISR
+
+    // CPU enable ints
+
+    // Clear Screen
+    cga::clear();
+
+    kprintln!("Initializing finished!");
+}
+
 fn aufgabe1() {
     cga::clear();
     text_demo::run();
@@ -67,26 +85,13 @@ fn aufgabe2() {
 fn aufgabe3() {
     cga::clear();
     keyboard_demo::run();
- }
+}
 
 #[no_mangle]
 pub extern "C" fn startup() {
     kprintln!("OS startup...");
 
-    // init allocator
-
-    // init interrupts
-
-    // register keyboard ISR
-   
-    // CPU enable ints
-
-
-    allocator::init();
-
-    cga::clear();
-
-    kprintln!("Initializing finished!");
+    init_all();
 
     //aufgabe1();
     aufgabe2();

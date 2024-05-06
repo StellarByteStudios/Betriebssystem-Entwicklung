@@ -71,15 +71,16 @@ fn demo3() {
 
     println!("Vektor anglegen\n");
 
-    let vec = Vec::from([VectorStruct{x: 1, y: 2}, VectorStruct{x: 3, y: 4}, VectorStruct{x: 10, y: 11}]);
+    let vec = Vec::from([
+        VectorStruct { x: 1, y: 2 },
+        VectorStruct { x: 3, y: 4 },
+        VectorStruct { x: 10, y: 11 },
+    ]);
 
     allocator::dump_free_list();
     //println!("\nEine Taste Drücken um fortzufahren");
 
     wait_for_return();
-
-
-
 }
 fn demo4() {
     println!("Demo 4/4: Vec Wieder Gelöscht");

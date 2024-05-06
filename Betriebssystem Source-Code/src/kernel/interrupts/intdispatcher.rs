@@ -73,10 +73,8 @@ pub fn init() {
     `isr` the isr to be registered
 */
 pub fn register(vector: usize, isr: Box<dyn isr::ISR>) -> bool {
-
-   /* Hier muss Code eingefuegt werden */
-   return false;
-
+    /* Hier muss Code eingefuegt werden */
+    return false;
 }
 
 /**
@@ -87,8 +85,6 @@ Parameters: \
    `vector` vector of the interrupt which was fired.
 */
 pub fn report(vector: usize) -> bool {
-
-   /* Hier muss Code eingefuegt werden */
-   return false;
-
+    /* Hier muss Code eingefuegt werden */
+    return false;
 }

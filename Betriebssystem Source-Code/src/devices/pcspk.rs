@@ -108,8 +108,10 @@ fn read_counter() -> u32 {
             `d` duration in ms
 */
 fn delay(mut d: u32) {
-
     /* Hier muss Code eingefuegt werden */
+    while d > 1 {
+        d -= 1;
+    }
 }
 
 /**

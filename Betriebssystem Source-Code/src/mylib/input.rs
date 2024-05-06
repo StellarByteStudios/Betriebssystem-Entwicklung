@@ -12,7 +12,7 @@ pub fn getch() -> u8 {
 		  break;
       }
    }
-   k
+   return k;
 }
 
 pub fn wait_for_return() {
