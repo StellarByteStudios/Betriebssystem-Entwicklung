@@ -49,7 +49,7 @@ impl ListNode {
 
     fn print(&self) {
         // Ausgabe der eingenen Daten
-        print!("Node: Size = Dec: {0:} | Hex: {0:#x}; Addr = {1:#8x};  Next = ", 
+        print!("Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ", 
         self.size, self.start_addr());
 
         // Ausgabe der Next Referenz wenn sie existiert
@@ -116,7 +116,7 @@ impl LinkedListAllocator {
         assert_eq!(align_up(addr, mem::align_of::<ListNode>()), addr);
         assert!(size >= mem::size_of::<ListNode>());
 
-        kprintln!("Lege neue Node mit Größe {:} Byte (Hex: {:#x}) an", size, size);
+        //kprintln!("Lege neue Node mit Größe {:} Byte (Hex: {:#x}) an", size, size);
         // create a new ListNode (on stack)
         let mut node = ListNode::new(size);
 
@@ -132,8 +132,8 @@ impl LinkedListAllocator {
         // copy content of new ListeNode to 'addr'
         node_ptr.write(node);
 
-        kprintln!(" * * Nach dem Write * *");
-        node_ptr.as_ref().unwrap().k_print();
+        //kprintln!(" * * Nach dem Write * *");
+        //node_ptr.as_ref().unwrap().k_print();
 
 
 
@@ -209,10 +209,10 @@ impl LinkedListAllocator {
     pub fn dump_free_list(&mut self) {
         //kprintln!("= = = List Dump Started = = =");
         println!("Freispeicherliste (mit Dummy-Element)");
-        print!("    Kopf: ");
-        self.head.print();
+        //print!("    Kopf: ");
+        //self.head.print();
         //println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
-        println!("Alle Elemente in der Liste ausgeben:");
+        //println!("Alle Elemente in der Liste ausgeben:");
 
         // Anfang der Liste holen
         let mut current_node: &mut ListNode = self.head.borrow_mut();

@@ -13,10 +13,27 @@ use spin::Mutex;
 use crate::devices::key;
 use crate::kernel::cpu; // shortcut for key
 
+use crate::kernel::interrupts;
+use crate::kernel::interrupts::isr;
+
+// Für Interruptsyncronisierung
+use core::sync::atomic::{AtomicU8,Ordering};
+
+
+// accessed by ISR, storing last read ASCII code
+// and by get_lastkey, see above
+static LAST_KEY: AtomicU8 = AtomicU8::new(0);
+
 // Public functions for convenient access
 pub fn key_hit() -> key::Key {
     return KB.lock().key_hit();
 }
+
+// called from mylib/input.rs
+pub fn get_lastkey() -> u8 {
+    LAST_KEY.load(Ordering::SeqCst)
+}
+
 
 // Global thread-safe access to keyboard
 static KB: Mutex<Keyboard> = Mutex::new(Keyboard {
@@ -329,6 +346,41 @@ impl Keyboard {
         return invalid;
     }
 
+
+
+
+    /*****************************************************************************
+     * Funktion:        plugin                                                   *
+     *---------------------------------------------------------------------------*
+     * Beschreibung:    Unterbrechungen fuer die Tastatur erlauben. Ab sofort    *
+     *                  wird bei einem Tastendruck die Methode 'trigger'         *
+     *                  aufgerufen.                                              *
+     *****************************************************************************/
+     pub fn plugin() { 
+			
+        /* Hier muss Code eingefuegt werden */
+        
+     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*****************************************************************************
      * Funtkion:        reboot                                                   *
      *---------------------------------------------------------------------------*
@@ -464,3 +516,24 @@ impl Keyboard {
         }
     }
 }
+
+
+/*****************************************************************************
+ * Implementierung: ISR                                                      *
+ *****************************************************************************/
+ struct KeyboardISR;
+
+ impl isr::ISR for KeyboardISR {
+     /*****************************************************************************
+      * Funktion:        trigger                                                  *
+      *---------------------------------------------------------------------------*
+      * Beschreibung:    ISR fuer die Tastatur. Wird aufgerufen, wenn die Tastatur*
+      *                  eine Unterbrechung ausloest.                             *
+      *****************************************************************************/
+     fn trigger(&self) {
+             
+         /* Hier muss Code eingefuegt werden */
+         
+     }
+ }
+ 

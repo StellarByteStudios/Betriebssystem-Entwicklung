@@ -41,14 +41,6 @@ alias = "iso"
 command = "cargo"
 args = [ "build", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}" ]
 
-
-# Besserer Checker 
-[tasks.check]
-command = "cargo"
-args = [ "check", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}", "--quiet", "--workspace", "--message-format=json"]
-
-
-
 # 
 # Compiling ASM sources
 #
@@ -59,7 +51,6 @@ args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/b
 [tasks.build-interrupt-asm]
 command = "nasm"
 args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/interrupts.o", "${SOURCE_DIRECTORY}/kernel/interrupts/interrupts.asm" ]
-
 
 # 
 # Linking 
@@ -104,13 +95,6 @@ dependencies = [ "grub-copy-kernel", "grub-copy-cfg" ]
 [tasks.qemu.linux]
 command = "qemu-system-x86_64"
 args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
-#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
-dependencies = [ "iso" ]
-
-[tasks.qemu-ubuntu.linux]
-command = "qemu-system-x86_64"
-#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
 dependencies = [ "iso" ]
 
 [tasks.qemu.mac]
@@ -133,9 +117,5 @@ command = "echo"
 args = [ "Debugging..." ]
 
 [tasks.gdb]
-command = "gdb"
+command = "rust-gdb"
 args = [ "-x", "gdbcommands", "${KERNEL}" ]
-
-[tasks.gdbt]
-command = "gdb"
-args = [ "-x", "gdbcommands", "${KERNEL}", "-tui" ]

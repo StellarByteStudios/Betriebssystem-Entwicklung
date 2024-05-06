@@ -49,7 +49,7 @@ fn demo1() {
     println!("");
 
     allocator::dump_free_list();
-    println!("\nEine Taste Drücken um fortzufahren");
+    //println!("\nEine Taste Drücken um fortzufahren");
 
     wait_for_return();
 }
@@ -61,12 +61,36 @@ fn demo2() {
     // Wurde automatisch beim Funktionswechsel freigegeben
     allocator::dump_free_list();
 
-    println!("\nEine Taste Drücken um fortzufahren");
+    //println!("\nEine Taste Drücken um fortzufahren");
 
     wait_for_return();
 }
-fn demo3() {}
-fn demo4() {}
+fn demo3() {
+    println!("Demo 3/4: Vec mit 3 Structs Anlegen");
+    println!("=========================================\n");
+
+    println!("Vektor anglegen\n");
+
+    let vec = Vec::from([VectorStruct{x: 1, y: 2}, VectorStruct{x: 3, y: 4}, VectorStruct{x: 10, y: 11}]);
+
+    allocator::dump_free_list();
+    //println!("\nEine Taste Drücken um fortzufahren");
+
+    wait_for_return();
+
+
+
+}
+fn demo4() {
+    println!("Demo 4/4: Vec Wieder Gelöscht");
+    println!("=========================================\n");
+
+    //let vec = Vec::from([VectorStruct{x: 1, y: 2}, VectorStruct{x: 3, y: 4}, VectorStruct{x: 10, y: 11}]);
+
+    allocator::dump_free_list();
+
+    wait_for_return();
+}
 
 pub fn run() {
     //demo();
@@ -74,10 +98,10 @@ pub fn run() {
     cga::clear();
 
     demo2();
-
     cga::clear();
+
     demo3();
-
     cga::clear();
+
     demo4();
 }
