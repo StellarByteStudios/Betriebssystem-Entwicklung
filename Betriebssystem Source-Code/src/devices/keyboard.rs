@@ -30,7 +30,9 @@ pub fn key_hit() -> key::Key {
 
 // called from mylib/input.rs
 pub fn get_lastkey() -> u8 {
-    LAST_KEY.load(Ordering::SeqCst)
+    let key = LAST_KEY.load(Ordering::SeqCst);
+    LAST_KEY.store(0, Ordering::SeqCst);
+    return key
 }
 
 // Global thread-safe access to keyboard

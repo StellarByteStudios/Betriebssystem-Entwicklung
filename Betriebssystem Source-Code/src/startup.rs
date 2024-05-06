@@ -36,6 +36,9 @@ use devices::keyboard; // shortcut for keyboard
 use kernel::allocator;
 use kernel::cpu;
 
+use kernel::interrupts::pic;
+use kernel::interrupts::pic::IRQ_KEYBOARD;
+use kernel::interrupts::pic::IRQ_TIMER;
 use user::applications; // Eigene geschriebene Anwendunden
 use user::applications::keyboard_handler;
 use user::aufgabe1::keyboard_demo;
@@ -84,7 +87,9 @@ fn aufgabe2() {
 
 fn aufgabe3() {
     cga::clear();
-    keyboard_demo::run();
+    pic::allow(IRQ_KEYBOARD);
+    pic::allow(IRQ_TIMER);
+    //keyboard_demo::run();
 }
 
 #[no_mangle]
@@ -95,6 +100,7 @@ pub extern "C" fn startup() {
 
     //aufgabe1();
     aufgabe2();
+    aufgabe3();
 
     own_tests();
 

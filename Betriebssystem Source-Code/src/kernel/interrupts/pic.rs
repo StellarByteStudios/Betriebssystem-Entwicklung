@@ -33,13 +33,23 @@ pub fn allow(irq: u32) {
 	
 
 	// ============= NOCH NICHT RICHTIG!!!!
-	let small_irq: u8 = irq as u8;
+	let small_irq: u8 = 1 << irq as u8;
 
 	// Alten Registerstatus holen
     let old_stat: u8 = cpu::inb(PIC_IMR1);
 
 	// Neuen Status Zusammensetzen
-	let new_stat: u8 = old_stat | small_irq; 
+	let negative_mask: u8 = 0xFF ^ small_irq;
+	let new_stat: u8 = old_stat & negative_mask;
+
+
+	// Mal zum Testen
+	kprintln!("Testen der Bits in Allow:");
+	kprintln!("small_irq:     {:#8b}", small_irq);
+	kprintln!("old_stat:      {:#8b}", old_stat);
+	kprintln!("negative_mask: {:#8b}", negative_mask);
+	kprintln!("new_stat:      {:#8b}", new_stat);
+
 
 	// Neuen Status im Pic Speichern
 	cpu::outb(PIC_IMR1, new_stat);
