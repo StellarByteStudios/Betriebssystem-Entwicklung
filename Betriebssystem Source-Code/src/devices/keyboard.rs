@@ -528,7 +528,7 @@ impl isr::ISR for KeyboardISR {
         }
 
         // Curser-Possition festsetzen Syncronisation testen
-        cga::setpos(10, 10);
+        //cga::setpos(10, 10);
 
         // Ausgabe auf dem Bildschirm
         //cga::print_byte(key.get_ascii());

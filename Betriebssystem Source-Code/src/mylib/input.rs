@@ -16,9 +16,14 @@ pub fn getch() -> u8 {
 }
 
 pub fn wait_for_return() {
+   //kprintln!("Called wait_for_return");
    loop {
-      if keyboard::get_lastkey() == 10 {
+      // Vorlage abgeändert von 10 auf '\n' as u8
+      let ch = keyboard::get_lastkey();
+      //kprintln!("Got key {:#x}; looking for {:#x}", ch, '\n' as u8);
+      if ch == '\n' as u8 {
 		  break;
       }
    }
+   //kprintln!("Ended wait_for_return");
 }

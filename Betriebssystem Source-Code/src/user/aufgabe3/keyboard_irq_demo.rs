@@ -7,7 +7,7 @@ pub fn run() {
     let mut loop_counter: u64 = 0;
     // endless printing numbers 1-10 at fixed position
     loop {
-        kprintln!("Loop-Counter at {}", loop_counter);
+        //kprintln!("Loop-Counter at {}", loop_counter);
 
         cga::setpos(0, 6);
         for i in 0..9 {

@@ -17,7 +17,7 @@ struct VectorStruct {
 }
 
 // Hilfsfunktion: Auf Return-Taste warten
-fn wait_for_return() {
+pub fn wait_for_return() {
     println!("");
     println!("Weiter mit <ENTER>");
 

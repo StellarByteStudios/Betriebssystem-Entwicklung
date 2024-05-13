@@ -105,7 +105,9 @@ pub fn report(vector: usize) -> bool {
     }
 
     // Ansonsten Funktion der isr ausführen
+    //kprintln!("Trigger Interrupt Nr.: {}", vector);
     vectors.map[vector].trigger();
+    //kprintln!("Trigger of Interrupt Ended");
 
     return true;
 }

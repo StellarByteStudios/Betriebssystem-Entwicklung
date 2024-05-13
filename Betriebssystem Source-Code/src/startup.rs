@@ -25,6 +25,7 @@ mod devices;
 mod consts;
 mod kernel;
 mod user;
+mod mylib;
 
 use core::panic::PanicInfo;
 use core::ptr::null;
@@ -50,7 +51,8 @@ use user::aufgabe2::heap_demo;
 use user::aufgabe2::sound_demo;
 use user::aufgabe3;
 use user::aufgabe3::keyboard_irq_demo;
-//use x86_64::instructions::interrupts;
+use mylib::input;
+
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -58,6 +60,7 @@ use crate::devices::cga::set_attribute;
 use crate::devices::keyboard::key_hit;
 use crate::devices::keyboard::Keyboard;
 use crate::kernel::interrupts::intdispatcher;
+use crate::user::aufgabe2;
 
 
 fn own_tests() {
@@ -86,7 +89,7 @@ fn init_all() {
 }
 
 fn aufgabe1() {
-    cga::clear();
+    //cga::clear();
     text_demo::run();
     kprintln!("Textdemo run");
     //keyboard_demo::run();
@@ -94,7 +97,7 @@ fn aufgabe1() {
 
 fn aufgabe2() {
     heap_demo::run();
-    cga::clear();
+    //cga::clear();
     //sound_demo::run();
 }
 
@@ -117,6 +120,7 @@ fn aufgabe3() {
     kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
      */
         
+    // Cursor muss in Keyboard::KeyboardISR::trigger festgesetzt werden!!!
     keyboard_irq_demo::run();
 }
 
@@ -157,12 +161,16 @@ pub extern "C" fn startup() {
 
     print_main_screen();
 
+    input::wait_for_return();
+
+    cga::clear();
+
     //aufgabe1();
-    //aufgabe2();
-    aufgabe3();
+    aufgabe2();
+    //aufgabe3();
 
 
-    //own_tests();
+    own_tests();
 
     kprintln!(" = = Closing OS = =");
 

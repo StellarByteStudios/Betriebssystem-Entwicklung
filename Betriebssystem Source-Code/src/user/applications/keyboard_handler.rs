@@ -59,7 +59,7 @@ pub fn handle_keystroke(code: u8) -> bool {
     match code {
         0xd => error_code = handle_enter(), // Newline
         0x8 => cga::print_backspace(),      // Backspace
-        0x0 => print!("    "),              // Tab
+        //0x0 => print!("    "),              // Tab
 
         // Pfeiltasten funktionieren nicht. Daher erstmal nummernblock zum ausprobieren
         0x38 => move_cursor(Direction::Up),
