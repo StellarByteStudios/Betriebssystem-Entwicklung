@@ -32,7 +32,6 @@ const PIC_IMR2: u16 = 0xa1; // interrupt mask register von PIC 2
 pub fn allow(irq: u32) {
 	
 
-	// ============= NOCH NICHT RICHTIG!!!!
 	let small_irq: u8 = 1 << irq as u8;
 
 	// Alten Registerstatus holen
@@ -44,13 +43,13 @@ pub fn allow(irq: u32) {
 
 
 	// Mal zum Testen
-	/*
+	
 	kprintln!("\nTesten der Bits in Allow:");
 	kprintln!("small_irq:     {:#8b}", small_irq);
 	kprintln!("old_stat:      {:#8b}", old_stat);
 	kprintln!("negative_mask: {:#8b}", negative_mask);
 	kprintln!("new_stat:      {:#8b}", new_stat);
-	*/
+	
 
 	// Neuen Status im Pic Speichern
 	cpu::outb(PIC_IMR1, new_stat);
@@ -75,12 +74,12 @@ pub fn forbid(irq: u32) {
 	let new_stat: u8 = old_stat | small_irq; 
 
 	// Mal zum Testen
-	/*
+	
 	kprintln!("\nTesten der Bits in Forbid:");
 	kprintln!("small_irq:     {:#8b}", small_irq);
 	kprintln!("old_stat:      {:#8b}", old_stat);
 	kprintln!("new_stat:      {:#8b}", new_stat);
-	*/
+	
 
 	// Neuen Status im Pic Speichern
 	cpu::outb(PIC_IMR1, new_stat);

@@ -53,7 +53,7 @@ pub fn run() {
 }
 
 // === Behandelt je nach Zeichen, was gemacht werden soll
-fn handle_keystroke(code: u8) -> bool {
+pub fn handle_keystroke(code: u8) -> bool {
     let mut error_code: bool = false;
 
     match code {
@@ -119,7 +119,7 @@ fn move_cursor(dir: Direction) {
 }
 
 fn handle_enter() -> bool {
-    println!("");
+    cga::print_byte('\n' as u8);
     return false;
 
     /*

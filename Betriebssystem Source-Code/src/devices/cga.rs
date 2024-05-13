@@ -35,7 +35,7 @@ pub enum Color {
     White = 15,
 }
 
-pub const CGA_STD_ATTR: u8 = (Color::Black as u8) << 4 | (Color::Green as u8);
+const CGA_STD_ATTR: u8 = (Color::Black as u8) << 4 | (Color::Green as u8);
 
 const CGA_BASE_ADDR: u32 = 0xb8000;
 const CGA_ROWS: u32 = 25;
@@ -316,6 +316,14 @@ pub fn set_attribute(bg: Color, fg: Color, blink: bool) {
     // Neues Format abspeichern
     unsafe {
         CGA_DYN_ATTR = new_attr;
+    }
+}
+
+/* * == Setzt wieder das Standardformat  == * */
+pub fn set_default_attribute() {
+    // Standardformat speichern
+    unsafe {
+        CGA_DYN_ATTR = CGA_STD_ATTR;
     }
 }
 

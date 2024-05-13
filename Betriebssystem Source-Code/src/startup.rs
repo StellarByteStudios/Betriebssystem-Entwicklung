@@ -27,6 +27,8 @@ mod kernel;
 mod user;
 
 use core::panic::PanicInfo;
+use core::ptr::null;
+use core::ptr::null_mut;
 
 use devices::cga; // shortcut for cga
 use devices::cga_print; // used to import code needed by println!
@@ -39,6 +41,7 @@ use kernel::cpu;
 use kernel::interrupts::pic;
 use kernel::interrupts::pic::IRQ_KEYBOARD;
 use kernel::interrupts::pic::IRQ_TIMER;
+use kernel::interrupts;
 use user::applications; // Eigene geschriebene Anwendunden
 use user::applications::keyboard_handler;
 use user::aufgabe1::keyboard_demo;
@@ -46,13 +49,19 @@ use user::aufgabe1::text_demo;
 use user::aufgabe2::heap_demo;
 use user::aufgabe2::sound_demo;
 use user::aufgabe3;
+use user::aufgabe3::keyboard_irq_demo;
+//use x86_64::instructions::interrupts;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
+use crate::devices::cga::set_attribute;
+use crate::devices::keyboard::key_hit;
+use crate::devices::keyboard::Keyboard;
 use crate::kernel::interrupts::intdispatcher;
 
+
 fn own_tests() {
-    keyboard_handler::run();
+    //keyboard_handler::run();
 }
 
 fn init_all() {
@@ -62,12 +71,13 @@ fn init_all() {
     allocator::init();
 
     // init interrupts
-    intdispatcher::init();
+    interrupts::init();
 
     // register keyboard ISR
-    keyboard::plugin();
+    Keyboard::plugin();
 
     // CPU enable ints
+    cpu::enable_int();
 
     // Clear Screen
     cga::clear();
@@ -89,7 +99,7 @@ fn aufgabe2() {
 }
 
 fn aufgabe3() {
-    cga::clear();
+    //cga::clear();
     
     /*
     pic::forbid(IRQ_KEYBOARD);
@@ -105,11 +115,39 @@ fn aufgabe3() {
     kprintln!("Beide Interrupts sind jetzt wieder aktiviert");
     kprintln!("Status Keyboard {}", pic::status(IRQ_KEYBOARD));
     kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
-
-    */
-
-    //keyboard_demo::run();
+     */
+        
+    keyboard_irq_demo::run();
 }
+
+
+
+fn print_main_screen(){
+    cga::clear();
+    println!("Byte OS: 0.3");
+    println!("------------------------------------\n");
+    println!("Aktuelle Funktionalitaeten:");
+    print!("    Bildschirmausgabe ");
+    cga::set_attribute(cga::Color::Blue, cga::Color::Yellow, true);
+    println!("(auch bunt)");
+    cga::set_default_attribute();
+    println!("    Heapverwaltung (mit Freispeicherliste)");
+    println!("    Interrupts");
+    println!("    Tastatureingabe (Ueber Interrupts)");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #[no_mangle]
 pub extern "C" fn startup() {
@@ -117,15 +155,22 @@ pub extern "C" fn startup() {
 
     init_all();
 
+    print_main_screen();
+
     //aufgabe1();
     //aufgabe2();
     aufgabe3();
 
-    own_tests();
+
+    //own_tests();
 
     kprintln!(" = = Closing OS = =");
 
-    loop {}
+    loop { 
+        //let mut code = key_hit();
+        
+        //keyboard_handler::handle_keystroke(code.get_ascii());
+    }
 }
 
 #[panic_handler]

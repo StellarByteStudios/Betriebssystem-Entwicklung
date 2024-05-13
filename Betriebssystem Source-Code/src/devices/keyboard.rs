@@ -8,15 +8,20 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
+use alloc::boxed::Box;
 use spin::Mutex;
 
+use crate::devices::cga;
 use crate::devices::key;
 use crate::kernel::cpu; // shortcut for key
 
 use crate::kernel::interrupts;
+use crate::kernel::interrupts::intdispatcher;
+use crate::kernel::interrupts::intdispatcher::INT_VEC_KEYBOARD;
 use crate::kernel::interrupts::isr;
 use crate::kernel::interrupts::pic;
 use crate::kernel::interrupts::pic::IRQ_KEYBOARD;
+use crate::user::applications::keyboard_handler;
 
 // Für Interruptsyncronisierung
 use core::sync::atomic::{AtomicU8, Ordering};
@@ -50,7 +55,7 @@ static KB: Mutex<Keyboard> = Mutex::new(Keyboard {
 });
 
 // Defining Keyboard struct
-struct Keyboard {
+pub struct Keyboard {
     code: u8,         // Byte von Tastatur
     prefix: u8,       // Prefix von Tastatur
     gather: key::Key, // letzter dekodierter Key
@@ -355,8 +360,12 @@ impl Keyboard {
      *                  wird bei einem Tastendruck die Methode 'trigger'         *
      *                  aufgerufen.                                              *
      *****************************************************************************/
-    pub fn plugin(&mut self) {
-       pic::allow(IRQ_KEYBOARD);
+    pub fn plugin() {
+        // Pic Bit freigeben
+        pic::allow(IRQ_KEYBOARD);
+        
+        // Registrieren der Tastatur
+        intdispatcher::register(INT_VEC_KEYBOARD, Box::new(KeyboardISR));
     }
 
     /*****************************************************************************
@@ -424,7 +433,7 @@ impl Keyboard {
                     break;
                 }
             }
-            kprintln!("Nach INPB");
+            //kprintln!("Nach INPB");
 
             // Sagen, dass wir LED schreiben wollen
             loop {
@@ -438,15 +447,15 @@ impl Keyboard {
                         break;
                     }
                 }
-                kprintln!("Nach SET_LED");
+                //kprintln!("Nach SET_LED");
 
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
                 if status != KBD_REPLY_ACK {
-                    kprintln!("Noch kein Ack bekommen");
+                    //kprintln!("Noch kein Ack bekommen");
                     continue;
                 }
-                kprintln!("Nach ACK 1");
+                //kprintln!("Nach ACK 1");
                 break;
             }
 
@@ -458,7 +467,7 @@ impl Keyboard {
                     break;
                 }
             }
-            kprintln!("Nach INPB2");
+            //kprintln!("Nach INPB2");
 
             // Sagen, dass wir LED schreiben wollen
             loop {
@@ -470,7 +479,7 @@ impl Keyboard {
                 } else {
                     self.leds &= !led;
                 }
-                kprintln!("LEDs gesetzt {:#2x}", self.leds);
+                //kprintln!("LEDs gesetzt {:#2x}", self.leds);
 
                 cpu::outb(KBD_DATA_PORT, self.leds);
                 // Warte auf Out Byte
@@ -485,7 +494,7 @@ impl Keyboard {
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
                 if status != KBD_REPLY_ACK {
-                    kprintln!("Noch kein Ack2 bekommen");
+                    //kprintln!("Noch kein Ack2 bekommen");
                     continue;
                 }
                 break;
@@ -508,7 +517,23 @@ impl isr::ISR for KeyboardISR {
      *                  eine Unterbrechung ausloest.                             *
      *****************************************************************************/
     fn trigger(&self) {
+        // Warten bis ein Valid Key da ist
+        let mut key: key::Key;
+        loop {
+            key = self::key_hit();
 
-        /* Hier muss Code eingefuegt werden */
+            if key.valid() {
+                break;
+            }
+        }
+
+        // Curser-Possition festsetzen Syncronisation testen
+        cga::setpos(10, 10);
+
+        // Ausgabe auf dem Bildschirm
+        //cga::print_byte(key.get_ascii());
+        keyboard_handler::handle_keystroke(key.get_ascii());
+
+        //kprintln!("Der Tastaturtrigger wurde ausgeführt durch einen Interrupt: {}", key.get_ascii());
     }
 }

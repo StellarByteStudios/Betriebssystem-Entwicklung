@@ -15,8 +15,10 @@ extern crate spin;
 
 use crate::kernel::cpu;
 use crate::kernel::interrupts::isr;
-use alloc::{boxed::Box, vec::Vec};
+use alloc::{boxed::Box, vec::{self, Vec}};
 use spin::Mutex;
+
+use super::pic::IRQ_KEYBOARD;
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;
@@ -31,6 +33,9 @@ pub const INT_VEC_KEYBOARD: usize = 33;
 */
 #[no_mangle]
 pub extern "C" fn int_disp(vector: u32) {
+    //kprintln!("KEYBOARD INT DETECTED");
+    //kprintln!("Interrupt detectet: nr = {}", vector);
+
     if report(vector as usize) == false {
         kprint!("Panic: unexpected interrupt nr = {}", vector);
         kprint!(" - processor halted.");
@@ -73,8 +78,13 @@ pub fn init() {
     `isr` the isr to be registered
 */
 pub fn register(vector: usize, isr: Box<dyn isr::ISR>) -> bool {
-    /* Hier muss Code eingefuegt werden */
-    return false;
+    // Liste der Interrupts holen
+    let mut vectors = INT_VECTORS.lock();
+
+    vectors.map[vector] = isr;
+
+    return true;
+
 }
 
 /**
@@ -85,6 +95,17 @@ Parameters: \
    `vector` vector of the interrupt which was fired.
 */
 pub fn report(vector: usize) -> bool {
-    /* Hier muss Code eingefuegt werden */
-    return false;
+
+    // Liste der Interrupts holen
+    let vectors = INT_VECTORS.lock();
+    
+    // Wurde ein Interrupthandler mit dieser Nummer angelegt?s
+    if vectors.map[vector].is_default_isr() {
+        return false;
+    }
+
+    // Ansonsten Funktion der isr ausführen
+    vectors.map[vector].trigger();
+
+    return true;
 }
