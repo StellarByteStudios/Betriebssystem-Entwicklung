@@ -75,11 +75,11 @@ impl ListNode {
 
         // Ausgabe der Next Referenz wenn sie existiert
         if self.next.is_some() {
-            kprintln!("{:#8x}", self.next.as_ref().unwrap().start_addr());
+            //kprintln!("{:#8x}", self.next.as_ref().unwrap().start_addr());
             return;
         }
 
-        kprintln!("None");
+        //kprintln!("None");
     }
 }
 
@@ -241,18 +241,18 @@ impl LinkedListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        kprintln!(
-            "list-alloc: size={}, align={}",
-            layout.size(),
-            layout.align()
-        );
+        //kprintln!(
+        //    "list-alloc: size={}, align={}",
+        //    layout.size(),
+        //    layout.align()
+        //);
 
         // Ist der Angeforderte Platz mind. 16 Byte? Wichtig für Node
         // Wenn nicht, dann stretchen
         let mut good_size: usize = layout.size();
 
         if good_size < 0x10 {
-            kprintln!("Streched Size in Allocation");
+            //kprintln!("Streched Size in Allocation");
             good_size = 0x10;
         }
 
@@ -262,7 +262,7 @@ impl LinkedListAllocator {
 
         // Kurze Abfrage ob das funktioniert hat
         if free_block_option.is_none() {
-            kprintln!("ERROR: Allocation failed, no free block");
+            //kprintln!("ERROR: Allocation failed, no free block");
             return null_mut();
         }
 
@@ -294,15 +294,16 @@ impl LinkedListAllocator {
         let mut good_size: usize = size;
 
         if good_size < 0x10 {
-            kprintln!("Streched Size in Dealloc");
+            //kprintln!("Streched Size in Dealloc");
             good_size = 0x10;
         }
 
+        /*
         kprintln!(
             "\nDeallocating block of Size {0:#x} on addr {1:#x}\n",
             good_size,
             ptr as usize
-        );
+        ); */
 
         self.add_free_block(ptr as usize, good_size)
     }

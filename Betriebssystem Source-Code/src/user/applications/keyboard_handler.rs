@@ -7,7 +7,8 @@ use crate::devices::cga::print_byte;
 //use crate::devices::cga::print_byte;
 use crate::devices::cga_print; // used to import code needed by println!
 use crate::devices::key;
-use crate::devices::keyboard; // shortcut for keyboard
+use crate::devices::keyboard;
+use crate::kernel::cpu; // shortcut for keyboard
 
 // Enum für Pfeiltasten
 enum Direction {
@@ -17,10 +18,18 @@ enum Direction {
     Right,
 }
 
+static mut COMMANDLINE_ENABLED: bool = false;
+
 // ===== ggf noch einen Buffer der Asciis einbauen für befehle
 pub fn run() {
     // Terminalfarbe wählen
     cga::set_attribute(cga::Color::Black, cga::Color::Green, false);
+
+    // Komandozeile aktivieren
+    unsafe{
+        COMMANDLINE_ENABLED = true;
+    }
+    
 
     // ================= NOTIZ: Pfeiltasten werden nicht richtig übersetzt ================= //
     //kprint!("Die gedrückten Tasten sind: ");
@@ -47,6 +56,7 @@ pub fn run() {
 
         // Im fehlerfall abbrechen
         if error_code {
+            cpu::halt();
             return;
         }
     }
@@ -119,11 +129,18 @@ fn move_cursor(dir: Direction) {
 }
 
 fn handle_enter() -> bool {
+
     cga::print_byte('\n' as u8);
     return false;
-
+    
     /*
     // ============= Geht noch nicht, weil es noch keinen Heap gibt... ===================== //
+    unsafe{
+        if !COMMANDLINE_ENABLED {
+            cga::print_byte('\n' as u8);
+            return false;
+        }
+    }
 
     // Bildschirmbreite speichern
     const SCREEN_WIDTH: u32 = cga::get_screen_width();
@@ -135,6 +152,11 @@ fn handle_enter() -> bool {
 
     // Aktuelle Zeile in Buffer einlesen
     let command_size: u32 = cga::read_line_into_buffer(&mut command_buffer);
+
+    if command_size < 1 {
+        cga::print_byte('\n' as u8);
+        return false;
+    }
 
     // Zu string für Matching umbauen
     let command_string: String = command_buffer.iter().collect();
@@ -155,7 +177,9 @@ fn handle_enter() -> bool {
 
     // Normaler verlauf
     return false;
+
      */
+    
 }
 
 fn command_clear() {

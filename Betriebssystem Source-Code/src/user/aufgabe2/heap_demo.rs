@@ -9,6 +9,7 @@ use crate::kernel::allocator;
 use crate::kernel::allocator::dump_free_list;
 use alloc::string::ToString;
 use alloc::{boxed::Box, vec::Vec};
+use crate::mylib::input::wait_for_return;
 
 #[derive(Debug)]
 struct VectorStruct {
@@ -17,6 +18,7 @@ struct VectorStruct {
 }
 
 // Hilfsfunktion: Auf Return-Taste warten
+/*
 pub fn wait_for_return() {
     println!("");
     println!("Weiter mit <ENTER>");
@@ -31,6 +33,7 @@ pub fn wait_for_return() {
         }
     }
 }
+ */
 
 fn demo1() {
     println!("Demo 1/4: 2 Structs Dynamisch allozieren");

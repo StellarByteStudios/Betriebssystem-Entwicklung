@@ -102,7 +102,7 @@ fn aufgabe2() {
 }
 
 fn aufgabe3() {
-    //cga::clear();
+    cga::clear();
     
     /*
     pic::forbid(IRQ_KEYBOARD);
@@ -167,7 +167,7 @@ pub extern "C" fn startup() {
 
     //aufgabe1();
     aufgabe2();
-    //aufgabe3();
+    aufgabe3();
 
 
     own_tests();

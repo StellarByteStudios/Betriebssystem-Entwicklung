@@ -43,13 +43,13 @@ pub fn allow(irq: u32) {
 
 
 	// Mal zum Testen
-	
+	/*
 	kprintln!("\nTesten der Bits in Allow:");
 	kprintln!("small_irq:     {:#8b}", small_irq);
 	kprintln!("old_stat:      {:#8b}", old_stat);
 	kprintln!("negative_mask: {:#8b}", negative_mask);
 	kprintln!("new_stat:      {:#8b}", new_stat);
-	
+	*/
 
 	// Neuen Status im Pic Speichern
 	cpu::outb(PIC_IMR1, new_stat);
@@ -75,11 +75,12 @@ pub fn forbid(irq: u32) {
 
 	// Mal zum Testen
 	
+	/*
 	kprintln!("\nTesten der Bits in Forbid:");
 	kprintln!("small_irq:     {:#8b}", small_irq);
 	kprintln!("old_stat:      {:#8b}", old_stat);
 	kprintln!("new_stat:      {:#8b}", new_stat);
-	
+	*/
 
 	// Neuen Status im Pic Speichern
 	cpu::outb(PIC_IMR1, new_stat);

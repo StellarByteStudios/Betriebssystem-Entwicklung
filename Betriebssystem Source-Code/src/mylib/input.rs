@@ -1,6 +1,6 @@
 
 
-use crate::devices::keyboard;
+use crate::{devices::keyboard, user::applications::keyboard_handler};
 
 
 pub fn getch() -> u8 {
@@ -16,14 +16,19 @@ pub fn getch() -> u8 {
 }
 
 pub fn wait_for_return() {
-   //kprintln!("Called wait_for_return");
+   kprintln!("Called wait_for_return");
    loop {
-      // Vorlage abgeändert von 10 auf '\n' as u8
+      let wanted_char: u8 = 0xd;
+
       let ch = keyboard::get_lastkey();
-      //kprintln!("Got key {:#x}; looking for {:#x}", ch, '\n' as u8);
-      if ch == '\n' as u8 {
+
+      if ch != 0 {
+         keyboard_handler::handle_keystroke(ch);
+      }
+      
+      if ch == wanted_char{
 		  break;
       }
    }
-   //kprintln!("Ended wait_for_return");
+   kprintln!("Ended wait_for_return");
 }
