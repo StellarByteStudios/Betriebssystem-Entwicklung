@@ -10,6 +10,8 @@ use crate::devices::key;
 use crate::devices::keyboard;
 use crate::kernel::cpu; // shortcut for keyboard
 
+use crate::mylib::input;
+
 // Enum für Pfeiltasten
 enum Direction {
     Up,
@@ -29,11 +31,19 @@ pub fn run() {
     unsafe{
         COMMANDLINE_ENABLED = true;
     }
+
+    kprintln!("In dem keyboard_handler");
     
 
     // ================= NOTIZ: Pfeiltasten werden nicht richtig übersetzt ================= //
     //kprint!("Die gedrückten Tasten sind: ");
 
+    loop {
+        let key = input::getch();
+
+        handle_keystroke(key);
+    }
+    /*
     // Dauerhaft die Tastatur einlesen
     loop {
         // Warten bis ein Valid Key da ist
@@ -58,8 +68,8 @@ pub fn run() {
         if error_code {
             cpu::halt();
             return;
-        }
-    }
+        } 
+    }*/
 }
 
 // === Behandelt je nach Zeichen, was gemacht werden soll
@@ -132,7 +142,7 @@ fn handle_enter() -> bool {
 
     cga::print_byte('\n' as u8);
     return false;
-    
+
     /*
     // ============= Geht noch nicht, weil es noch keinen Heap gibt... ===================== //
     unsafe{

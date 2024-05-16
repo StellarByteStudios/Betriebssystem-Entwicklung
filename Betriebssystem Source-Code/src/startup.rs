@@ -64,7 +64,7 @@ use crate::user::aufgabe2;
 
 
 fn own_tests() {
-    //keyboard_handler::run();
+    keyboard_handler::run();
 }
 
 fn init_all() {
@@ -167,7 +167,7 @@ pub extern "C" fn startup() {
 
     //aufgabe1();
     aufgabe2();
-    aufgabe3();
+    //aufgabe3();
 
 
     own_tests();
