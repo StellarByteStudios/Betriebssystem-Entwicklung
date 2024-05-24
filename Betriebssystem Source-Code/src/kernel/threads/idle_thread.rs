@@ -1,3 +1,4 @@
+/*
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::thread;
 
@@ -14,3 +15,5 @@ pub fn init() {
 	let idle_thread = thread::Thread::new(scheduler::next_thread_id(), idle_thread_entry);
 	scheduler::Scheduler::ready(idle_thread);
 }
+
+ */

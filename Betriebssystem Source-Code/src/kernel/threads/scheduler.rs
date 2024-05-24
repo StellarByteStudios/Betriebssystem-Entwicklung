@@ -7,6 +7,7 @@
    ║ Autor:  Michael Schoettner, 15.05.2023                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
+/*
 use alloc::boxed::Box;
 use core::ptr;
 use core::sync::atomic::AtomicUsize;
@@ -121,3 +122,4 @@ impl Scheduler {
 
     }
 }
+ */
