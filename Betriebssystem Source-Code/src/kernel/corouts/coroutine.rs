@@ -7,10 +7,11 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 use alloc::{boxed::Box, rc::Rc};
+use core::borrow::{Borrow, BorrowMut};
 use core::ffi::c_void;
 use core::ptr;
 
-use crate::consts;
+use crate::consts::{self, STACK_ENTRY_SIZE};
 use crate::devices::cga;
 use crate::kernel::{cpu, stack};
 
@@ -37,7 +38,7 @@ impl Coroutine {
        Description: Create new coroutine
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Coroutine)) -> Box<Coroutine> {
-        let my_stack = stack::Stack::new(4096);
+        let my_stack = stack::Stack::new(STACK_ENTRY_SIZE);
         let my_stack_ptr = my_stack.end_of_stack();
 
         let mut corout = Box::new(Coroutine {
@@ -56,18 +57,18 @@ impl Coroutine {
        Description: Start coroutine `cor`
     */
     pub fn start(cor: *mut Coroutine) {
-
-       /* Hier muss Code eingefuegt werden */
-
+        unsafe{
+            _coroutine_start((*cor).stack_ptr as usize);
+        }
     }
 
     /**
        Description: Switch from `now` to next coroutine
     */
     pub fn switch2next(now: *mut Coroutine) {
-
-       /* Hier muss Code eingefuegt werden */
-
+       unsafe{
+            _coroutine_switch((*now).stack_ptr.borrow_mut(), (*(*now).get_next()).stack_ptr as usize);
+       }
     }
 
     /**

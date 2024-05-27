@@ -52,6 +52,7 @@ use user::aufgabe2::sound_demo;
 use user::aufgabe3;
 use user::aufgabe3::keyboard_irq_demo;
 use mylib::input;
+use user::aufgabe4;
 
 
 use crate::devices::cga::attribute;
@@ -124,6 +125,11 @@ fn aufgabe3() {
     keyboard_irq_demo::run();
 }
 
+fn aufgabe4(){
+    cga::clear();
+    aufgabe4::corouts_demo::run();
+}
+
 
 
 fn print_main_screen(){
@@ -168,6 +174,7 @@ pub extern "C" fn startup() {
     //aufgabe1();
     aufgabe2();
     //aufgabe3();
+    aufgabe4();
 
 
     own_tests();

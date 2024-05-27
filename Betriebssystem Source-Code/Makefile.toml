@@ -141,5 +141,7 @@ command = "gdb"
 args = [ "-x", "gdbcommands", "${KERNEL}" ]
 
 [tasks.gdbt]
-command = "gdb"
-args = [ "-x", "gdbcommands", "${KERNEL}", "-tui" ]
+#command = "gdb"
+#args = [ "-x", "gdbcommands", "${KERNEL}", "-tui" ]
+command = "gdbtui"
+args = [ "-x", "gdbcommands", "${KERNEL}"]
