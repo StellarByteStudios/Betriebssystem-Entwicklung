@@ -9,6 +9,7 @@
 use alloc::{boxed::Box, rc::Rc};
 use core::borrow::{Borrow, BorrowMut};
 use core::ffi::c_void;
+use core::fmt::Debug;
 use core::ptr;
 
 use crate::consts::{self, STACK_ENTRY_SIZE};
@@ -39,6 +40,10 @@ impl Coroutine {
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Coroutine)) -> Box<Coroutine> {
         let my_stack = stack::Stack::new(STACK_ENTRY_SIZE);
+        
+        // = = = = = Keine Ahnung wie ich meine Stack ausgeben soll...
+        kprintln!("==== My Stack");
+        //my_stack.fmt("");
         let my_stack_ptr = my_stack.end_of_stack();
 
         let mut corout = Box::new(Coroutine {
@@ -58,6 +63,8 @@ impl Coroutine {
     */
     pub fn start(cor: *mut Coroutine) {
         unsafe{
+            // = = = = = = Stackpointer ist bisher immer 0 gewesen
+            kprint!("Coroutine in Start function. Stack_ptr: {:#x}\n", (*cor).stack_ptr);
             _coroutine_start((*cor).stack_ptr as usize);
         }
     }

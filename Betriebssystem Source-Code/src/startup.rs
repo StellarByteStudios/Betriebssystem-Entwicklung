@@ -191,6 +191,6 @@ pub extern "C" fn startup() {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     kprintln!("Panic: {}", info);
-    //	kprintln!("{:?}", Backtrace::new());
+    //kprintln!("{:?}", Backtrace::new());
     loop {}
 }
