@@ -17,6 +17,9 @@ extern "C" fn coroutine_loop_entry(myself: *mut coroutine::Coroutine) {
 
 pub fn run() {
 
+    allocator::dump_free_list();
+    wait_for_return();
+
     // Anlegen aller Koroutinen
     let mut corot1  = Coroutine::new(1, coroutine_loop_entry);
     let mut corot2  = Coroutine::new(2, coroutine_loop_entry);
