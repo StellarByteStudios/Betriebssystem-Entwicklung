@@ -172,7 +172,7 @@ pub extern "C" fn startup() {
     cga::clear();
 
     //aufgabe1();
-    //aufgabe2();
+    aufgabe2();
     //aufgabe3();
     aufgabe4();
 
