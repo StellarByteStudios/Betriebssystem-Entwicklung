@@ -12,8 +12,8 @@ use core::ffi::c_void;
 use core::fmt::Debug;
 use core::ptr;
 
-use crate::consts::{self, STACK_ENTRY_SIZE};
-use crate::devices::cga;
+use crate::consts::{self, STACK_ENTRY_SIZE, STACK_SIZE};
+use crate::devices::{cga, kprint};
 use crate::kernel::{cpu, stack};
 
 // Description: Assembly functions in 'coroutine.asm'
@@ -39,10 +39,10 @@ impl Coroutine {
        Description: Create new coroutine
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Coroutine)) -> Box<Coroutine> {
-        let my_stack = stack::Stack::new(STACK_ENTRY_SIZE);
+        let my_stack = stack::Stack::new(STACK_SIZE);
         
         // = = = = = Keine Ahnung wie ich meine Stack ausgeben soll...
-        kprintln!("==== My Stack");
+        //kprintln!("==== My Stack: {:?}", my_stack);
         //my_stack.fmt("");
         let my_stack_ptr = my_stack.end_of_stack();
 
@@ -64,17 +64,26 @@ impl Coroutine {
     pub fn start(cor: *mut Coroutine) {
         unsafe{
             // = = = = = = Stackpointer ist bisher immer 0 gewesen
-            kprint!("Coroutine in Start function. Stack_ptr: {:#x}\n", (*cor).stack_ptr);
+            //kprint!("Coroutine in Start function. Stack_ptr: {:#x}\n", (*cor).stack_ptr);
             _coroutine_start((*cor).stack_ptr as usize);
         }
     }
-
+    
     /**
        Description: Switch from `now` to next coroutine
     */
     pub fn switch2next(now: *mut Coroutine) {
        unsafe{
-            _coroutine_switch((*now).stack_ptr.borrow_mut(), (*(*now).get_next()).stack_ptr as usize);
+            //kprintln!("Es wird geswitched");
+            //let then = (*now).get_next();
+            //let then_stack_pt = (*then).stack_ptr as usize;
+            //let now_stack_pt = (*now).stack_ptr.borrow_mut();
+            //kprintln!("Now: {:#x}; Then {:#x}", now as usize, then as usize);
+            //kprintln!("In Variablen: Now: {:#x}; Then {:#x}", now_stack_pt, then_stack_pt);
+
+            //Self::debug_stop();
+            //_coroutine_switch(now_stack_pt, then_stack_pt);
+            _coroutine_switch((*now).stack_ptr.borrow_mut(), (*(*now).get_next()).stack_ptr as usize)
        }
     }
 

@@ -10,6 +10,8 @@
 ; exported functions
 [GLOBAL _coroutine_start]
 [GLOBAL _coroutine_switch]
+[GLOBAL _debug_stop]
+[GLOBAL _debug_push_stop]
 
 [SECTION .text]
 [BITS 64]
@@ -79,9 +81,11 @@ _coroutine_switch:
     push rbp
     pushf
 
+    _debug_push_stop:
+
     ; Stack kontext wechseln
 
-    mov (rdi), rsp
+    mov [rdi], rsp
 
     mov rsp, rsi
 
@@ -108,4 +112,5 @@ _coroutine_switch:
     pop r9
     pop r8
 
+    _debug_stop:
     ret

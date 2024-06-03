@@ -16,7 +16,7 @@ pub fn getch() -> u8 {
 }
 
 pub fn wait_for_return() {
-   kprintln!("Called wait_for_return");
+   //kprintln!("Called wait_for_return");
    loop {
       let wanted_char: u8 = 0xd;
 
@@ -30,5 +30,5 @@ pub fn wait_for_return() {
 		  break;
       }
    }
-   kprintln!("Ended wait_for_return");
+   //kprintln!("Ended wait_for_return");
 }

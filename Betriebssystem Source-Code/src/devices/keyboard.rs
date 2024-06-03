@@ -521,13 +521,13 @@ impl isr::ISR for KeyboardISR {
     fn trigger(&self) {
         // Warten bis ein Valid Key da ist
         let mut key: key::Key;
-        loop {
+        //loop {
             key = self::key_hit();
 
-            if key.valid() {
-                break;
-            }
-        }
+            //if key.valid() {
+            //    break;
+            //}
+        //}
 
         // Den eingegebenen Buchstaben Speichern
         LAST_KEY.store(key.get_ascii(), Ordering::SeqCst);

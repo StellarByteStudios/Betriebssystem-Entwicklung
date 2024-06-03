@@ -1,3 +1,6 @@
 break startup
+#break _debug_push_stop 
+#break _debug_stop
+#break debug_stop::ha8b191cb4fd43fdb 
 target remote 127.0.0.1:1234
 continue
