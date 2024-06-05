@@ -144,6 +144,7 @@ fn print_main_screen(){
     println!("    Heapverwaltung (mit Freispeicherliste)");
     println!("    Interrupts");
     println!("    Tastatureingabe (Ueber Interrupts)");
+    println!("    Koroutinen (Kooperativ - verkettet)");
 }
 
 
@@ -167,7 +168,7 @@ pub extern "C" fn startup() {
 
     print_main_screen();
 
-    //input::wait_for_return();
+    input::wait_for_return();
 
     cga::clear();
 

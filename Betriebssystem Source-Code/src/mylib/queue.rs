@@ -71,10 +71,70 @@ impl<T: PartialEq> Queue<T> {
     //                false: sonst
     pub fn remove(&mut self, data: T) -> bool {
 
-       /* Hier muss Code eingefuegt werden */
-       return false;
+        
+        // Ist überhaupt was in der Liste?
+        if self.head.is_none() {
+            // Liste war leer
+            return false;
+        }
+        /*
+        // Ist der Head schon die Node, die entfernt werden soll
+        //let head_data: T = self.head.borrow().unwrap().as_ref().borrow().data;
+        let head_data: T = self.head.as_ref().map(|rc| rc.borrow()).unwrap().data;
+        if head_data == data{
+            // Kopf wurde gefunden. Also muss er überschrieben werden
+            // Kopf speichern um in später wieder frei zu geben
+            let old_head = self.head.unwrap().as_ptr();
 
+            // Kopf-Nachfolger zum neuen Kopf machen
+            self.head = self.head.as_ref().map(|rc| rc.borrow()).unwrap().next;
+
+            // Alten Kopf löschen
+            drop(old_head);
+
+            // Kopf wurde erfolgreich gelöscht
+            return true;
+        }
+
+        // Node als Iterator-Pointer bestimmen
+        let mut node: Link<T> = self.head.clone();
+
+        // Vorgänder Speichern (wichtig für Aushängen)
+        let mut prev: Link<T> = None;
+
+        // Durch alle nodes durchgehen
+        while node.is_some() {
+            // Vorgänger speichern
+            prev = node;
+
+            // Node eins weiter gehtn
+            node = node.as_ref().map(|rc| rc.borrow()).unwrap().next;
+
+            // Daten holen
+            let note_data = node.as_ref().map(|rc| rc.borrow()).unwrap().data;
+
+            // Checken ob diese Daten übereinstimmen
+            if note_data == data {
+	           prev.as_ref().map(|rc| rc.borrow()).unwrap().next = None;
+	           break;
+            }
+        } */
+      
+
+        return false;
    }
+
+
+
+
+    /* Funktioniert nicht so ganz
+    // Eingene Hilfsmethode um an die Nodes zu kommen
+    fn get_node(node: Link<T>){
+        return node.as_ref()
+        .map(|rc| rc.borrow())
+        .unwrap()
+    } */
+
 
 }
 
