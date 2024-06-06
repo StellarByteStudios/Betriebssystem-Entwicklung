@@ -77,64 +77,57 @@ impl<T: PartialEq> Queue<T> {
             // Liste war leer
             return false;
         }
-        /*
+        
         // Ist der Head schon die Node, die entfernt werden soll
-        //let head_data: T = self.head.borrow().unwrap().as_ref().borrow().data;
-        let head_data: T = self.head.as_ref().map(|rc| rc.borrow()).unwrap().data;
-        if head_data == data{
+        // Kopf Klonen
+        let head_cloned  = self.head.clone();
+        // Option auspackens
+        let head_node = head_cloned.unwrap();
+        // Daten holen
+        //let head_borrowed = head_node.borrow();
+
+        
+        if head_node.borrow().data == data{
             // Kopf wurde gefunden. Also muss er überschrieben werden
-            // Kopf speichern um in später wieder frei zu geben
-            let old_head = self.head.unwrap().as_ptr();
-
             // Kopf-Nachfolger zum neuen Kopf machen
-            self.head = self.head.as_ref().map(|rc| rc.borrow()).unwrap().next;
-
-            // Alten Kopf löschen
-            drop(old_head);
+            let new_head_ref = self.head.clone().unwrap();
+            let new_head = new_head_ref.borrow_mut().next.take();
+            self.head = new_head;
 
             // Kopf wurde erfolgreich gelöscht
             return true;
         }
 
-        // Node als Iterator-Pointer bestimmen
-        let mut node: Link<T> = self.head.clone();
 
-        // Vorgänder Speichern (wichtig für Aushängen)
-        let mut prev: Link<T> = None;
+        // Zeiger auf die Node an der wir grade sind
+        let mut node = self.head.clone();
 
-        // Durch alle nodes durchgehen
         while node.is_some() {
-            // Vorgänger speichern
-            prev = node;
 
-            // Node eins weiter gehtn
-            node = node.as_ref().map(|rc| rc.borrow()).unwrap().next;
+            // Vorgänder Speichern (wichtig für Aushängen)
+            let prev = node.unwrap();
 
-            // Daten holen
-            let note_data = node.as_ref().map(|rc| rc.borrow()).unwrap().data;
+            // Eins weiter gehen in der Liste
+            node = prev.borrow().next.clone();
 
-            // Checken ob diese Daten übereinstimmen
-            if note_data == data {
-	           prev.as_ref().map(|rc| rc.borrow()).unwrap().next = None;
-	           break;
+            // Ist die nächste Node überhaup eine Valide
+            if node.is_none(){
+                // Wenn nicht ist die Queue am Ende
+                return false;
             }
-        } */
-      
+
+            // Sind dort unsere gesuchten Daten
+            if node.clone().unwrap().borrow().data == data {
+
+                // Zeiger von Prev auf den Nachfolger von Node gesetzt und damit Node gelöscht
+                prev.borrow_mut().next = node.unwrap().borrow_mut().next.take();
+                
+	            return true;
+            }   
+        }     
 
         return false;
    }
-
-
-
-
-    /* Funktioniert nicht so ganz
-    // Eingene Hilfsmethode um an die Nodes zu kommen
-    fn get_node(node: Link<T>){
-        return node.as_ref()
-        .map(|rc| rc.borrow())
-        .unwrap()
-    } */
-
 
 }
 

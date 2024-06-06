@@ -127,7 +127,8 @@ fn aufgabe3() {
 
 fn aufgabe4(){
     cga::clear();
-    aufgabe4::corouts_demo::run();
+    //aufgabe4::corouts_demo::run();
+    aufgabe4::queue_tests::run();
 }
 
 
@@ -145,6 +146,7 @@ fn print_main_screen(){
     println!("    Interrupts");
     println!("    Tastatureingabe (Ueber Interrupts)");
     println!("    Koroutinen (Kooperativ - verkettet)");
+    println!("    Queue (Für die Threads)");
 }
 
 
@@ -173,7 +175,7 @@ pub extern "C" fn startup() {
     cga::clear();
 
     //aufgabe1();
-    aufgabe2();
+    //aufgabe2();
     //aufgabe3();
     aufgabe4();
 
