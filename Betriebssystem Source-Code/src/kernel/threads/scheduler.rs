@@ -88,16 +88,15 @@ impl Scheduler {
                      (The thread terminating is not in the ready queue.)
     */
     pub fn exit() {
-        kprintln!("Exit wurde aufgerufen");
 
+        let old_active: *mut Thread = SCHEDULER.lock().active;
+        kprintln!("Exited Thread {}", Thread::get_tid(old_active));
+        
         // Get next thread from ready queue
         let next = SCHEDULER.lock().ready_queue.dequeue();
-        kprintln!("--nächsten Thread ohne überprüfung");
         if next.is_none() {
             panic!("Cannot exit thread as there is no other thread to run!");
         }
-
-        kprintln!("--Erfolgreich nächsten Thread geholt");
 
         // Start next thread
         if let Some(nx) = next {
@@ -111,17 +110,19 @@ impl Scheduler {
         Description: Yield cpu and switch to next thread
     */
     pub fn yield_cpu() {
-        kprintln!("yield_cpu wird aufgerufen");
+        //kprintln!("yield_cpu wird aufgerufen. Queue: {}", SCHEDULER.lock().ready_queue);
 
-        let old_active = SCHEDULER.lock().active;
+        let old_active: *mut Thread = SCHEDULER.lock().active;
+
+        //kprintln!("yield_cpu wird aufgerufen. yielded: {}", Thread::get_tid(old_active));
 
         // Den aktuellen Thread wieder in die Warteschlange packen
-        let old_active_box = unsafe{ Box::from_raw(old_active)};
+        let old_active_box: Box<Thread> = unsafe{ Box::from_raw(old_active)};
         SCHEDULER.lock().ready_queue.enqueue(old_active_box);
         
 
         // Nächsten Thread holen
-        let next_thread = SCHEDULER.lock().ready_queue.dequeue();
+        let next_thread: Option<Box<Thread>> = SCHEDULER.lock().ready_queue.dequeue();
 
         // Ist das was vernünftiges?
         if next_thread.is_none(){
@@ -129,8 +130,9 @@ impl Scheduler {
         }
 
         // Threads switchen
-        
-        Thread::switch(old_active, Box::into_raw(next_thread.unwrap()));
+        let next_thread_box = Box::into_raw(next_thread.unwrap());
+        SCHEDULER.lock().active = next_thread_box;
+        Thread::switch(old_active, next_thread_box);
     }
 
     /**
@@ -141,8 +143,10 @@ impl Scheduler {
                `tokill_tid` id of the thread to be killed. Calling thread cannot kill itself.
     */
     pub fn kill(tokill_tid: usize) {
+        kprintln!("Killing Thread: {}", tokill_tid);
+
         // Threadmaske erzeugen um remove gut zu benutzten
-        let dummy_thread = Thread::new(tokill_tid, Self::dummy_thread_function);
+        let dummy_thread: Box<Thread> = Thread::new(tokill_tid, Self::dummy_thread_function);
 
         // Thread löschen
         SCHEDULER.lock().ready_queue.remove(dummy_thread);

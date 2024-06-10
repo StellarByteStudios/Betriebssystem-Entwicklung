@@ -11,6 +11,9 @@ use core::borrow::{Borrow, BorrowMut};
 use core::ffi::c_void;
 use core::fmt::Debug;
 use core::ptr;
+use core::fmt;
+use core::fmt::Display;
+
 
 use crate::consts::{self, STACK_ENTRY_SIZE, STACK_SIZE};
 use crate::devices::{cga, kprint};
@@ -164,7 +167,8 @@ pub extern "C" fn thread_kickoff(object: *mut Thread) {
         ((*object).entry)(object);
     }
     loop {
-        Scheduler::exit();
+        //Scheduler::exit();
+        Scheduler::yield_cpu();
     }
 }
 
@@ -172,12 +176,16 @@ pub extern "C" fn thread_kickoff(object: *mut Thread) {
 
 
 
-
-
-
-
+// Vergleichbarkeit der Threads schaffen
 impl PartialEq for Thread {
     fn eq(&self, other: &Self) -> bool {
         self.tid == other.tid
+    }
+}
+
+// Ausgabe der Threads
+impl Display for Thread {
+    fn fmt(&self, w: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
+        return write!(w, "Thread: {}", Self::get_tid(self));
     }
 }

@@ -145,11 +145,13 @@ fn aufgabe4() {
 fn init_all_threads(){
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
+    //aufgabe4::coop_thread_loop::init();
+    aufgabe4::coop_thread_demo::init();
 }
 
 fn print_main_screen() {
     cga::clear();
-    println!("Byte OS: 0.3");
+    println!("Byte OS: 0.4");
     println!("------------------------------------\n");
     println!("Aktuelle Funktionalitaeten:");
     print!("    Bildschirmausgabe ");
@@ -161,6 +163,8 @@ fn print_main_screen() {
     println!("    Tastatureingabe (Ueber Interrupts)");
     println!("    Koroutinen (Kooperativ - verkettet)");
     println!("    Queue (Für die Threads)");
+    println!("    Scheduler (Kooperativ)");
+    println!("    Threads (Kooperativ)");
 }
 
 #[no_mangle]
