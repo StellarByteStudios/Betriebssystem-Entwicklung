@@ -18,6 +18,6 @@ pub fn run() {
         for i in 0..10000 {
             x += 1;
         }
-        loop_counter +=1;
+        loop_counter += 1;
     }
 }

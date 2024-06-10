@@ -1,4 +1,5 @@
 use crate::devices::serial;
+use crate::kernel::cpu;
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
@@ -38,5 +39,7 @@ macro_rules! kprintln {
 
 // Helper function of print macros (must be public)
 pub fn kprint(args: fmt::Arguments) {
+    //let ie = cpu::disable_int_nested();
     WRITER.lock().write_fmt(args).unwrap();
+    //cpu::enable_int_nested(ie);
 }

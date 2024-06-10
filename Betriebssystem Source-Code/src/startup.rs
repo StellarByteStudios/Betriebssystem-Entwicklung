@@ -24,8 +24,8 @@ extern crate spin; // we need a mutex in devices::cga_print
 mod devices;
 mod consts;
 mod kernel;
-mod user;
 mod mylib;
+mod user;
 
 use core::panic::PanicInfo;
 use core::ptr::null;
@@ -39,10 +39,16 @@ use devices::keyboard; // shortcut for keyboard
 use kernel::allocator;
 use kernel::cpu;
 
+use kernel::interrupts;
 use kernel::interrupts::pic;
 use kernel::interrupts::pic::IRQ_KEYBOARD;
 use kernel::interrupts::pic::IRQ_TIMER;
-use kernel::interrupts;
+use kernel::threads;
+use kernel::threads::scheduler::Scheduler;
+use kernel::threads::scheduler::SCHEDULER;
+use kernel::threads::thread;
+use kernel::threads::thread::Thread;
+use mylib::input;
 use user::applications; // Eigene geschriebene Anwendunden
 use user::applications::keyboard_handler;
 use user::aufgabe1::keyboard_demo;
@@ -51,9 +57,7 @@ use user::aufgabe2::heap_demo;
 use user::aufgabe2::sound_demo;
 use user::aufgabe3;
 use user::aufgabe3::keyboard_irq_demo;
-use mylib::input;
 use user::aufgabe4;
-
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -62,7 +66,6 @@ use crate::devices::keyboard::key_hit;
 use crate::devices::keyboard::Keyboard;
 use crate::kernel::interrupts::intdispatcher;
 use crate::user::aufgabe2;
-
 
 fn own_tests() {
     keyboard_handler::run();
@@ -104,15 +107,15 @@ fn aufgabe2() {
 
 fn aufgabe3() {
     cga::clear();
-    
+
     /*
     pic::forbid(IRQ_KEYBOARD);
     pic::forbid(IRQ_TIMER);
-    
+
     kprintln!("Beide Interrupts sind jetzt deaktiviert");
     kprintln!("Status Keyboard {}", pic::status(IRQ_KEYBOARD));
     kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
-    
+
     pic::allow(IRQ_KEYBOARD);
     pic::allow(IRQ_TIMER);
 
@@ -120,20 +123,31 @@ fn aufgabe3() {
     kprintln!("Status Keyboard {}", pic::status(IRQ_KEYBOARD));
     kprintln!("Status Timer {}", pic::status(IRQ_TIMER));
      */
-        
+
     // Cursor muss in Keyboard::KeyboardISR::trigger festgesetzt werden!!!
     keyboard_irq_demo::run();
 }
 
-fn aufgabe4(){
+fn aufgabe4() {
     cga::clear();
+
+    // Threads Initialisieren
+    init_all_threads();
+    
+    // Scheduler aufsetzen
+    Scheduler::schedule();
+
     //aufgabe4::corouts_demo::run();
-    aufgabe4::queue_tests::run();
+    //aufgabe4::queue_tests::run();
 }
 
 
+fn init_all_threads(){
+    threads::idle_thread::init();
+    aufgabe4::hello_world_thread::init();
+}
 
-fn print_main_screen(){
+fn print_main_screen() {
     cga::clear();
     println!("Byte OS: 0.3");
     println!("------------------------------------\n");
@@ -148,19 +162,6 @@ fn print_main_screen(){
     println!("    Koroutinen (Kooperativ - verkettet)");
     println!("    Queue (Für die Threads)");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #[no_mangle]
 pub extern "C" fn startup() {
@@ -179,14 +180,13 @@ pub extern "C" fn startup() {
     //aufgabe3();
     aufgabe4();
 
-
     own_tests();
 
     kprintln!(" = = Closing OS = =");
 
-    loop { 
+    loop {
         //let mut code = key_hit();
-        
+
         //keyboard_handler::handle_keystroke(code.get_ascii());
     }
 }

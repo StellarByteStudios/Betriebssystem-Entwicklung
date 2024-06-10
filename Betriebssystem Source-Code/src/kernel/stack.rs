@@ -39,7 +39,7 @@ impl Stack {
     Description: Get last useable address of stack
     */
     pub fn end_of_stack(&self) -> usize {
-        self.data as usize + self.size -consts:: STACK_ENTRY_SIZE
+        self.data as usize + self.size - consts::STACK_ENTRY_SIZE
     }
 }
 
@@ -60,6 +60,11 @@ Description: Dump stack [first usable address, last usable address]
 */
 impl fmt::Debug for Stack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Stack [0x{:x}, 0x{:x}]", self.data as usize, self.data as usize + self.size - consts::STACK_ENTRY_SIZE)
+        write!(
+            f,
+            "Stack [0x{:x}, 0x{:x}]",
+            self.data as usize,
+            self.data as usize + self.size - consts::STACK_ENTRY_SIZE
+        )
     }
 }

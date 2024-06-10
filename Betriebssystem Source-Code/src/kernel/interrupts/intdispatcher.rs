@@ -15,7 +15,10 @@ extern crate spin;
 
 use crate::kernel::cpu;
 use crate::kernel::interrupts::isr;
-use alloc::{boxed::Box, vec::{self, Vec}};
+use alloc::{
+    boxed::Box,
+    vec::{self, Vec},
+};
 use spin::Mutex;
 
 use super::pic::IRQ_KEYBOARD;
@@ -84,7 +87,6 @@ pub fn register(vector: usize, isr: Box<dyn isr::ISR>) -> bool {
     vectors.map[vector] = isr;
 
     return true;
-
 }
 
 /**
@@ -95,10 +97,9 @@ Parameters: \
    `vector` vector of the interrupt which was fired.
 */
 pub fn report(vector: usize) -> bool {
-
     // Liste der Interrupts holen
     let vectors = INT_VECTORS.lock();
-    
+
     // Wurde ein Interrupthandler mit dieser Nummer angelegt?s
     if vectors.map[vector].is_default_isr() {
         return false;

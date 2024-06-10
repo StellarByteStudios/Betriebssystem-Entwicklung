@@ -1,6 +1,6 @@
 use crate::mylib::queue::{self, Queue};
 
-pub fn run(){
+pub fn run() {
     kprintln!("Testen der Queue");
     kprintln!("Queue Initialisieren");
 
@@ -20,7 +20,11 @@ pub fn run(){
 
     let front_value = queue.dequeue();
 
-    kprintln!("Ausgehangener Wert: {:} und hier die Queue: {}", front_value.unwrap(), queue);
+    kprintln!(
+        "Ausgehangener Wert: {:} und hier die Queue: {}",
+        front_value.unwrap(),
+        queue
+    );
 
     kprintln!("Neue Werte einfügen");
 
@@ -30,53 +34,69 @@ pub fn run(){
 
     kprintln!("Daten in der Queue: {}", queue);
 
-
     kprintln!("Teste remove");
-    
+
     let mut remover = 30;
     let mut successfull_remove = queue.remove(remover);
 
-    kprintln!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    kprintln!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover,
+        successfull_remove,
+        queue
+    );
 
     kprintln!("Für weitere Tests noch ein paar sachen in die Queue schreiben");
 
     queue.enqueue(10046);
     queue.enqueue(34);
     queue.enqueue(70);
-    
+
     kprintln!("Daten in der Queue: {}", queue);
-
-
-
-
 
     kprintln!("\nVersuche Head zu löschen");
     remover = 3;
     successfull_remove = queue.remove(remover);
-    kprintln!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    kprintln!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover,
+        successfull_remove,
+        queue
+    );
 
-    
     kprintln!("\nVersuche Letztes zu löschen");
     remover = 70;
     successfull_remove = queue.remove(remover);
-    kprintln!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
-
+    kprintln!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover,
+        successfull_remove,
+        queue
+    );
 
     kprintln!("\nVersuche nicht Vorhandenes zu löschen");
     remover = 99;
     successfull_remove = queue.remove(remover);
-    kprintln!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    kprintln!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover,
+        successfull_remove,
+        queue
+    );
 
     kprintln!("\nVersuche aus leerer Liste zu löschen zu löschen");
     let mut empty_queue: Queue<u32> = queue::Queue::new();
     remover = 99;
     successfull_remove = empty_queue.remove(remover);
-    kprintln!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, empty_queue);
-
-
+    kprintln!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover,
+        successfull_remove,
+        empty_queue
+    );
 }
 
-pub fn run_display(){
+pub fn run_display() {
     println!("Testen der Queue");
     println!("Queue Initialisieren");
 
@@ -96,7 +116,11 @@ pub fn run_display(){
 
     let front_value = queue.dequeue();
 
-    println!("Ausgehangener Wert: {:} und hier die Queue: {}", front_value.unwrap(), queue);
+    println!(
+        "Ausgehangener Wert: {:} und hier die Queue: {}",
+        front_value.unwrap(),
+        queue
+    );
 
     println!("Neue Werte einfügen");
 
@@ -106,46 +130,54 @@ pub fn run_display(){
 
     println!("Daten in der Queue: {}", queue);
 
-
     println!("Teste remove");
-    
+
     let mut remover = 30;
     let mut successfull_remove = queue.remove(remover);
 
-    println!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    println!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover, successfull_remove, queue
+    );
 
     println!("Für weitere Tests noch ein paar sachen in die Queue schreiben");
 
     queue.enqueue(10046);
     queue.enqueue(34);
     queue.enqueue(70);
-    
+
     println!("Daten in der Queue: {}", queue);
-
-
-
-
 
     println!("\nVersuche Head zu löschen");
     remover = 3;
     successfull_remove = queue.remove(remover);
-    println!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    println!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover, successfull_remove, queue
+    );
 
-    
     println!("\nVersuche Letztes zu löschen");
     remover = 70;
     successfull_remove = queue.remove(remover);
-    println!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
-
+    println!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover, successfull_remove, queue
+    );
 
     println!("\nVersuche nicht Vorhandenes zu löschen");
     remover = 99;
     successfull_remove = queue.remove(remover);
-    println!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, queue);
+    println!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover, successfull_remove, queue
+    );
 
     println!("\nVersuche aus leerer Liste zu löschen zu löschen");
     let mut empty_queue: Queue<u32> = queue::Queue::new();
     remover = 99;
     successfull_remove = empty_queue.remove(remover);
-    println!("Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}", remover, successfull_remove, empty_queue);
+    println!(
+        "Gelöschter Wert: {:} war erfolgreich {:} und hier die Queue: {}",
+        remover, successfull_remove, empty_queue
+    );
 }

@@ -30,30 +30,26 @@ const PIC_IMR2: u16 = 0xa1; // interrupt mask register von PIC 2
    `irq` irq to be enabled
 */
 pub fn allow(irq: u32) {
-	
+    let small_irq: u8 = 1 << irq as u8;
 
-	let small_irq: u8 = 1 << irq as u8;
-
-	// Alten Registerstatus holen
+    // Alten Registerstatus holen
     let old_stat: u8 = cpu::inb(PIC_IMR1);
 
-	// Neuen Status Zusammensetzen
-	let negative_mask: u8 = 0xFF ^ small_irq;
-	let new_stat: u8 = old_stat & negative_mask;
+    // Neuen Status Zusammensetzen
+    let negative_mask: u8 = 0xFF ^ small_irq;
+    let new_stat: u8 = old_stat & negative_mask;
 
+    // Mal zum Testen
+    /*
+    kprintln!("\nTesten der Bits in Allow:");
+    kprintln!("small_irq:     {:#8b}", small_irq);
+    kprintln!("old_stat:      {:#8b}", old_stat);
+    kprintln!("negative_mask: {:#8b}", negative_mask);
+    kprintln!("new_stat:      {:#8b}", new_stat);
+    */
 
-	// Mal zum Testen
-	/*
-	kprintln!("\nTesten der Bits in Allow:");
-	kprintln!("small_irq:     {:#8b}", small_irq);
-	kprintln!("old_stat:      {:#8b}", old_stat);
-	kprintln!("negative_mask: {:#8b}", negative_mask);
-	kprintln!("new_stat:      {:#8b}", new_stat);
-	*/
-
-	// Neuen Status im Pic Speichern
-	cpu::outb(PIC_IMR1, new_stat);
-
+    // Neuen Status im Pic Speichern
+    cpu::outb(PIC_IMR1, new_stat);
 }
 
 /**
@@ -64,26 +60,25 @@ pub fn allow(irq: u32) {
    `irq` irq to be disabled
 */
 pub fn forbid(irq: u32) {
+    let small_irq: u8 = 1 << irq as u8;
 
-	let small_irq: u8 = 1 << irq as u8;
-
-	// Alten Registerstatus holen
+    // Alten Registerstatus holen
     let old_stat: u8 = cpu::inb(PIC_IMR1);
 
-	// Neuen Status Zusammensetzen
-	let new_stat: u8 = old_stat | small_irq; 
+    // Neuen Status Zusammensetzen
+    let new_stat: u8 = old_stat | small_irq;
 
-	// Mal zum Testen
-	
-	/*
-	kprintln!("\nTesten der Bits in Forbid:");
-	kprintln!("small_irq:     {:#8b}", small_irq);
-	kprintln!("old_stat:      {:#8b}", old_stat);
-	kprintln!("new_stat:      {:#8b}", new_stat);
-	*/
+    // Mal zum Testen
 
-	// Neuen Status im Pic Speichern
-	cpu::outb(PIC_IMR1, new_stat);
+    /*
+    kprintln!("\nTesten der Bits in Forbid:");
+    kprintln!("small_irq:     {:#8b}", small_irq);
+    kprintln!("old_stat:      {:#8b}", old_stat);
+    kprintln!("new_stat:      {:#8b}", new_stat);
+    */
+
+    // Neuen Status im Pic Speichern
+    cpu::outb(PIC_IMR1, new_stat);
 }
 
 /**
@@ -100,15 +95,15 @@ pub fn forbid(irq: u32) {
 pub fn status(irq: u32) -> bool {
     /* Hier muss Code eingefuegt werden */
 
-	let small_irq: u8 = 1 << irq as u8;
+    let small_irq: u8 = 1 << irq as u8;
 
-	// Daten Register über CPU Port Holen
-	let stat_reg: u8 = cpu::inb(PIC_IMR1);
+    // Daten Register über CPU Port Holen
+    let stat_reg: u8 = cpu::inb(PIC_IMR1);
 
-	// Abgleichen
-	if (small_irq & stat_reg) != 0 {
-		return false;
-	}
+    // Abgleichen
+    if (small_irq & stat_reg) != 0 {
+        return false;
+    }
 
     return true;
 }

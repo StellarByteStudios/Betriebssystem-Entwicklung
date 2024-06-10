@@ -1,9 +1,7 @@
-
-use core::cell::RefCell;
 use alloc::rc::Rc;
-use core::fmt::Display;
+use core::cell::RefCell;
 use core::fmt;
-
+use core::fmt::Display;
 
 // Definition eines generischen Listenelements
 pub struct Node<T> {
@@ -11,7 +9,7 @@ pub struct Node<T> {
     pub next: Option<Rc<RefCell<Node<T>>>>,
 }
 
-// Implementierung eines Konstruktors für ein generisches Listenelement 
+// Implementierung eines Konstruktors für ein generisches Listenelement
 impl<T> Node<T> {
     pub fn new(data: T) -> Self {
         Self { data, next: None }
@@ -27,31 +25,29 @@ pub struct Queue<T> {
 pub type Link<T> = Option<Rc<RefCell<Node<T>>>>;
 
 impl<T: PartialEq> Queue<T> {
-
-   // Konstruktor, um eine leere Liste zu erzeugen
-   pub const fn new() -> Self {
-      Self { head: None }
-   }
-   
-   // Ein Listenelement am Ende der Liste einfuegen   
-   pub fn enqueue(&mut self, data: T) { 
-      let new_node = Rc::new(RefCell::new(Node::new(data)));
-      
-      if self.head.is_none() {
-         self.head = Some(new_node.clone());
-      }
-      else {
-        let mut node = self.head.clone();
-        while let Some(n) = node {
-            if n.borrow_mut().next.is_none() {
-	           n.borrow_mut().next = Some(new_node);
-	           break;
-            }
-            node = n.borrow().next.clone();
-        }
-      }
+    // Konstruktor, um eine leere Liste zu erzeugen
+    pub const fn new() -> Self {
+        Self { head: None }
     }
-    
+
+    // Ein Listenelement am Ende der Liste einfuegen
+    pub fn enqueue(&mut self, data: T) {
+        let new_node = Rc::new(RefCell::new(Node::new(data)));
+
+        if self.head.is_none() {
+            self.head = Some(new_node.clone());
+        } else {
+            let mut node = self.head.clone();
+            while let Some(n) = node {
+                if n.borrow_mut().next.is_none() {
+                    n.borrow_mut().next = Some(new_node);
+                    break;
+                }
+                node = n.borrow().next.clone();
+            }
+        }
+    }
+
     // Das Listenelement am Kopf der Liste aushaengen und zurueckgeben
     pub fn dequeue(&mut self) -> Option<T> {
         self.head.take().map(|old_head| {
@@ -59,8 +55,7 @@ impl<T: PartialEq> Queue<T> {
                 Some(new_head) => {
                     self.head = Some(new_head);
                 }
-                None => {
-                }
+                None => {}
             }
             Rc::try_unwrap(old_head).ok().unwrap().into_inner().data
         })
@@ -70,24 +65,21 @@ impl<T: PartialEq> Queue<T> {
     // Rueckgabewert: true:  falls das Element gefunden und geloescht wurde
     //                false: sonst
     pub fn remove(&mut self, data: T) -> bool {
-
-        
         // Ist überhaupt was in der Liste?
         if self.head.is_none() {
             // Liste war leer
             return false;
         }
-        
+
         // Ist der Head schon die Node, die entfernt werden soll
         // Kopf Klonen
-        let head_cloned  = self.head.clone();
+        let head_cloned = self.head.clone();
         // Option auspackens
         let head_node = head_cloned.unwrap();
         // Daten holen
         //let head_borrowed = head_node.borrow();
 
-        
-        if head_node.borrow().data == data{
+        if head_node.borrow().data == data {
             // Kopf wurde gefunden. Also muss er überschrieben werden
             // Kopf-Nachfolger zum neuen Kopf machen
             let new_head_ref = self.head.clone().unwrap();
@@ -98,12 +90,10 @@ impl<T: PartialEq> Queue<T> {
             return true;
         }
 
-
         // Zeiger auf die Node an der wir grade sind
         let mut node = self.head.clone();
 
         while node.is_some() {
-
             // Vorgänder Speichern (wichtig für Aushängen)
             let prev = node.unwrap();
 
@@ -111,26 +101,23 @@ impl<T: PartialEq> Queue<T> {
             node = prev.borrow().next.clone();
 
             // Ist die nächste Node überhaup eine Valide
-            if node.is_none(){
+            if node.is_none() {
                 // Wenn nicht ist die Queue am Ende
                 return false;
             }
 
             // Sind dort unsere gesuchten Daten
             if node.clone().unwrap().borrow().data == data {
-
                 // Zeiger von Prev auf den Nachfolger von Node gesetzt und damit Node gelöscht
                 prev.borrow_mut().next = node.unwrap().borrow_mut().next.take();
-                
-	            return true;
-            }   
-        }     
+
+                return true;
+            }
+        }
 
         return false;
-   }
-
+    }
 }
-
 
 // Ausgabe der Liste
 impl<T: Display> Display for Queue<T> {

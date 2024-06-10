@@ -270,14 +270,14 @@ impl LinkedListAllocator {
         let free_block = free_block_option.unwrap();
 
         // Kann man die Reste noch verwerten (groß genug)
-        if free_block.size - good_size >= 0x10{
+        if free_block.size - good_size >= 0x10 {
             // Reste als neuen Block speichern
             self.add_free_block(
                 free_block.start_addr() + good_size,
                 free_block.size - good_size,
             );
         }
-        
+
         // Freien Block zurückgeben
         return free_block.start_addr() as *mut u8;
     }

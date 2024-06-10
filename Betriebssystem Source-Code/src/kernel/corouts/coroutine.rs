@@ -28,7 +28,7 @@ extern "C" {
 #[repr(C)]
 pub struct Coroutine {
     cid: usize,
-    stack_ptr: usize,      // stack pointer to saved context
+    stack_ptr: usize,    // stack pointer to saved context
     stack: stack::Stack, // memory for stack
     entry: extern "C" fn(*mut Coroutine),
     next: *mut Coroutine,
@@ -40,7 +40,7 @@ impl Coroutine {
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Coroutine)) -> Box<Coroutine> {
         let my_stack = stack::Stack::new(STACK_SIZE);
-        
+
         // = = = = = Keine Ahnung wie ich meine Stack ausgeben soll...
         //kprintln!("==== My Stack: {:?}", my_stack);
         //my_stack.fmt("");
@@ -62,18 +62,18 @@ impl Coroutine {
        Description: Start coroutine `cor`
     */
     pub fn start(cor: *mut Coroutine) {
-        unsafe{
+        unsafe {
             // = = = = = = Stackpointer ist bisher immer 0 gewesen
             //kprint!("Coroutine in Start function. Stack_ptr: {:#x}\n", (*cor).stack_ptr);
             _coroutine_start((*cor).stack_ptr as usize);
         }
     }
-    
+
     /**
        Description: Switch from `now` to next coroutine
     */
     pub fn switch2next(now: *mut Coroutine) {
-       unsafe{
+        unsafe {
             //kprintln!("Es wird geswitched");
             //let then = (*now).get_next();
             //let then_stack_pt = (*then).stack_ptr as usize;
@@ -83,8 +83,11 @@ impl Coroutine {
 
             //Self::debug_stop();
             //_coroutine_switch(now_stack_pt, then_stack_pt);
-            _coroutine_switch((*now).stack_ptr.borrow_mut(), (*(*now).get_next()).stack_ptr as usize)
-       }
+            _coroutine_switch(
+                (*now).stack_ptr.borrow_mut(),
+                (*(*now).get_next()).stack_ptr as usize,
+            )
+        }
     }
 
     /**
@@ -183,5 +186,4 @@ pub extern "C" fn kickoff(object: *mut Coroutine) {
         ((*object).entry)(object);
     }
     loop {}
-
 }

@@ -365,7 +365,7 @@ impl Keyboard {
     pub fn plugin() {
         // Pic Bit freigeben
         pic::allow(IRQ_KEYBOARD);
-        
+
         // Registrieren der Tastatur
         intdispatcher::register(INT_VEC_KEYBOARD, Box::new(KeyboardISR));
     }
@@ -522,11 +522,11 @@ impl isr::ISR for KeyboardISR {
         // Warten bis ein Valid Key da ist
         let mut key: key::Key;
         //loop {
-            key = self::key_hit();
+        key = self::key_hit();
 
-            //if key.valid() {
-            //    break;
-            //}
+        //if key.valid() {
+        //    break;
+        //}
         //}
 
         // Den eingegebenen Buchstaben Speichern

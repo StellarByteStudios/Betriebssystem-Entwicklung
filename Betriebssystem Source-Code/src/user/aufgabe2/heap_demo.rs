@@ -7,9 +7,9 @@ use crate::devices::key;
 use crate::devices::keyboard;
 use crate::kernel::allocator;
 use crate::kernel::allocator::dump_free_list;
+use crate::mylib::input::wait_for_return;
 use alloc::string::ToString;
 use alloc::{boxed::Box, vec::Vec};
-use crate::mylib::input::wait_for_return;
 
 #[derive(Debug)]
 struct VectorStruct {

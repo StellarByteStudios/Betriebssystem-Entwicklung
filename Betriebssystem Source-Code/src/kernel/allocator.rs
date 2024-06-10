@@ -20,12 +20,13 @@
 use crate::kernel::allocator::bump::BumpAllocator;
 use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
+use crate::consts::HEAP_SIZE;
 
 pub mod bump;
 pub mod list;
 
 pub const HEAP_START: usize = 0x500000;
-pub const HEAP_SIZE: usize = 1024 * 1024; // 1 MB heap size
+//pub const HEAP_SIZE: usize = 1024 * 1024; // 1 MB heap size
 
 // defining the Allocator (which implements the 'GlobalAlloc' trait)
 #[global_allocator]

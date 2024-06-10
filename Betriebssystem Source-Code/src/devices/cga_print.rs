@@ -10,6 +10,7 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 use crate::devices::cga;
+use crate::kernel::cpu;
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
@@ -55,5 +56,7 @@ macro_rules! println {
 
 // Helper function of print macros (must be public)
 pub fn print(args: fmt::Arguments) {
+    //let ie = cpu::disable_int_nested();
     WRITER.lock().write_fmt(args).unwrap();
+    //cpu::enable_int_nested(ie);
 }

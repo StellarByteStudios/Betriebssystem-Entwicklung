@@ -28,12 +28,11 @@ pub fn run() {
     cga::set_attribute(cga::Color::Black, cga::Color::Green, false);
 
     // Komandozeile aktivieren
-    unsafe{
+    unsafe {
         COMMANDLINE_ENABLED = true;
     }
 
     kprintln!("In dem keyboard_handler");
-    
 
     // ================= NOTIZ: Pfeiltasten werden nicht richtig übersetzt ================= //
     //kprint!("Die gedrückten Tasten sind: ");
@@ -68,7 +67,7 @@ pub fn run() {
         if error_code {
             cpu::halt();
             return;
-        } 
+        }
     }*/
 }
 
@@ -139,7 +138,6 @@ fn move_cursor(dir: Direction) {
 }
 
 fn handle_enter() -> bool {
-
     cga::print_byte('\n' as u8);
     return false;
 
@@ -189,7 +187,6 @@ fn handle_enter() -> bool {
     return false;
 
      */
-    
 }
 
 fn command_clear() {
