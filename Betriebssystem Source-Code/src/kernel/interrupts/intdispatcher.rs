@@ -20,6 +20,7 @@ use alloc::{
     vec::{self, Vec},
 };
 use spin::Mutex;
+use core::sync::atomic::{AtomicUsize, Ordering};
 
 use super::pic::IRQ_KEYBOARD;
 
@@ -36,8 +37,9 @@ pub const INT_VEC_KEYBOARD: usize = 33;
 */
 #[no_mangle]
 pub extern "C" fn int_disp(vector: u32) {
-    //kprintln!("KEYBOARD INT DETECTED");
-    //kprintln!("Interrupt detectet: nr = {}", vector);
+    if is_initialized() == false {
+        panic!("int_disp called but INT_VECTORS not initialized.");
+    }
 
     if report(vector as usize) == false {
         kprint!("Panic: unexpected interrupt nr = {}", vector);
@@ -48,7 +50,8 @@ pub extern "C" fn int_disp(vector: u32) {
 
 const MAX_VEC_NUM: usize = 256;
 
-static INT_VECTORS: Mutex<IntVectors> = Mutex::new(IntVectors { map: Vec::new() });
+static mut INT_VECTORS: Option<IntVectors> = None;
+static INT_VECTORS_INITIALIZED: AtomicUsize = AtomicUsize::new(0);
 
 // Interrupt vector map
 struct IntVectors {
@@ -59,17 +62,36 @@ struct IntVectors {
 unsafe impl Send for IntVectors {}
 unsafe impl Sync for IntVectors {}
 
+
+// used in 'int_disp' to check if interrupt dispatching tables has been initialized
+fn is_initialized() -> bool {
+    let v = INT_VECTORS_INITIALIZED.load(Ordering::SeqCst);
+    if v == 0 {
+        return false;
+    }
+    return true;
+}
+
+
 /**
  Description:
     Initializing the ISR map with MAX_VEC_NUM default ISRs.
     Specific ISRs can be overwritten by calling `assign`.
 */
 pub fn init() {
-    let mut vectors = INT_VECTORS.lock();
+    kprintln!("INT_VECTORS: init");
+    unsafe {
+        INT_VECTORS = Some(IntVectors { map: Vec::new() });
 
-    for _ in 0..MAX_VEC_NUM {
-        vectors.map.push(Box::new(isr::Default));
+        for _ in 0..MAX_VEC_NUM {
+            INT_VECTORS
+                .as_mut()
+                .unwrap()
+                .map
+                .push(Box::new(isr::Default));
+        }
     }
+    INT_VECTORS_INITIALIZED.store(1, Ordering::SeqCst);
 }
 
 /**
@@ -81,10 +103,17 @@ pub fn init() {
     `isr` the isr to be registered
 */
 pub fn register(vector: usize, isr: Box<dyn isr::ISR>) -> bool {
-    // Liste der Interrupts holen
-    let mut vectors = INT_VECTORS.lock();
+    // Interrupts Unterdrücken
+    let ie: bool = cpu::disable_int_nested();
 
+    // Liste der Interrupts holen
+    let vectors = unsafe { INT_VECTORS.as_mut().unwrap() };
+
+    // Interrupt registrieren
     vectors.map[vector] = isr;
+
+    // Interrupts wieder freigeben
+    cpu::enable_int_nested(ie);
 
     return true;
 }
@@ -98,7 +127,7 @@ Parameters: \
 */
 pub fn report(vector: usize) -> bool {
     // Liste der Interrupts holen
-    let vectors = INT_VECTORS.lock();
+    let vectors =  unsafe { INT_VECTORS.as_mut().unwrap() };
 
     // Wurde ein Interrupthandler mit dieser Nummer angelegt?s
     if vectors.map[vector].is_default_isr() {

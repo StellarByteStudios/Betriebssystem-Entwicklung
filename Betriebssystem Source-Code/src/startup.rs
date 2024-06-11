@@ -36,6 +36,7 @@ use devices::cga_print; // used to import code needed by println!
 use devices::keyboard; // shortcut for keyboard
                        //use devices::
 
+use devices::pit;
 use kernel::allocator;
 use kernel::cpu;
 
@@ -82,6 +83,9 @@ fn init_all() {
 
     // register keyboard ISR
     Keyboard::plugin();
+
+    // Timer Interupt registrieren
+    pit::plugin();
 
     // CPU enable ints
     cpu::enable_int();

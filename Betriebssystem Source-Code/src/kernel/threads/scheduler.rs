@@ -110,11 +110,14 @@ impl Scheduler {
         Description: Yield cpu and switch to next thread
     */
     pub fn yield_cpu() {
-        //kprintln!("yield_cpu wird aufgerufen. Queue: {}", SCHEDULER.lock().ready_queue);
-
         let old_active: *mut Thread = SCHEDULER.lock().active;
 
-        //kprintln!("yield_cpu wird aufgerufen. yielded: {}", Thread::get_tid(old_active));
+        // Für den Fall dass durch einen Interupt ein threadwechsel Stattfindet
+        // obwohl noch keine Threads angelegt sind
+        if old_active.is_null(){
+            kprintln!("Yield obwohl noch kein Thread aktiv");
+            return;
+        }
 
         // Den aktuellen Thread wieder in die Warteschlange packen
         let old_active_box: Box<Thread> = unsafe{ Box::from_raw(old_active)};

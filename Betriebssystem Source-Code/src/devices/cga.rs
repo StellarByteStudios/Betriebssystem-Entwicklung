@@ -139,6 +139,7 @@ pub fn setpos(x: u32, y: u32) {
     cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
     // Daten (Possition) rein schreiben
     cpu::outb(CGA_DATA_PORT, cursor_bytes.1);
+    //kprintln!("Set Pos to: ({},{})", x, y); // Man muss in kprint nestet_interupts dafür disablen
 }
 
 /**

@@ -44,12 +44,7 @@ impl Thread {
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Thread)) -> Box<Thread> {
         let my_stack = stack::Stack::new(STACK_SIZE);
-
-        // = = = = = Keine Ahnung wie ich meine Stack ausgeben soll...
-        //kprintln!("==== My Stack: {:?}", my_stack);
-        //my_stack.fmt("");
         let my_stack_ptr = my_stack.end_of_stack();
-
         let mut thread = Box::new(Thread {
             tid: my_cid,
             stack_ptr: my_stack_ptr,
@@ -66,8 +61,6 @@ impl Thread {
     */
     pub fn start(cor: *mut Thread) {
         unsafe {
-            // = = = = = = Stackpointer ist bisher immer 0 gewesen
-            //kprint!("Thread in Start function. Stack_ptr: {:#x}\n", (*cor).stack_ptr);
             _thread_start((*cor).stack_ptr as usize);
         }
     }
@@ -167,8 +160,7 @@ pub extern "C" fn thread_kickoff(object: *mut Thread) {
         ((*object).entry)(object);
     }
     loop {
-        //Scheduler::exit();
-        Scheduler::yield_cpu();
+        Scheduler::exit();
     }
 }
 
