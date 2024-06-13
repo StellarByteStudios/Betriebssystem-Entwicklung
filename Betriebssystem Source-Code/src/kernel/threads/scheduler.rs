@@ -38,6 +38,7 @@ pub fn get_active_tid() -> usize {
 pub struct Scheduler {
     active: *mut thread::Thread,
     ready_queue: queue::Queue<Box<thread::Thread>>, // auf die CPU wartende Threads
+    inizialized: bool
 }
 
 unsafe impl Send for Scheduler {}
@@ -50,6 +51,7 @@ impl Scheduler {
         Scheduler {
             active: ptr::null_mut(),
             ready_queue: queue::Queue::new(),
+            inizialized: false
         }
     }
 
@@ -57,6 +59,7 @@ impl Scheduler {
      Description: Start the scheduler. Called only once from 'startup'
     */
     pub fn schedule() {
+        let ie = cpu::disable_int_nested();
         let next_thread = SCHEDULER.lock().ready_queue.dequeue();
         if let Some(that) = next_thread {
             // convert 'next_thread' into raw pointer.
@@ -65,6 +68,11 @@ impl Scheduler {
 
             // set active reference in SCHEDULER
             SCHEDULER.lock().active = raw;
+
+            // set Scheduler to inizialized
+            SCHEDULER.lock().inizialized = true;
+
+            cpu::enable_int_nested(ie);
 
             // and start this thread
             thread::Thread::start(raw);
@@ -110,6 +118,14 @@ impl Scheduler {
         Description: Yield cpu and switch to next thread
     */
     pub fn yield_cpu() {
+        let ie = cpu::disable_int_nested();
+        // Nachschauen ob der Scheduler überhaupt initialisiert ist
+        if !SCHEDULER.lock().inizialized{
+            return;
+        }
+
+
+        // Aktuel aktiven Thread abspeichern
         let old_active: *mut Thread = SCHEDULER.lock().active;
 
         // Für den Fall dass durch einen Interupt ein threadwechsel Stattfindet
@@ -135,6 +151,8 @@ impl Scheduler {
         // Threads switchen
         let next_thread_box = Box::into_raw(next_thread.unwrap());
         SCHEDULER.lock().active = next_thread_box;
+
+        cpu::enable_int_nested(ie);
         Thread::switch(old_active, next_thread_box);
     }
 

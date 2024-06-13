@@ -67,6 +67,7 @@ use crate::devices::keyboard::key_hit;
 use crate::devices::keyboard::Keyboard;
 use crate::kernel::interrupts::intdispatcher;
 use crate::user::aufgabe2;
+use crate::devices::pcspk;
 
 fn own_tests() {
     keyboard_handler::run();
@@ -134,6 +135,12 @@ fn aufgabe3() {
 
 fn aufgabe4() {
     cga::clear();
+
+    // Lied abspielen
+    //pcspk::alle_meine_entchen();
+    pcspk::starwars_imperial();
+    //pcspk::super_mario();
+    //pcspk::doom();
 
     // Threads Initialisieren
     init_all_threads();

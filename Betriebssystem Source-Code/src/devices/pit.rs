@@ -57,7 +57,7 @@ pub fn interval(tick_lenght: u32) {
 
     // Command zusammenbauen
     // (00)Channel 0 | (11)Access-Mode: high/low Byte | (011)Timer_mode 3 = (square wave generator) | (0)Conter-Mode: Binary
-    let pit_command: u8 = 0b00_00_011_0;
+    let pit_command: u8 = 0b00_11_011_0;
 
     //kprintln!("tick_length: {}", tick_lenght);
     //kprintln!("(tick_lenght / 1000: {})", (tick_lenght as f32 / 1000.0));
@@ -112,10 +112,12 @@ impl isr::ISR for PitISR {
         // Rotate the spinner each 100 ticks. One tick is 10ms, so the spinner
         // rotates 360 degress in about 1s
  
-        // Interrupts zwischendrin disablen
-        let ie: bool = cpu::disable_int_nested();
+        
         // Müssen wir die Uhr aktuallisieren?
         if systime % 100 == 0 {
+
+            // Interrupts zwischendrin disablen
+            let ie: bool = cpu::disable_int_nested();
 
             // Position festsetzen vom Bildschirm
             let clock_cursor_pos: (u32, u32) = CLOCK_POS;
@@ -135,12 +137,14 @@ impl isr::ISR for PitISR {
             // Cursor wieder an richtige Stelle setzen
             cga::setpos(old_cursor_pos.0, old_cursor_pos.1);
 
+            // Interrupts wieder freischalten
+            cpu::enable_int_nested(ie);
         }
-        // Interrupts wieder freischalten
-        cpu::enable_int_nested(ie);
+        
 
 
         // We try to switch to the next thread
+        // Funktioniert noch nicht...
         //Scheduler::yield_cpu();
 
     }

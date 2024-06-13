@@ -92,6 +92,7 @@ pub fn show(x: u32, y: u32, character: char, attrib: u8) {
  Description: Return cursor position `x`,`y`
 */
 pub fn getpos() -> (u32, u32) {
+    let ie = cpu::disable_int_nested();
     // Low-Byte holen
     cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
     let b_low: u8 = cpu::inb(CGA_DATA_PORT);
@@ -109,6 +110,7 @@ pub fn getpos() -> (u32, u32) {
     // y-Wert berechnen
     let y: u32 = (offset - x) / CGA_COLUMNS;
 
+    cpu::enable_int_nested(ie);
     return (x, y);
 }
 
@@ -128,6 +130,7 @@ pub fn setpos(x: u32, y: u32) {
     let cursor_offset: u32 = y * CGA_COLUMNS + x;
     let cursor_bytes: (u8, u8) = get_bytes(cursor_offset as u16);
 
+    let ie = cpu::disable_int_nested();
     // Low-Byte setzen
     // Richtige Registerstelle auswählen
     cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
@@ -140,6 +143,8 @@ pub fn setpos(x: u32, y: u32) {
     // Daten (Possition) rein schreiben
     cpu::outb(CGA_DATA_PORT, cursor_bytes.1);
     //kprintln!("Set Pos to: ({},{})", x, y); // Man muss in kprint nestet_interupts dafür disablen
+
+    cpu::enable_int_nested(ie);
 }
 
 /**
