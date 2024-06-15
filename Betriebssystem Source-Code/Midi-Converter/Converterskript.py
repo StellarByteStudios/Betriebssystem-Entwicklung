@@ -10,25 +10,36 @@ def main():
     # Pfad zur Ausgabe-Datei
     pathToMethod = "MidiOutput/Doom.txt"
 
+    # Speed-Faktor
+    #bpm = 100
+    speedFactor = 400 #* bpm/120
+
     # Midi-File einlesen
     midifile = MidiFile(pathToMedi)
     # Midi Convertieren
-    notes_and_rests = midi_to_frequencies_durations_and_rests(midifile)
+    notes_and_rests = midi_to_frequencies_durations_and_rests(midifile, speedFactor)
 
     # Frequenzen in Methoden-Format schreiben
     formatedMethod = "pub fn doom() {\n"
 
+    delayskip = 0
     for item in notes_and_rests:
         # Schauen ob es eine Pause ist
         if item[0] == 'rest':
-            # Ist die Pause zu kurz wird sie weg gelassen
+            # Ist die Pause zu kurz wird sie an nächste Note angehangen
+            if int(item[1]) < 10:
+                #delayskip = int(item[1]) 
+                formatedMethod += f"    delay({10});\n"
+                delayskip = 0
             if int(item[1]) >= 10:
-                formatedMethod += f"    delay({int(item[1]-10)});\n"
+                formatedMethod += f"    delay({int(item[1])});\n"
         else:
-            if int(item[1]) >= 10:
-                formatedMethod += f"    play({item[0]:.2f}, {int(item[1]-10)});\n"
+            if int(item[1]) >= 20:
+                formatedMethod += f"    play({item[0]:.2f}, {int(item[1] + delayskip)});\n"
+                delayskip = 0
             else:
-                formatedMethod += f"    play({item[0]:.2f}, 10);\n"
+                formatedMethod += f"    play({item[0]:.2f}, {int(20 + delayskip) });\n"
+                delayskip = 0
 
     
     formatedMethod +="}\n"
@@ -44,24 +55,28 @@ def main():
     #print(f"{notes_and_rests}")
 
     """
+    # Midi-File einlesen
+    midifile = MidiFile(pathToMedi)
     # Midi Convertieren
-    #notes_and_durations = midi_to_freq_duration(midifile)
+    notes_and_rests = midi_to_frequencies_durations_and_rests(midifile)
 
     # Frequenzen in Methoden-Format schreiben
     formatedMethod = "pub fn starwars_imperial() {\n"
 
-    for freq, dur in notes_and_durations:
-        formatedMethod += f"    play({freq:.2f}, {int(dur)});\n"
+    for item in notes_and_rests:
+        # Schauen ob es eine Pause ist
+        if item[0] == 'rest':
+            # Ist die Pause zu kurz wird sie weg gelassen
+            if int(item[1]) >= 10:
+                formatedMethod += f"    delay({int(item[1]-10)});\n"
+        else:
+            if int(item[1]) >= 10:
+                formatedMethod += f"    play({item[0]:.2f}, {int(item[1]-10)});\n"
+            else:
+                formatedMethod += f"    play({item[0]:.2f}, 10);\n"
 
-    formatedMethod +="}\n"
-
-
-    # Neue Methodenaufrufe als Datei speichern
-    with open(pathToMethod, 'w') as file:
-        file.write(formatedMethod)
     
-    for freq, dur in notes_and_durations:
-        print(f"Frequency: {freq:.2f} Hz, Duration: {int(dur)} ms")
+    formatedMethod +="}\n"
 
 
     """
@@ -83,12 +98,12 @@ def midi_note_to_freq(note):
 
 
 # Define the function to convert ticks to milliseconds
-def ticks_to_ms(ticks, tempo, ticks_per_beat):
+def ticks_to_ms(ticks, tempo, ticks_per_beat, speedFactor=1):
     # Calculate time per tick in microseconds
     us_per_tick = tempo / ticks_per_beat
     # Convert microseconds to milliseconds
-    ms_per_tick = us_per_tick #/ 1000
-    return ticks * ms_per_tick
+    ms_per_tick = us_per_tick / 1000
+    return ticks * ms_per_tick * speedFactor
 
 
 
@@ -124,7 +139,7 @@ def midi_to_freq_duration(mid):
 
 
 
-def midi_to_frequencies_durations_and_rests(midi):
+def midi_to_frequencies_durations_and_rests(midi, speedFactor=1):
     notes_and_rests = []
     current_time = 0
     ongoing_notes = {}
@@ -144,7 +159,7 @@ def midi_to_frequencies_durations_and_rests(midi):
             # Note on event with non-zero velocity (start of the note)
             if last_note_end_time and (current_time > last_note_end_time):
                 rest_duration_ticks = current_time - last_note_end_time
-                rest_duration_ms = ticks_to_ms(rest_duration_ticks, tempo, ticks_per_beat)
+                rest_duration_ms = ticks_to_ms(rest_duration_ticks, tempo, ticks_per_beat, speedFactor)
                 notes_and_rests.append(('rest', rest_duration_ms))
             ongoing_notes[msg.note] = current_time
 
@@ -153,7 +168,7 @@ def midi_to_frequencies_durations_and_rests(midi):
             if msg.note in ongoing_notes:
                 start_time = ongoing_notes.pop(msg.note)
                 duration_ticks = current_time - start_time
-                duration_ms = ticks_to_ms(duration_ticks, tempo, ticks_per_beat)
+                duration_ms = ticks_to_ms(duration_ticks, tempo, ticks_per_beat, speedFactor)
                 frequency = midi_note_to_freq(msg.note)
                 notes_and_rests.append((frequency, duration_ms))
                 last_note_end_time = current_time

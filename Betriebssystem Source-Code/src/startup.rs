@@ -141,6 +141,7 @@ fn aufgabe4() {
     pcspk::starwars_imperial();
     //pcspk::super_mario();
     //pcspk::doom();
+    //pcspk::tetris();
 
     // Threads Initialisieren
     init_all_threads();
