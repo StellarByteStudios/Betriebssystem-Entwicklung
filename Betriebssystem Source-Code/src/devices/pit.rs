@@ -145,7 +145,7 @@ impl isr::ISR for PitISR {
 
         // We try to switch to the next thread
         // Funktioniert noch nicht...
-        //Scheduler::yield_cpu();
+        Scheduler::yield_cpu();
 
     }
 }

@@ -161,6 +161,7 @@ pub extern "C" fn thread_kickoff(object: *mut Thread) {
     }
     loop {
         Scheduler::exit();
+        //Scheduler::yield_cpu();
     }
 }
 

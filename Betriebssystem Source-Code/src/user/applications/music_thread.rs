@@ -1,7 +1,7 @@
 use crate::kernel::threads::scheduler::{self, Scheduler};
 use crate::kernel::threads::thread::Thread;
 use alloc::boxed::Box;
-use crate::devices::cga;
+use crate::devices::{cga, pcspk};
 
 
 pub fn init() -> usize {
@@ -19,5 +19,8 @@ pub fn init() -> usize {
 #[no_mangle]
 extern "C" fn music_thread(myself: *mut Thread) {
     // Musik abspielen
+    pcspk::starwars_imperial();
+
+    // Thread beendent
     Scheduler::exit();
 }

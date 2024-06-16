@@ -60,6 +60,7 @@ impl Scheduler {
     */
     pub fn schedule() {
         let ie = cpu::disable_int_nested();
+        kprintln!("Die Queue zum Start {}", SCHEDULER.lock().ready_queue);
         let next_thread = SCHEDULER.lock().ready_queue.dequeue();
         if let Some(that) = next_thread {
             // convert 'next_thread' into raw pointer.
@@ -97,8 +98,12 @@ impl Scheduler {
     */
     pub fn exit() {
 
+        // Interrupts disablen
+        let ie = cpu::disable_int_nested();
+        
         let old_active: *mut Thread = SCHEDULER.lock().active;
-        kprintln!("Exited Thread {}", Thread::get_tid(old_active));
+        kprintln!("Exit Thread {}", Thread::get_tid(old_active));
+        kprintln!("Die Queue zum exit {}", SCHEDULER.lock().ready_queue);
         
         // Get next thread from ready queue
         let next = SCHEDULER.lock().ready_queue.dequeue();
@@ -110,6 +115,7 @@ impl Scheduler {
         if let Some(nx) = next {
             let raw = Box::into_raw(nx);
             SCHEDULER.lock().active = raw;
+            cpu::enable_int_nested(ie);
             thread::Thread::start(raw);
         }
     }
@@ -121,6 +127,7 @@ impl Scheduler {
         let ie = cpu::disable_int_nested();
         // Nachschauen ob der Scheduler überhaupt initialisiert ist
         if !SCHEDULER.lock().inizialized{
+            cpu::enable_int_nested(ie);
             return;
         }
 
@@ -165,12 +172,16 @@ impl Scheduler {
     */
     pub fn kill(tokill_tid: usize) {
         kprintln!("Killing Thread: {}", tokill_tid);
+        kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
+
 
         // Threadmaske erzeugen um remove gut zu benutzten
         let dummy_thread: Box<Thread> = Thread::new(tokill_tid, Self::dummy_thread_function);
 
         // Thread löschen
         SCHEDULER.lock().ready_queue.remove(dummy_thread);
+
+        kprintln!("Queue after kill: {}", SCHEDULER.lock().ready_queue);
 
     }
 

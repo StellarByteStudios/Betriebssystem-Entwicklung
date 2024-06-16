@@ -9,7 +9,7 @@
 */
 #![allow(dead_code)]
 
-use crate::kernel::cpu;
+use crate::kernel::{cpu, threads::scheduler::Scheduler};
 
 use super::pit;
 
@@ -142,6 +142,8 @@ fn delay(mut d: u32) {
         if pit::get_systime() >= old_systime + (d/10) as u64 {
             break;
         }
+        // Wenn noch nicht ready cpu abgeben
+        Scheduler::yield_cpu();
     }
 }
 

@@ -59,6 +59,7 @@ use user::aufgabe2::sound_demo;
 use user::aufgabe3;
 use user::aufgabe3::keyboard_irq_demo;
 use user::aufgabe4;
+use user::aufgabe5;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -138,7 +139,7 @@ fn aufgabe4() {
 
     // Lied abspielen
     //pcspk::alle_meine_entchen();
-    pcspk::starwars_imperial();
+    //pcspk::starwars_imperial();
     //pcspk::super_mario();
     //pcspk::doom();
     //pcspk::tetris();
@@ -153,12 +154,18 @@ fn aufgabe4() {
     //aufgabe4::queue_tests::run();
 }
 
+fn aufgabe5(){
+
+}
+
 
 fn init_all_threads(){
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
+    aufgabe5::thread_demo::init();
+    //applications::music_thread::init();
     //aufgabe4::coop_thread_loop::init();
-    aufgabe4::coop_thread_demo::init();
+    //aufgabe4::coop_thread_demo::init();
 }
 
 fn print_main_screen() {
