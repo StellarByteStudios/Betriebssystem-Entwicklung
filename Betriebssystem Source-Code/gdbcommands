@@ -1,4 +1,6 @@
 break startup
-break src/devices/pit.rs:hhu_tosr::devices::pit::{impl#0}::trigger 
+#break src/devices/pit.rs:hhu_tosr::devices::pit::{impl#0}::trigger 
+#break src/kernel/threads/scheduler.rs:hhu_tosr::kernel::threads::scheduler::Scheduler::prepare_preempt 
+break src/kernel/threads/thread.rs:hhu_tosr::kernel::threads::thread::Thread::switch
 target remote 127.0.0.1:1234
 continue

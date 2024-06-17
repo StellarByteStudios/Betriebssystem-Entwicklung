@@ -143,7 +143,7 @@ fn delay(mut d: u32) {
             break;
         }
         // Wenn noch nicht ready cpu abgeben
-        Scheduler::yield_cpu();
+        //Scheduler::yield_cpu();
     }
 }
 

@@ -117,6 +117,17 @@ impl<T: PartialEq> Queue<T> {
 
         return false;
     }
+
+
+    pub fn is_empty (&self) -> bool {
+        // Ist überhaupt was in der Liste?
+        if self.head.is_some() {
+            // Liste war leer
+            return false;
+        }  
+
+        return true;
+    }
 }
 
 // Ausgabe der Liste

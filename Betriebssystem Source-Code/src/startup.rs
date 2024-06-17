@@ -145,27 +145,39 @@ fn aufgabe4() {
     //pcspk::tetris();
 
     // Threads Initialisieren
-    init_all_threads();
+    //init_all_threads();
     
     // Scheduler aufsetzen
-    Scheduler::schedule();
+    //Scheduler::schedule();
 
     //aufgabe4::corouts_demo::run();
     //aufgabe4::queue_tests::run();
 }
 
 fn aufgabe5(){
+    cga::clear();
 
+    // Threads Initialisieren
+    init_all_threads_preempt();
+
+    // Scheduler aufsetzen
+    Scheduler::schedule();
 }
 
 
 fn init_all_threads(){
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
-    aufgabe5::thread_demo::init();
     //applications::music_thread::init();
     //aufgabe4::coop_thread_loop::init();
     //aufgabe4::coop_thread_demo::init();
+}
+
+fn init_all_threads_preempt(){
+    threads::idle_thread::init();
+    aufgabe4::hello_world_thread::init();
+    aufgabe5::thread_demo::init();
+    //applications::music_thread::init();
 }
 
 fn print_main_screen() {
@@ -201,7 +213,8 @@ pub extern "C" fn startup() {
     //aufgabe1();
     //aufgabe2();
     //aufgabe3();
-    aufgabe4();
+    //aufgabe4();
+    aufgabe5();
 
     own_tests();
 

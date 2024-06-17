@@ -9,9 +9,9 @@ pub fn init(){
     // ID holen
     let thread_id: usize = scheduler::next_thread_id();
     // Thread anlegen
-    let coop_demo_thread: Box<Thread> = Thread::new(thread_id, demo_thread_entry);
+    let demo_thread: Box<Thread> = Thread::new(thread_id, demo_thread_entry);
     // Thread beim Scheduler registrieren
-    scheduler::Scheduler::ready(coop_demo_thread);
+    scheduler::Scheduler::ready(demo_thread);
 }
 
 
@@ -22,10 +22,10 @@ extern "C" fn demo_thread_entry(myself: *mut Thread) {
     // Thread anlegen
     let loop_thread1: usize = thread_loop::init();
     let loop_thread2: usize = thread_loop::init();
-    //let loop_thread3: usize = thread_loop::init();
+    let loop_thread3: usize = thread_loop::init();
 
 
-
+    /*
     // Thread der nach 1000 Iterationen gekillt werden soll
     let victim_id: usize = loop_thread1;
 
@@ -50,5 +50,5 @@ extern "C" fn demo_thread_entry(myself: *mut Thread) {
         // Ansonsten Weitergeben an nächsten Thread 
         //kprintln!("Koordinator-Thread ist durchgelaufen {}", counter);
         Scheduler::yield_cpu();
-    }
+    } */
 }

@@ -23,6 +23,7 @@ use crate::kernel::threads::scheduler;
 use crate::kernel::threads::scheduler::Scheduler;
 use crate::kernel::threads::scheduler::SCHEDULER;
 use crate::kernel::threads::thread;
+use crate::kernel::threads::thread::Thread;
 
 use super::cga_print;
 
@@ -144,8 +145,20 @@ impl isr::ISR for PitISR {
 
 
         // We try to switch to the next thread
-        // Funktioniert noch nicht...
-        Scheduler::yield_cpu();
+        // Threads holen
+        let threads2switch: (*mut Thread, *mut Thread) = SCHEDULER.lock().prepare_preempt();
+
+        kprintln!("Zwei Threads aus threads2switch {:?},  {:?};     Zeit: {}", threads2switch.0, threads2switch.1, get_systime());
+        //kprintln!("Zeit: {}", get_systime());
+        // kam was bei rum?
+        if threads2switch.0.is_null(){
+            return;
+        }
+
+        
+
+        // Ansonsten switchen
+        Thread::switch(threads2switch.0, threads2switch.1);
 
     }
 }
