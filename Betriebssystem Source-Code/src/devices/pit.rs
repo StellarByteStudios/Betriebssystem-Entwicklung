@@ -9,6 +9,7 @@
 #![allow(dead_code)]
 
 use alloc::boxed::Box;
+use core::ptr::null_mut;
 use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 use crate::consts::CLOCK_POS;
@@ -145,17 +146,29 @@ impl isr::ISR for PitISR {
 
 
         // We try to switch to the next thread
-        // Threads holen
-        let threads2switch: (*mut Thread, *mut Thread) = SCHEDULER.lock().prepare_preempt();
+        // Prüfen, ob der Scheduler grade frei ist
+        let mut scheduler: Option<spin::MutexGuard<Scheduler>> = SCHEDULER.try_lock();
+        if scheduler.is_none(){
+            // Scheduler wieder freigeben
+            drop(scheduler);
+            return;
+        }
 
-        kprintln!("Zwei Threads aus threads2switch {:?},  {:?};     Zeit: {}", threads2switch.0, threads2switch.1, get_systime());
+        // Threads holen
+        let threads2switch: (*mut Thread, *mut Thread) = scheduler.as_mut().unwrap().prepare_preempt();
+
+        // Scheduler wieder freigeben
+        drop(scheduler);
+
+        //kprintln!("Zwei Threads aus threads2switch {:?},  {:?};     Zeit: {}", threads2switch.0, threads2switch.1, get_systime());
         //kprintln!("Zeit: {}", get_systime());
         // kam was bei rum?
         if threads2switch.0.is_null(){
             return;
         }
 
-        
+
+       
 
         // Ansonsten switchen
         Thread::switch(threads2switch.0, threads2switch.1);

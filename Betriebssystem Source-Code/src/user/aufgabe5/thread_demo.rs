@@ -2,7 +2,7 @@ use crate::kernel::threads::scheduler::{self, Scheduler};
 use crate::kernel::threads::thread::Thread;
 use alloc::boxed::Box;
 
-use super::thread_loop;
+use super::{music_thread, thread_loop};
 
 
 pub fn init(){
@@ -21,8 +21,9 @@ extern "C" fn demo_thread_entry(myself: *mut Thread) {
     // Loopthreads anlegen
     // Thread anlegen
     let loop_thread1: usize = thread_loop::init();
-    let loop_thread2: usize = thread_loop::init();
-    let loop_thread3: usize = thread_loop::init();
+    let music_thread: usize = music_thread::init();
+    //let loop_thread2: usize = thread_loop::init();
+    //let loop_thread3: usize = thread_loop::init();
 
 
     /*

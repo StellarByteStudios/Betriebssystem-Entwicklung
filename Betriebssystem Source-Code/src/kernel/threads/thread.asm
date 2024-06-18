@@ -111,4 +111,7 @@ _thread_switch:
     pop r9
     pop r8
 
+    ; interrupts wieder freigeben
+    sti
+
     ret

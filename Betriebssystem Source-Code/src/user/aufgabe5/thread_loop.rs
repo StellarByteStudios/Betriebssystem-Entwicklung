@@ -20,7 +20,7 @@ pub fn init() -> usize {
 extern "C" fn thread_loop_entry(myself: *mut Thread) {
 
     // Wie viele Threads laufen vorher? Müssen aus rechnung raus
-    let prev_thread_count: usize = 3;
+    let prev_thread_count: usize = 2;
 
     // Counter parallelen Hochzählen
     let mut counter: usize = 0;

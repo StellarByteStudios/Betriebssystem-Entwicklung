@@ -1359,7 +1359,14 @@ pub fn super_mario() {
     play(659.26, 113);
     delay(226);
     play(783.99, 113);
-    delay(1247);
+    
+    // Händisch Ton eingefügt
+    //delay(1247);
+    delay(600);
+    play(G1, 113);
+    delay(600);
+
+
     play(523.25, 113);
     delay(396);
     play(392.00, 113);

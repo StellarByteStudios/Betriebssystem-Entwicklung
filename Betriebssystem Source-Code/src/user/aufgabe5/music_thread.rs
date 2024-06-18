@@ -19,7 +19,9 @@ pub fn init() -> usize {
 #[no_mangle]
 extern "C" fn music_thread(myself: *mut Thread) {
     // Musik abspielen
-    pcspk::starwars_imperial();
+    //pcspk::starwars_imperial();
+    pcspk::super_mario();
+    //pcspk::doom();
 
     // Thread beendent
     Scheduler::exit();

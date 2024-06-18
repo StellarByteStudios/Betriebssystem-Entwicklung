@@ -107,8 +107,8 @@ impl Scheduler {
         let ie = cpu::disable_int_nested();
         
         let old_active: *mut Thread = SCHEDULER.lock().active;
-        kprintln!("Exit Thread {}", Thread::get_tid(old_active));
-        kprintln!("Die Queue zum exit {}", SCHEDULER.lock().ready_queue);
+        //kprintln!("Exit Thread {}", Thread::get_tid(old_active));
+        //kprintln!("Die Queue zum exit {}", SCHEDULER.lock().ready_queue);
         
         // Get next thread from ready queue
         let next: Option<Box<Thread>> = SCHEDULER.lock().ready_queue.dequeue();
@@ -170,8 +170,8 @@ impl Scheduler {
                `tokill_tid` id of the thread to be killed. Calling thread cannot kill itself.
     */
     pub fn kill(tokill_tid: usize) {
-        kprintln!("Killing Thread: {}", tokill_tid);
-        kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
+        //kprintln!("Killing Thread: {}", tokill_tid);
+        //kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
 
 
         // Threadmaske erzeugen um remove gut zu benutzten
@@ -199,9 +199,11 @@ impl Scheduler {
     pub fn prepare_preempt(&mut self) -> (*mut thread::Thread, *mut thread::Thread) {
 
         //kprintln!("Queue in Preempts {}", self.ready_queue);
+        let ie = cpu::disable_int_nested();
         
         // If the scheduler is not initialized, we abort
         if self.initialized == false {
+            cpu::enable_int_nested(ie);
             return (ptr::null_mut(), ptr::null_mut());
         }
 
@@ -210,6 +212,7 @@ impl Scheduler {
 
         // Gucken, gibts überhaut einen nächsten?
         if self.ready_queue.is_empty(){
+            cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
         };
@@ -222,6 +225,7 @@ impl Scheduler {
 
         // Nochmal testen
         if next.is_none(){
+            cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
         }
@@ -231,6 +235,7 @@ impl Scheduler {
         let next_thread_box: *mut Thread =  Box::into_raw(next.unwrap());
         self.active = next_thread_box;
 
+        cpu::enable_int_nested(ie);
 
         return (old_active, next_thread_box);
     }   
