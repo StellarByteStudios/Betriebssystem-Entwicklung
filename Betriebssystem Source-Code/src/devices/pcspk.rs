@@ -70,7 +70,6 @@ const C3: f32 = 1046.50;
             `d` duration in ms
 */
 pub fn play(f: f32, d: u32) {
-
     //kprintln!("Playing Sound of {} Hz", f);
 
     // Conter starten
@@ -81,7 +80,6 @@ pub fn play(f: f32, d: u32) {
     delay(d);
 
     speaker_off();
-    
 }
 
 /**
@@ -98,7 +96,6 @@ pub fn speaker_on() {
  Description: turns the speaker off
 */
 pub fn speaker_off() {
-
     // Aktuellen Status holen
     let status: u8 = cpu::inb(PORT_PPI);
 
@@ -106,7 +103,6 @@ pub fn speaker_off() {
     let outbyte: u8 = status & !3;
     cpu::outb(PORT_PPI, outbyte);
 }
-
 
 /**
  Description: Helper function of `delay`. Returns the 16 bit counter value\
@@ -128,9 +124,8 @@ fn read_counter() -> u32 {
             `d` duration in ms
 */
 fn delay(mut d: u32) {
-    
     // Mindestens 10 ms
-    if d < 10{
+    if d < 10 {
         d = 10;
     }
 
@@ -139,7 +134,7 @@ fn delay(mut d: u32) {
 
     // So lange loopen bis Syszeit gleich old + d ist
     loop {
-        if pit::get_systime() >= old_systime + (d/10) as u64 {
+        if pit::get_systime() >= old_systime + (d / 10) as u64 {
             break;
         }
         // Wenn noch nicht ready cpu abgeben
@@ -147,10 +142,7 @@ fn delay(mut d: u32) {
     }
 }
 
-
-
-
-fn programm_counter(freq: f32){
+fn programm_counter(freq: f32) {
     // Counter ausrechnen
     //let freq: f32 = 1.0/(d as f32 / 1000.0);
     let counter: u16 = (1_193_182_f32 / freq) as u16;
@@ -160,12 +152,9 @@ fn programm_counter(freq: f32){
     let pit_command: u8 = 0b10_11_011_0;
 
     cpu::outb(PORT_CTRL, pit_command);
-    cpu::outb(PORT_DATA2,counter as u8);
-    cpu::outb(PORT_DATA2,(counter >> 8) as u8);
+    cpu::outb(PORT_DATA2, counter as u8);
+    cpu::outb(PORT_DATA2, (counter >> 8) as u8);
 }
- 
-
-
 
 /**
  Description: Tetris Sound, Kévin Rapaille, August 2013\
@@ -930,162 +919,6 @@ pub fn aerodynamic() {
     speaker_off();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 pub fn alle_meine_entchen() {
     play(261.63, 500);
     play(293.66, 500);
@@ -1115,10 +948,6 @@ pub fn alle_meine_entchen() {
     play(293.66, 500);
     play(261.63, 2000);
 }
-
-
-
-
 
 pub fn starwars_imperial() {
     play(196.00, 98);
@@ -1341,11 +1170,7 @@ pub fn starwars_imperial() {
     play(155.56, 105);
     delay(210);
     play(185.00, 381);
-
 }
-
-
-
 
 pub fn super_mario() {
     play(659.26, 113);
@@ -1359,13 +1184,12 @@ pub fn super_mario() {
     play(659.26, 113);
     delay(226);
     play(783.99, 113);
-    
+
     // Händisch Ton eingefügt
     //delay(1247);
     delay(600);
     play(G1, 113);
     delay(600);
-
 
     play(523.25, 113);
     delay(396);
@@ -1953,9 +1777,6 @@ pub fn super_mario() {
     delay(113);
     play(523.25, 113);
 }
-
-
-
 
 pub fn doom() {
     play(82.41, 30);

@@ -9,12 +9,9 @@ pub fn init() {
     let hello_world_thread: Box<Thread> = Thread::new(thread_id, hello_world_thread_entry);
     // Thread beim Scheduler registrieren
     scheduler::Scheduler::ready(hello_world_thread);
-     
 }
 
 #[no_mangle]
 extern "C" fn hello_world_thread_entry(myself: *mut Thread) {
     println!("Hallo Welt von einem Thread!");
 }
-
-

@@ -19,8 +19,8 @@ use alloc::{
     boxed::Box,
     vec::{self, Vec},
 };
-use spin::Mutex;
 use core::sync::atomic::{AtomicUsize, Ordering};
+use spin::Mutex;
 
 use super::pic::IRQ_KEYBOARD;
 
@@ -62,7 +62,6 @@ struct IntVectors {
 unsafe impl Send for IntVectors {}
 unsafe impl Sync for IntVectors {}
 
-
 // used in 'int_disp' to check if interrupt dispatching tables has been initialized
 fn is_initialized() -> bool {
     let v = INT_VECTORS_INITIALIZED.load(Ordering::SeqCst);
@@ -71,7 +70,6 @@ fn is_initialized() -> bool {
     }
     return true;
 }
-
 
 /**
  Description:
@@ -127,7 +125,7 @@ Parameters: \
 */
 pub fn report(vector: usize) -> bool {
     // Liste der Interrupts holen
-    let vectors =  unsafe { INT_VECTORS.as_mut().unwrap() };
+    let vectors = unsafe { INT_VECTORS.as_mut().unwrap() };
 
     // Wurde ein Interrupthandler mit dieser Nummer angelegt?s
     if vectors.map[vector].is_default_isr() {

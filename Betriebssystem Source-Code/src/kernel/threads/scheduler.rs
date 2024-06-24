@@ -21,23 +21,13 @@ use crate::mylib::queue;
 
 use super::thread::Thread;
 
-
-
-
-
-
 /* ========= Stuff für Thread ID ========= */
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
-
 pub fn next_thread_id() -> usize {
     THREAD_ID_COUNTER.fetch_add(1, core::sync::atomic::Ordering::SeqCst)
 }
-
-
-
-
 
 /* ========= globales Scheduler objekt ========= */
 
@@ -53,9 +43,6 @@ pub fn get_active_tid() -> usize {
 pub fn set_initialized() {
     SCHEDULER.lock().initialized = true;
 }
-
-
-
 
 /**
  Description: Prepare the blocking of the calling thread (which is the active thread)
@@ -74,20 +61,7 @@ pub fn deblock(that: *mut thread::Thread) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* ========= Implementierung der Scheduler-Klasse ========= */
-
 
 pub struct Scheduler {
     active: *mut thread::Thread,
@@ -151,14 +125,13 @@ impl Scheduler {
                      (The thread terminating is not in the ready queue.)
     */
     pub fn exit() {
-
         // Interrupts disablen
         let ie = cpu::disable_int_nested();
-        
+
         let old_active: *mut Thread = SCHEDULER.lock().active;
         //kprintln!("Exit Thread {}", Thread::get_tid(old_active));
         //kprintln!("Die Queue zum exit {}", SCHEDULER.lock().ready_queue);
-        
+
         // Get next thread from ready queue
         let next: Option<Box<Thread>> = SCHEDULER.lock().ready_queue.dequeue();
         if next.is_none() {
@@ -185,21 +158,20 @@ impl Scheduler {
 
         // Für den Fall dass durch einen Interupt ein threadwechsel Stattfindet
         // obwohl noch keine Threads angelegt sind
-        if old_active.is_null(){
+        if old_active.is_null() {
             kprintln!("Yield obwohl noch kein Thread aktiv");
             return;
         }
 
         // Den aktuellen Thread wieder in die Warteschlange packen
-        let old_active_box: Box<Thread> = unsafe{ Box::from_raw(old_active)};
+        let old_active_box: Box<Thread> = unsafe { Box::from_raw(old_active) };
         SCHEDULER.lock().ready_queue.enqueue(old_active_box);
-        
 
         // Nächsten Thread holen
         let next_thread: Option<Box<Thread>> = SCHEDULER.lock().ready_queue.dequeue();
 
         // Ist das was vernünftiges?
-        if next_thread.is_none(){
+        if next_thread.is_none() {
             panic!("Kein Valider Thread aus Ready-Queue bekommen");
         }
 
@@ -222,7 +194,6 @@ impl Scheduler {
         //kprintln!("Killing Thread: {}", tokill_tid);
         //kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
 
-
         // Threadmaske erzeugen um remove gut zu benutzten
         let dummy_thread: Box<Thread> = Thread::new(tokill_tid, Self::dummy_thread_function);
 
@@ -230,26 +201,24 @@ impl Scheduler {
         SCHEDULER.lock().ready_queue.remove(dummy_thread);
 
         //kprintln!("Queue after kill: {}", SCHEDULER.lock().ready_queue);
-
     }
 
     // Dummyfunktion die nichts macht
-    extern "C" fn dummy_thread_function(thread: *mut Thread){ }
+    extern "C" fn dummy_thread_function(thread: *mut Thread) {}
 
     /**
         Description: Check if we can switch from the current running thread to another one. \
                      If doable prepare everything and return raw pointers to current and next thread. \
                      The switching of threads is done from within the ISR of the PIT, in order to \
-                     release the lock of the scheduler. 
+                     release the lock of the scheduler.
 
         Return: \
                `(current,next)` current thread, next thread (to switch to)
     */
     pub fn prepare_preempt(&mut self) -> (*mut thread::Thread, *mut thread::Thread) {
-
         //kprintln!("Queue in Preempts {}", self.ready_queue);
         let ie = cpu::disable_int_nested();
-        
+
         // If the scheduler is not initialized, we abort
         if self.initialized == false {
             cpu::enable_int_nested(ie);
@@ -260,38 +229,32 @@ impl Scheduler {
         let old_active: *mut Thread = self.active;
 
         // Gucken, gibts überhaut einen nächsten?
-        if self.ready_queue.is_empty(){
+        if self.ready_queue.is_empty() {
             cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
         };
 
-        
-
-
         // Nachfolgerthread holen
         let next: Option<Box<Thread>> = self.ready_queue.dequeue();
 
         // Nochmal testen
-        if next.is_none(){
+        if next.is_none() {
             cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
         }
 
-        self.ready_queue.enqueue(unsafe{ Box::from_raw(old_active)});
+        self.ready_queue
+            .enqueue(unsafe { Box::from_raw(old_active) });
 
-        let next_thread_box: *mut Thread =  Box::into_raw(next.unwrap());
+        let next_thread_box: *mut Thread = Box::into_raw(next.unwrap());
         self.active = next_thread_box;
 
         cpu::enable_int_nested(ie);
 
         return (old_active, next_thread_box);
-    }   
-
-
-
-
+    }
 
     /**
         Description: Check if we can switch from the current running thread to another one. \
@@ -305,10 +268,9 @@ impl Scheduler {
                `(current,next)` current thread, next thread (to switch to)
     */
     pub fn prepare_block(&mut self) -> (*mut thread::Thread, *mut thread::Thread) {
-  
         //kprintln!("Queue in Preempts {}", self.ready_queue);
         let ie = cpu::disable_int_nested();
-        
+
         // If the scheduler is not initialized, we abort
         if self.initialized == false {
             cpu::enable_int_nested(ie);
@@ -319,20 +281,17 @@ impl Scheduler {
         let old_active: *mut Thread = self.active;
 
         // Gucken, gibts überhaut einen nächsten?
-        if self.ready_queue.is_empty(){
+        if self.ready_queue.is_empty() {
             cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
         };
 
-        
-
-
         // Nachfolgerthread holen
         let next: Option<Box<Thread>> = self.ready_queue.dequeue();
 
         // Nochmal testen
-        if next.is_none(){
+        if next.is_none() {
             cpu::enable_int_nested(ie);
             //return (ptr::null_mut(), ptr::null_mut());
             return (old_active, old_active);
@@ -340,12 +299,11 @@ impl Scheduler {
 
         //self.ready_queue.enqueue(unsafe{ Box::from_raw(old_active)});
 
-        let next_thread_box: *mut Thread =  Box::into_raw(next.unwrap());
+        let next_thread_box: *mut Thread = Box::into_raw(next.unwrap());
         self.active = next_thread_box;
 
         cpu::enable_int_nested(ie);
 
         return (old_active, next_thread_box);
-    } 
+    }
 }
- 

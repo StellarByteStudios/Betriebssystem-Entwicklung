@@ -1,8 +1,7 @@
+use crate::devices::cga;
 use crate::kernel::threads::scheduler::{self, Scheduler};
 use crate::kernel::threads::thread::Thread;
 use alloc::boxed::Box;
-use crate::devices::cga;
-
 
 pub fn init() -> usize {
     // ID holen
@@ -15,10 +14,8 @@ pub fn init() -> usize {
     return thread_id;
 }
 
-
 #[no_mangle]
 extern "C" fn thread_loop_entry(myself: *mut Thread) {
-
     // Wie viele Threads laufen vorher? Müssen aus rechnung raus
     let prev_thread_count: usize = 2;
 
@@ -31,11 +28,10 @@ extern "C" fn thread_loop_entry(myself: *mut Thread) {
         // Hochzählen des Counters
         counter += 1;
 
-        // Weitergeben an nächsten Thread 
+        // Weitergeben an nächsten Thread
         //Scheduler::yield_cpu();
     }
 }
-
 
 // Gibt einen Counter auf dem Screen aus
 // Geht aufgrund der Breite nur für 3 Coroutinen

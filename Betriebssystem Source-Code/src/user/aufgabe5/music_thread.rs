@@ -1,8 +1,7 @@
+use crate::devices::{cga, pcspk};
 use crate::kernel::threads::scheduler::{self, Scheduler};
 use crate::kernel::threads::thread::Thread;
 use alloc::boxed::Box;
-use crate::devices::{cga, pcspk};
-
 
 pub fn init() -> usize {
     // ID holen
@@ -14,7 +13,6 @@ pub fn init() -> usize {
     // ID zurückgeben
     return thread_id;
 }
-
 
 #[no_mangle]
 extern "C" fn music_thread(myself: *mut Thread) {

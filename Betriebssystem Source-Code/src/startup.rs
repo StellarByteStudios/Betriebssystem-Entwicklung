@@ -67,9 +67,9 @@ use crate::devices::cga::get_bytes;
 use crate::devices::cga::set_attribute;
 use crate::devices::keyboard::key_hit;
 use crate::devices::keyboard::Keyboard;
+use crate::devices::pcspk;
 use crate::kernel::interrupts::intdispatcher;
 use crate::user::aufgabe2;
-use crate::devices::pcspk;
 
 fn own_tests() {
     keyboard_handler::run();
@@ -147,7 +147,7 @@ fn aufgabe4() {
 
     // Threads Initialisieren
     //init_all_threads();
-    
+
     // Scheduler aufsetzen
     //Scheduler::schedule();
 
@@ -155,7 +155,7 @@ fn aufgabe4() {
     //aufgabe4::queue_tests::run();
 }
 
-fn aufgabe5(){
+fn aufgabe5() {
     cga::clear();
 
     // Threads Initialisieren
@@ -165,7 +165,7 @@ fn aufgabe5(){
     Scheduler::schedule();
 }
 
-fn aufgabe6(){
+fn aufgabe6() {
     cga::clear();
 
     // Threads Initialisieren
@@ -175,15 +175,7 @@ fn aufgabe6(){
     Scheduler::schedule();
 }
 
-
-
-
-
-
-
-
-
-fn init_all_threads(){
+fn init_all_threads() {
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
     //applications::music_thread::init();
@@ -191,23 +183,18 @@ fn init_all_threads(){
     //aufgabe4::coop_thread_demo::init();
 }
 
-fn init_all_threads_preempt(){
+fn init_all_threads_preempt() {
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
     aufgabe5::thread_demo::init();
     //applications::music_thread::init();
 }
 
-fn init_all_threads_sync(){
+fn init_all_threads_sync() {
     threads::idle_thread::init();
     aufgabe6::semaphore_launch_thread::init();
     //applications::music_thread::init();
 }
-
-
-
-
-
 
 fn print_main_screen() {
     cga::clear();
@@ -228,12 +215,6 @@ fn print_main_screen() {
     println!("    Musik");
 }
 
-
-
-
-
-
-
 #[no_mangle]
 pub extern "C" fn startup() {
     kprintln!("OS startup...");
@@ -252,7 +233,6 @@ pub extern "C" fn startup() {
     //aufgabe4();
     //aufgabe5();
     aufgabe6();
-    
 
     own_tests();
 

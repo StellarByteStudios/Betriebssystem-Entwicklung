@@ -16,7 +16,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
  Description: Spinlock
 */
 pub struct Spinlock<T: ?Sized> {
-    lock: AtomicBool, // false = lock is not set, true = lock is set
+    lock: AtomicBool,    // false = lock is not set, true = lock is set
     data: UnsafeCell<T>, // unsafe to allow mutable access through non-mutable ref (see SpinlockGuard)
 }
 

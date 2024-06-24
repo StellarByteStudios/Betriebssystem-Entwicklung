@@ -9,11 +9,10 @@
 use alloc::{boxed::Box, rc::Rc};
 use core::borrow::{Borrow, BorrowMut};
 use core::ffi::c_void;
-use core::fmt::Debug;
-use core::ptr;
 use core::fmt;
+use core::fmt::Debug;
 use core::fmt::Display;
-
+use core::ptr;
 
 use crate::consts::{self, STACK_ENTRY_SIZE, STACK_SIZE};
 use crate::devices::{cga, kprint};
@@ -65,15 +64,11 @@ impl Thread {
         }
     }
 
-
     // Switchen von zwei Stacks
     // Der erste wird gespeichert und der nächste wird gestartet
     pub fn switch(now: *mut Thread, next: *mut Thread) {
-        unsafe{
-            _thread_switch((*now).stack_ptr.borrow_mut(), (*next).stack_ptr as usize)
-        }
+        unsafe { _thread_switch((*now).stack_ptr.borrow_mut(), (*next).stack_ptr as usize) }
     }
-        
 
     /**
        Description: Return raw pointer to self
@@ -164,10 +159,6 @@ pub extern "C" fn thread_kickoff(object: *mut Thread) {
         //Scheduler::yield_cpu();
     }
 }
-
-
-
-
 
 // Vergleichbarkeit der Threads schaffen
 impl PartialEq for Thread {

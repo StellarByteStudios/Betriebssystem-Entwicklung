@@ -17,10 +17,10 @@
    ║         https://os.phil-opp.com/allocator-designs/                      ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
+use crate::consts::HEAP_SIZE;
 use crate::kernel::allocator::bump::BumpAllocator;
 use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
-use crate::consts::HEAP_SIZE;
 
 pub mod bump;
 pub mod list;
