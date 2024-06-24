@@ -10,7 +10,7 @@
 
 use alloc::boxed::Box;
 use core::borrow::Borrow;
-use core::ptr::{self, null, null_mut};
+use core::ptr::{self, null, null_mut, read_unaligned};
 use core::sync::atomic::AtomicUsize;
 use spin::Mutex;
 
@@ -21,11 +21,25 @@ use crate::mylib::queue;
 
 use super::thread::Thread;
 
+
+
+
+
+
+/* ========= Stuff für Thread ID ========= */
+
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
 
 pub fn next_thread_id() -> usize {
     THREAD_ID_COUNTER.fetch_add(1, core::sync::atomic::Ordering::SeqCst)
 }
+
+
+
+
+
+/* ========= globales Scheduler objekt ========= */
 
 pub static SCHEDULER: Mutex<Scheduler> = Mutex::new(Scheduler::new());
 
@@ -39,6 +53,41 @@ pub fn get_active_tid() -> usize {
 pub fn set_initialized() {
     SCHEDULER.lock().initialized = true;
 }
+
+
+
+
+/**
+ Description: Prepare the blocking of the calling thread (which is the active thread)
+*/
+pub fn prepare_block() -> (*mut thread::Thread, *mut thread::Thread) {
+    SCHEDULER.lock().prepare_block()
+}
+
+/**
+ Description: Deblock thread `that`. This will result in putting
+              `that` into the ready-queue but no thread switching.
+*/
+pub fn deblock(that: *mut thread::Thread) {
+    unsafe {
+        SCHEDULER.lock().ready_queue.enqueue(Box::from_raw(that));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========= Implementierung der Scheduler-Klasse ========= */
+
 
 pub struct Scheduler {
     active: *mut thread::Thread,
@@ -239,5 +288,64 @@ impl Scheduler {
 
         return (old_active, next_thread_box);
     }   
+
+
+
+
+
+    /**
+        Description: Check if we can switch from the current running thread to another one. \
+                     If doable prepare everything and return raw pointers to current and next thread. \
+                     The switching of threads is done later by calling 'Thread::switch'. \
+                     This function is very similar to `prepare_preempt` except the \
+                     current thread is not inserted in the `ready_queue` but returned. \
+                     The next thread is removed from the `ready_queue` and `active` is set.
+
+        Return: \
+               `(current,next)` current thread, next thread (to switch to)
+    */
+    pub fn prepare_block(&mut self) -> (*mut thread::Thread, *mut thread::Thread) {
+  
+        //kprintln!("Queue in Preempts {}", self.ready_queue);
+        let ie = cpu::disable_int_nested();
+        
+        // If the scheduler is not initialized, we abort
+        if self.initialized == false {
+            cpu::enable_int_nested(ie);
+            return (ptr::null_mut(), ptr::null_mut());
+        }
+
+        // Aktuell laufenden Thread holen
+        let old_active: *mut Thread = self.active;
+
+        // Gucken, gibts überhaut einen nächsten?
+        if self.ready_queue.is_empty(){
+            cpu::enable_int_nested(ie);
+            //return (ptr::null_mut(), ptr::null_mut());
+            return (old_active, old_active);
+        };
+
+        
+
+
+        // Nachfolgerthread holen
+        let next: Option<Box<Thread>> = self.ready_queue.dequeue();
+
+        // Nochmal testen
+        if next.is_none(){
+            cpu::enable_int_nested(ie);
+            //return (ptr::null_mut(), ptr::null_mut());
+            return (old_active, old_active);
+        }
+
+        //self.ready_queue.enqueue(unsafe{ Box::from_raw(old_active)});
+
+        let next_thread_box: *mut Thread =  Box::into_raw(next.unwrap());
+        self.active = next_thread_box;
+
+        cpu::enable_int_nested(ie);
+
+        return (old_active, next_thread_box);
+    } 
 }
  

@@ -60,6 +60,7 @@ use user::aufgabe3;
 use user::aufgabe3::keyboard_irq_demo;
 use user::aufgabe4;
 use user::aufgabe5;
+use user::aufgabe6;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -164,6 +165,23 @@ fn aufgabe5(){
     Scheduler::schedule();
 }
 
+fn aufgabe6(){
+    cga::clear();
+
+    // Threads Initialisieren
+    init_all_threads_sync();
+
+    // Scheduler aufsetzen
+    Scheduler::schedule();
+}
+
+
+
+
+
+
+
+
 
 fn init_all_threads(){
     threads::idle_thread::init();
@@ -180,9 +198,20 @@ fn init_all_threads_preempt(){
     //applications::music_thread::init();
 }
 
+fn init_all_threads_sync(){
+    threads::idle_thread::init();
+    aufgabe6::semaphore_launch_thread::init();
+    //applications::music_thread::init();
+}
+
+
+
+
+
+
 fn print_main_screen() {
     cga::clear();
-    println!("Byte OS: 0.4");
+    println!("Byte OS: 0.5");
     println!("------------------------------------\n");
     println!("Aktuelle Funktionalitaeten:");
     print!("    Bildschirmausgabe ");
@@ -196,7 +225,14 @@ fn print_main_screen() {
     println!("    Queue (Für die Threads)");
     println!("    Scheduler (Kooperativ)");
     println!("    Threads (Kooperativ)");
+    println!("    Musik");
 }
+
+
+
+
+
+
 
 #[no_mangle]
 pub extern "C" fn startup() {
@@ -214,7 +250,9 @@ pub extern "C" fn startup() {
     //aufgabe2();
     //aufgabe3();
     //aufgabe4();
-    aufgabe5();
+    //aufgabe5();
+    aufgabe6();
+    
 
     own_tests();
 
