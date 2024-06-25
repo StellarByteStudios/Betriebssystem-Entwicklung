@@ -5,3 +5,4 @@ pub mod aufgabe3;
 pub mod aufgabe4;
 pub mod aufgabe5;
 pub mod aufgabe6;
+pub mod aufgabe7;

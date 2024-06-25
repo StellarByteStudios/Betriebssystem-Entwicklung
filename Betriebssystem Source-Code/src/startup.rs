@@ -37,6 +37,7 @@ use devices::keyboard; // shortcut for keyboard
                        //use devices::
 
 use devices::pit;
+use devices::vga;
 use kernel::allocator;
 use kernel::cpu;
 
@@ -45,6 +46,7 @@ use kernel::interrupts::pic;
 use kernel::interrupts::pic::IRQ_KEYBOARD;
 use kernel::interrupts::pic::IRQ_TIMER;
 use kernel::threads;
+use kernel::threads::scheduler;
 use kernel::threads::scheduler::Scheduler;
 use kernel::threads::scheduler::SCHEDULER;
 use kernel::threads::thread;
@@ -61,6 +63,7 @@ use user::aufgabe3::keyboard_irq_demo;
 use user::aufgabe4;
 use user::aufgabe5;
 use user::aufgabe6;
+use user::aufgabe7;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -75,11 +78,14 @@ fn own_tests() {
     keyboard_handler::run();
 }
 
-fn init_all() {
+fn init_all(mbi: u64) {
     kprintln!("OS initializing...");
 
     // init allocator
     allocator::init();
+
+    // Multiboot-Infos für Grafik auslesen, falls vorhanden
+    check_graphics_mode(mbi);
 
     // init interrupts
     interrupts::init();
@@ -175,6 +181,14 @@ fn aufgabe6() {
     Scheduler::schedule();
 }
 
+fn aufgabe7() {
+    threads::idle_thread::init();
+    aufgabe7::graphic_demo::init();
+
+    // Scheduler aufsetzen
+    Scheduler::schedule();
+}
+
 fn init_all_threads() {
     threads::idle_thread::init();
     aufgabe4::hello_world_thread::init();
@@ -215,11 +229,34 @@ fn print_main_screen() {
     println!("    Musik");
 }
 
+// Pruefen, ob wir in einem Grafikmodus sind
+// Falls ja setzen der Infos in VGA
+fn check_graphics_mode(mbi: u64) -> bool {
+    unsafe {
+        let ptr = mbi;
+
+        let flags = *(mbi as *mut u32);
+
+        // 12 Bit in Flags zeigt an, ob Framebuffer-Infos vorhanden sind
+        if flags & 0x1000 == 0 {
+            return false;
+        }
+
+        let addr = *((mbi + 88) as *mut u64);
+        let pitch = *((mbi + 96) as *mut u32);
+        let width = *((mbi + 100) as *mut u32);
+        let height = *((mbi + 104) as *mut u32);
+        let bpp = *((mbi + 108) as *mut u8);
+        vga::VGA::init(addr, pitch, width, height, bpp);
+    }
+    true
+}
+
 #[no_mangle]
-pub extern "C" fn startup() {
+pub extern "C" fn startup(mbi: u64) {
     kprintln!("OS startup...");
 
-    init_all();
+    init_all(mbi);
 
     print_main_screen();
 
@@ -232,7 +269,8 @@ pub extern "C" fn startup() {
     //aufgabe3();
     //aufgabe4();
     //aufgabe5();
-    aufgabe6();
+    //aufgabe6();
+    aufgabe7();
 
     own_tests();
 

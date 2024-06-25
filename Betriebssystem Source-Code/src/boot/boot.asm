@@ -14,7 +14,7 @@
 ;
 
 ; Auskommentieren, um im Grafikmodus zu booten
-%define TEXT_MODE 
+;%define TEXT_MODE 
 
  
 ; Lade-Adresse des Kernels, muss mit der Angabe in 'sections' konsistent sein!
@@ -72,11 +72,19 @@ MULTIBOOT_HEADER_CHKSUM	equ	-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
    MULTIBOOT_GRAPHICS_WIDTH   equ 80
    MULTIBOOT_GRAPHICS_HEIGHT  equ 25
    MULTIBOOT_GRAPHICS_BPP     equ 0
+; originale Auflösung
+;%else	
+;   MULTIBOOT_GRAPHICS_MODE   equ 0
+;   MULTIBOOT_GRAPHICS_WIDTH  equ 800
+;   MULTIBOOT_GRAPHICS_HEIGHT equ 600
+;   MULTIBOOT_GRAPHICS_BPP    equ 32
+;%endif
 
-%else
+; custom Auflösung
+%else						
    MULTIBOOT_GRAPHICS_MODE   equ 0
-   MULTIBOOT_GRAPHICS_WIDTH  equ 800
-   MULTIBOOT_GRAPHICS_HEIGHT equ 600
+   MULTIBOOT_GRAPHICS_WIDTH  equ 1280
+   MULTIBOOT_GRAPHICS_HEIGHT equ 720
    MULTIBOOT_GRAPHICS_BPP    equ 32
 %endif
 
