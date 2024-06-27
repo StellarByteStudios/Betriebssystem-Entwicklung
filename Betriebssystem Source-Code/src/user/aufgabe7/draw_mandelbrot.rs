@@ -1,8 +1,8 @@
 use super::complex_numbers::Complex;
 // Constants for the Mandelbrot calculation
 const MAX_ITER: u32 = 100;
-const WIDTH: u32 = 800;
-const HEIGHT: u32 = 600;
+//const WIDTH: u32 = 800;
+//const HEIGHT: u32 = 600;
 const SCALE: i32 = 1000; // This scale is used to convert coordinates to fixed-point
 
 // =========== Funktionen die im Core-Crate nicht drin sind =========== //
@@ -35,7 +35,7 @@ fn ln(x: f32) -> f32 {
     let mut sum = 0.0;
     let mut n = 1.0;
 
-    for _ in 0..100 {
+    for _ in 0..10 {
         sum += term / n;
         term *= -z;
         n += 1.0;

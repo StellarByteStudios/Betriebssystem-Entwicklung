@@ -32,7 +32,9 @@ use core::ptr::null;
 use core::ptr::null_mut;
 
 use devices::cga; // shortcut for cga
-use devices::cga_print; // used to import code needed by println!
+use devices::cga_print;
+use devices::fonts::font_8x8;
+// used to import code needed by println!
 use devices::keyboard; // shortcut for keyboard
                        //use devices::
 
@@ -230,6 +232,49 @@ fn print_main_screen() {
     println!("    Musik");
 }
 
+fn print_main_graphic() {
+    let text_h = font_8x8::CHAR_HEIGHT;
+
+    vga::draw_string(0, 0, vga::rgb_24(0, 255, 0), "Byte OS: 0.7");
+    vga::draw_string(
+        0,
+        text_h,
+        vga::rgb_24(0, 255, 0),
+        "------------------------------------\n",
+    );
+    vga::draw_string(
+        0,
+        text_h * 2,
+        vga::rgb_24(0, 255, 0),
+        "Aktuelle Funktionalitaeten:",
+    );
+    vga::draw_string(
+        0,
+        text_h * 3,
+        vga::rgb_24(0, 255, 0),
+        "    Bildschirmausgabe ",
+    );
+    vga::draw_string(
+        0,
+        text_h * 4,
+        vga::rgb_24(0, 255, 0),
+        "    Heapverwaltung (mit Freispeicherliste)",
+    );
+    vga::draw_string(0, text_h * 5, vga::rgb_24(0, 255, 0), "    Interrupts");
+    vga::draw_string(
+        0,
+        text_h * 6,
+        vga::rgb_24(0, 255, 0),
+        "    Tastatureingabe (Ueber Interrupts)",
+    );
+    vga::draw_string(
+        0,
+        text_h * 7,
+        vga::rgb_24(34, 80, 200),
+        "und vieles mehr ...",
+    )
+}
+
 // Pruefen, ob wir in einem Grafikmodus sind
 // Falls ja setzen der Infos in VGA
 fn check_graphics_mode(mbi: u64) -> bool {
@@ -259,7 +304,8 @@ pub extern "C" fn startup(mbi: u64) {
 
     init_all(mbi);
 
-    print_main_screen();
+    //print_main_screen();
+    print_main_graphic();
 
     input::wait_for_return();
 

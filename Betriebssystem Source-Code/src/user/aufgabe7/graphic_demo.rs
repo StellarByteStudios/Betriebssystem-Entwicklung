@@ -58,12 +58,12 @@ fn draw_colors() {
 
 fn draw_mandelbrot() {
     // Mandelbrotset berechnen
-    //let mandelbrot_data = draw_mandelbrot::mandelbrot();
-
-    kprintln!("Mandelbrot erfolgreich berechnet");
+    //kprintln!("Mandelbrot erfolgreich berechnet");
 
     // Startpixel wählen
     let startpixel: (u32, u32) = (10, 100);
+
+    //let mut pixel_gesetzt: u32 = 0;
 
     // Punkte Malen
     let image_width = 800;
@@ -78,9 +78,15 @@ fn draw_mandelbrot() {
             // Zu Farbe umrechnen
             let pix = color((2.0 * t + 0.5) % 1.0);
             vga::draw_pixel(x + startpixel.0, y + startpixel.1, pix);
+
+            //pixel_gesetzt += 1;
+            //kprintln!("Pixel gesetzt: {}", pixel_gesetzt);
+            // Abgestürzt bei 328615
             // pixel = image::Rgb(color((2.0 * t + 0.5) % 1.0))
         }
     }
+
+    kprintln!("Mandelbrot erfolgreich berechnet");
 }
 
 /**
