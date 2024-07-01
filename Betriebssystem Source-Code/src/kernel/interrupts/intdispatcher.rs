@@ -42,9 +42,10 @@ pub extern "C" fn int_disp(vector: u32) {
     }
 
     if report(vector as usize) == false {
-        kprint!("Panic: unexpected interrupt nr = {}", vector);
-        kprint!(" - processor halted.");
-        cpu::halt();
+        //kprint!("Panic: unexpected interrupt nr = {}", vector);
+        //kprint!(" - processor halted.");
+        //cpu::halt();
+        make_int_panic(vector);
     }
 }
 
@@ -138,4 +139,10 @@ pub fn report(vector: usize) -> bool {
     //kprintln!("Trigger of Interrupt Ended");
 
     return true;
+}
+
+fn make_int_panic(vector: u32) {
+    kprint!("Panic: unexpected interrupt nr = {}", vector);
+    kprint!(" - processor halted.");
+    cpu::halt();
 }

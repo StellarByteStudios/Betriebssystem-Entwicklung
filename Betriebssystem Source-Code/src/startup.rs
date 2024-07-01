@@ -185,8 +185,9 @@ fn aufgabe6() {
 
 fn aufgabe7() {
     threads::idle_thread::init();
-    aufgabe5::music_thread::init();
-    aufgabe7::graphic_demo::init();
+    //aufgabe5::music_thread::init();
+    //aufgabe7::graphic_demo::init();
+    aufgabe7::test_console::init();
 
     // Scheduler aufsetzen
     Scheduler::schedule();

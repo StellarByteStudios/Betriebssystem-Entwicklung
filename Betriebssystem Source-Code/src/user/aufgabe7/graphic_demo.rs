@@ -45,7 +45,7 @@ fn lin_inter_pol_2d(
 /**
  Description: Draw colours
 */
-fn draw_colors() {
+pub fn draw_colors() {
     let (xres, yres) = vga::get_res();
 
     for y in 0..yres {
@@ -61,7 +61,7 @@ fn draw_mandelbrot() {
     //kprintln!("Mandelbrot erfolgreich berechnet");
 
     // Startpixel wählen
-    let startpixel: (u32, u32) = (10, 100);
+    let startpixel: (u32, u32) = (10, 50);
 
     //let mut pixel_gesetzt: u32 = 0;
 
@@ -117,7 +117,7 @@ extern "C" fn graphic_thread_entry(myself: *mut thread::Thread) {
         bmp_hhu::BPP,
     );*/
 
-    draw_mandelbrot();
+    //draw_mandelbrot();
 }
 
 /**

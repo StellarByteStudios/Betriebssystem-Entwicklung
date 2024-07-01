@@ -21,6 +21,7 @@ use crate::kernel::interrupts::intdispatcher::INT_VEC_KEYBOARD;
 use crate::kernel::interrupts::isr;
 use crate::kernel::interrupts::pic;
 use crate::kernel::interrupts::pic::IRQ_KEYBOARD;
+use crate::user::applications::graphic_console_printer;
 use crate::user::applications::keyboard_handler;
 
 // Für Interruptsyncronisierung
@@ -540,5 +541,15 @@ impl isr::ISR for KeyboardISR {
         cga::print_byte(key.get_ascii() as u8);
         keyboard_handler::handle_keystroke(key.get_ascii());
         */
+
+        /* ============= Für Aufgabe Konsole ============= */
+        //kprintln!("Key-Hit");
+        if key.valid() {
+            if key.get_ascii() == 0xd {
+                graphic_console_printer::print_char('\n');
+            } else {
+                graphic_console_printer::print_char(key.get_ascii() as char);
+            }
+        }
     }
 }

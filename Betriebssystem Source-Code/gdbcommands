@@ -3,6 +3,7 @@ break startup
 #break src/kernel/threads/scheduler.rs:hhu_tosr::kernel::threads::scheduler::Scheduler::prepare_preempt 
 #break src/kernel/threads/thread.rs:hhu_tosr::kernel::threads::thread::Thread::switch
 #break user::aufgabe7::draw_mandelbrot::mandelbrot::hf1b8f20389979ecd 
+#break kernel::interrupts::intdispatcher::make_int_panic::h169518f93779e8b7
 
 target remote 127.0.0.1:1234
 continue
