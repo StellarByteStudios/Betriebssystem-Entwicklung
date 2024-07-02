@@ -21,6 +21,7 @@ use crate::consts::HEAP_SIZE;
 use crate::kernel::allocator::bump::BumpAllocator;
 use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
+use alloc::string::String;
 
 pub mod bump;
 pub mod list;
@@ -64,6 +65,10 @@ pub fn dealloc(ptr: *mut u8, layout: Layout) {
 */
 pub fn dump_free_list() {
     ALLOCATOR.lock().dump_free_list();
+}
+
+pub fn free_list_string() -> String {
+    return ALLOCATOR.lock().free_list_string();
 }
 
 /**

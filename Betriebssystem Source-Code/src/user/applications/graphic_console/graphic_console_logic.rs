@@ -194,6 +194,9 @@ fn handle_enter() -> bool {
         "clear" => gc_programms::clear::init(command_array), // Bildschirm freiräumen
         "echo" => gc_programms::echo::init(command_array), // Argumente wiedergeben
         "play" => gc_programms::play::init(command_array), // Song abspielen
+        "mandelbrot" => gc_programms::mandelbrot::init(command_array), // Mandelbrot malen
+        //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
+        _ => (), // Newline wurde vorher schon ausgeben
     }
 
     // neue Zeile nach Befehl

@@ -27,17 +27,18 @@ extern "C" fn graphic_console_play(myself: *mut thread::Thread) {
         args.get(1).unwrap().as_str()
     );
 
+    graphic_console_printer::print_string("Now Playing: ");
+    graphic_console_printer::print_string(args.get(1).unwrap().as_str());
+    graphic_console_printer::print_string("\n");
+
     // Raussuchen welches Lied gemeint wird
     match args.get(1).unwrap().as_str() {
         "mario" | "Mario" => pcspk::super_mario(),
         "tetris" | "Tetris" => pcspk::tetris(),
         "aero" | "Aero" | "aerodynamic" | "Aerodynamic" => pcspk::aerodynamic(),
         "starwars" | "Starwars" | "imperial" | "Imperial" => pcspk::starwars_imperial(),
-        _ => Scheduler::exit(), // kein registrierter Song
+        _ => graphic_console_printer::print_string("Song not avaiable... :("), // kein registrierter Song
     }
-
-    //graphic_console_printer("Now Playing: ");
-    //graphic_console_printer(args.get(1).unwrap().as_str());
 
     Scheduler::exit();
 }

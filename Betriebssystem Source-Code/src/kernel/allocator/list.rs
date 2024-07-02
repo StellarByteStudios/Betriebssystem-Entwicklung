@@ -10,7 +10,11 @@
 
 use super::{align_up, Locked};
 use crate::kernel::cpu;
-use alloc::alloc::{GlobalAlloc, Layout};
+use alloc::{
+    alloc::{GlobalAlloc, Layout},
+    format,
+    string::String,
+};
 use core::{
     borrow::{Borrow, BorrowMut},
     mem,
@@ -80,6 +84,31 @@ impl ListNode {
         }
 
         //kprintln!("None");
+    }
+
+    fn to_string(&self) -> String {
+        // Ausgabe der eingenen Daten
+        let mut output_string = String::new();
+
+        output_string.push_str(
+            format!(
+                "Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ",
+                self.size,
+                self.start_addr()
+            )
+            .as_str(),
+        );
+
+        // Ausgabe der Next Referenz wenn sie existiert
+        if self.next.is_some() {
+            output_string
+                .push_str(format!("{:#8x}", self.next.as_ref().unwrap().start_addr()).as_str());
+            return output_string;
+        }
+
+        output_string.push_str("None");
+
+        return output_string;
     }
 }
 
@@ -238,6 +267,46 @@ impl LinkedListAllocator {
         //current_node.k_print();
 
         //kprintln!("= = = List Dump Ended = = =");
+    }
+
+    pub fn free_list_string(&mut self) -> String {
+        let mut output_string = String::new();
+
+        output_string.push_str("Freispeicherliste (mit Dummy-Element)\n");
+        output_string.push_str("    Kopf: ");
+        output_string.push_str(self.head.to_string().as_str());
+        output_string.push_str("\n");
+        output_string.push_str(
+            format!(
+                "Heap Start: {:#8x};    Heap End {:#8x};",
+                self.heap_start, self.heap_end
+            )
+            .as_str(),
+        );
+        //println!("Alle Elemente in der Liste ausgeben:");
+
+        // Anfang der Liste holen
+        let mut current_node: &mut ListNode = self.head.borrow_mut();
+
+        // Solange es noch Listenelemente gibt
+        while current_node.next.is_some() {
+            // Einrückung
+            output_string.push_str("    ");
+            // Element ausgeben
+            output_string.push_str(current_node.to_string().as_str());
+            output_string.push_str("\n");
+            //current_node.k_print();
+
+            // Element weitergehen
+            current_node = current_node.next.as_mut().unwrap();
+        }
+        // Letztes Element ausgeben
+        // Einrückung
+        output_string.push_str("    ");
+        output_string.push_str(current_node.to_string().as_str());
+        output_string.push_str("\n");
+
+        return output_string;
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {

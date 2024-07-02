@@ -9,7 +9,11 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 use super::{align_up, Locked};
-use alloc::alloc::{GlobalAlloc, Layout};
+use alloc::{
+    alloc::{GlobalAlloc, Layout},
+    format,
+    string::String,
+};
 use core::ptr::{self, null, null_mut};
 
 /**
@@ -60,6 +64,31 @@ impl BumpAllocator {
             self.heap_start + self.next
         );
         println!("- - Allocated Blocks:         {:8}\n", self.allocations);
+    }
+
+    pub fn free_list_string(&mut self) -> String {
+        let mut output_string = String::new();
+
+        output_string.push_str("Memory-Dump of Bump-Allocator:\n");
+        output_string.push_str(
+            format!(
+                "- - Heap Start:               {:#8x};    Heap End:         {:#x}\n",
+                self.heap_start, self.heap_end
+            )
+            .as_str(),
+        );
+        output_string.push_str(
+            format!(
+                "- - Heap Next-Pointer offset: {:#8x};    Next free memory: {:#x}\n",
+                self.next,
+                self.heap_start + self.next
+            )
+            .as_str(),
+        );
+        output_string
+            .push_str(format!("- - Allocated Blocks:         {:8}\n", self.allocations).as_str());
+
+        return output_string;
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
