@@ -241,11 +241,12 @@ impl LinkedListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        //kprintln!(
-        //    "list-alloc: size={}, align={}",
-        //    layout.size(),
-        //    layout.align()
-        //);
+        /*
+        kprintln!(
+            "list-alloc: size={}, align={}",
+            layout.size(),
+            layout.align()
+        );*/
 
         // Ist der Angeforderte Platz mind. 16 Byte? Wichtig für Node
         // Wenn nicht, dann stretchen
@@ -288,7 +289,7 @@ impl LinkedListAllocator {
             "list-dealloc: size={}, align={}",
             layout.size(),
             layout.align()
-        ); */
+        );*/
 
         let (size, _) = LinkedListAllocator::size_align(layout);
 

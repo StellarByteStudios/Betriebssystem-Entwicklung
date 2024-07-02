@@ -10,8 +10,8 @@ use crate::{
 static CURSOR: Mutex<(u32, u32)> = Mutex::new((0, 0));
 static PRINTER: Mutex<bool> = Mutex::new(false);
 
-const VGA_ROWS: u32 = consts::SCREEN_HEIGHT / 10;
-const VGA_COLUMNS: u32 = consts::SCREEN_WIDTH / 10;
+//const VGA_ROWS: u32 = consts::SCREEN_HEIGHT / 10;
+//const VGA_COLUMNS: u32 = consts::SCREEN_WIDTH / 10;
 
 const MAIN_COLOR: u32 = vga::rgb_24(0, 255, 0);
 const BG_COLOR: u32 = vga::rgb_24(0, 0, 0);
@@ -19,10 +19,12 @@ const BG_COLOR: u32 = vga::rgb_24(0, 0, 0);
 // Position setzen
 fn set_pos(x: u32, y: u32) {
     // Ist der Cursor im Scope des Bildschirms
-    if x > VGA_COLUMNS {
+    // VGA Columns
+    if x >= vga::get_res().0 / 10 {
         return;
     }
-    if y > VGA_ROWS {
+    // VGA Rows
+    if y >= vga::get_res().1 / 10 {
         return;
     }
 
@@ -95,7 +97,7 @@ pub fn print_char(b: char) {
     set_pos(cursor.0 + 1, cursor.1);
 
     // Line-Wrap wenn Zeile voll
-    if cursor.0 >= VGA_COLUMNS {
+    if cursor.0 >= (vga::get_res().0 / 10) - 1 {
         set_pos(0, cursor.1 + 1);
     }
 
@@ -114,9 +116,9 @@ pub fn print_string(string: &str) {
 pub fn clear_screen() {
     // Kompletten Bildschirm mit Leerzeichen füllen
     // Für alle Zeilen
-    for y in 0..consts::SCREEN_HEIGHT {
+    for y in 0..vga::get_res().1 {
         // Jedes Zeichen pro Spalte
-        for x in 0..consts::SCREEN_WIDTH {
+        for x in 0..vga::get_res().0 {
             // Leerzeichen schreiben
             vga::draw_pixel(x, y, BG_COLOR);
         }
@@ -124,4 +126,29 @@ pub fn clear_screen() {
 
     // Cursor wieder an Anfang setzten
     set_pos(0, 0);
+}
+
+pub fn print_backspace() {
+    // Cursor-Possition holen
+    let cursor_pos: (u32, u32) = get_pos();
+
+    // Neue Possition berechnen
+    let new_pos: (u32, u32);
+
+    // EdgeCase bei Linewrap
+    if cursor_pos.0 == 0 {
+        new_pos = ((vga::get_res().0 / 10) - 1, cursor_pos.1 - 1);
+    } else {
+        // Normal Case
+        new_pos = (cursor_pos.0 - 1, cursor_pos.1);
+    }
+
+    // Position setzten
+    set_pos(new_pos.0, new_pos.1);
+
+    // Byte Löschen
+    print_char(' ');
+
+    // Nochmal zurück gehen (print_byte geht wieder eins vor)
+    set_pos(new_pos.0, new_pos.1);
 }

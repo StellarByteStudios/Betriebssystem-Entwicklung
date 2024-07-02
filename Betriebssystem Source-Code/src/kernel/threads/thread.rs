@@ -1,3 +1,5 @@
+use alloc::string::String;
+use alloc::vec::Vec;
 /* ╔═════════════════════════════════════════════════════════════════════════╗
    ║ Module: Threads                                                         ║
    ╟─────────────────────────────────────────────────────────────────────────╢
@@ -35,11 +37,34 @@ pub struct Thread {
     stack_ptr: usize,                  // stack pointer to saved context
     stack: stack::Stack,               // memory for stack
     entry: extern "C" fn(*mut Thread), // Function the Thread is running
+    args: Vec<String>,
 }
 
 impl Thread {
     /**
-       Description: Create new Thread
+       Description: Create new Thread (Mit Args!)
+    */
+    pub fn new_with_args(
+        my_cid: usize,
+        my_entry: extern "C" fn(*mut Thread),
+        my_args: Vec<String>,
+    ) -> Box<Thread> {
+        let my_stack = stack::Stack::new(STACK_SIZE);
+        let my_stack_ptr = my_stack.end_of_stack();
+        let mut thread = Box::new(Thread {
+            tid: my_cid,
+            stack_ptr: my_stack_ptr,
+            stack: my_stack,
+            entry: my_entry,
+            args: my_args,
+        });
+
+        thread.thread_prepare_stack();
+        thread
+    }
+
+    /**
+       Description: Create new Thread (ohne Args)
     */
     pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Thread)) -> Box<Thread> {
         let my_stack = stack::Stack::new(STACK_SIZE);
@@ -49,6 +74,7 @@ impl Thread {
             stack_ptr: my_stack_ptr,
             stack: my_stack,
             entry: my_entry,
+            args: Vec::new(),
         });
 
         thread.thread_prepare_stack();
@@ -82,6 +108,13 @@ impl Thread {
     */
     pub fn get_tid(thread_object: *const Thread) -> usize {
         unsafe { (*thread_object).tid }
+    }
+
+    /**
+       Description: Return Args of `cor_object`
+    */
+    pub fn get_args(thread_object: *const Thread) -> Vec<String> {
+        unsafe { (*thread_object).args.clone() }
     }
 
     /**

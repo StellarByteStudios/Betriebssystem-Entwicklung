@@ -1,6 +1,6 @@
 use crate::{
     kernel::threads::{scheduler, thread},
-    user::applications::graphic_console_printer,
+    user::applications::graphic_console::{graphic_console_logic, graphic_console_printer},
 };
 
 /**
@@ -20,7 +20,9 @@ extern "C" fn graphic_console_thread(myself: *mut thread::Thread) {
     graphic_console_printer::print_char('l');
     graphic_console_printer::print_char('o');
 
-    graphic_console_printer::print_string(" Welt String\nNewline");
+    graphic_console_printer::print_string(" Welt String\nNewline\n");
+
+    graphic_console_logic::init_keyboardhandler();
 
     loop {}
 }

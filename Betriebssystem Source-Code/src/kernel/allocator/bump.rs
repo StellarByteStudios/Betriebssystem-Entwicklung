@@ -77,11 +77,11 @@ impl BumpAllocator {
     }
 
     pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
-        kprintln!(
+        /*kprintln!(
             "bump-dealloc: size={}, align={}; not supported",
             layout.size(),
             layout.align()
-        );
+        );*/
     }
 }
 

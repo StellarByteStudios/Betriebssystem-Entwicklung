@@ -108,6 +108,7 @@ impl isr::ISR for PitISR {
         // rotates 360 degress in about 1s
 
         // Müssen wir die Uhr aktuallisieren?
+        /*
         if systime % 100 == 0 {
             // Interrupts zwischendrin disablen
             let ie: bool = cpu::disable_int_nested();
@@ -133,7 +134,7 @@ impl isr::ISR for PitISR {
 
             // Interrupts wieder freischalten
             cpu::enable_int_nested(ie);
-        }
+        } */
 
         // We try to switch to the next thread
         // Prüfen, ob der Scheduler grade frei ist

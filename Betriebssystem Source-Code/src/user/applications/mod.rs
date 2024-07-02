@@ -1,3 +1,2 @@
-pub mod graphic_console_logic;
-pub mod graphic_console_printer;
+pub mod graphic_console;
 pub mod keyboard_handler;

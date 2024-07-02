@@ -39,7 +39,7 @@ macro_rules! kprintln {
 
 // Helper function of print macros (must be public)
 pub fn kprint(args: fmt::Arguments) {
-    //let ie = cpu::disable_int_nested();
+    let ie = cpu::disable_int_nested();
     WRITER.lock().write_fmt(args).unwrap();
-    //cpu::enable_int_nested(ie);
+    cpu::enable_int_nested(ie);
 }
