@@ -1,5 +1,3 @@
-use core::borrow::Borrow;
-
 use alloc::{string::String, vec::Vec};
 
 use crate::{

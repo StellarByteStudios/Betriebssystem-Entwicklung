@@ -193,6 +193,7 @@ fn handle_enter() -> bool {
         "greet" => gc_programms::greet::init(),   // Andere lustige Textausgabe
         "clear" => gc_programms::clear::init(),   // Bildschirm freiräumen
         "echo" => gc_programms::echo::init(command_array), // Argumente wiedergeben
+        "play" => gc_programms::play::init(command_array), // Song abspielen
         _ => (),                                  // Newline wurde vorher schon ausgeben
     }
 
