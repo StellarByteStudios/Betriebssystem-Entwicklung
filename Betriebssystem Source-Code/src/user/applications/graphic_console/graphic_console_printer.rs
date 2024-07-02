@@ -114,7 +114,7 @@ pub fn print_string(string: &str) {
 
 // Bildschirm Clearen
 pub fn clear_screen() {
-    // Kompletten Bildschirm mit Leerzeichen füllen
+    // Kompletten Bildschirm mit Hintergrundfarbe füllen
     // Für alle Zeilen
     for y in 0..vga::get_res().1 {
         // Jedes Zeichen pro Spalte
@@ -151,4 +151,58 @@ pub fn print_backspace() {
 
     // Nochmal zurück gehen (print_byte geht wieder eins vor)
     set_pos(new_pos.0, new_pos.1);
+}
+
+// = = = Code für bunten hintergrund = = = //
+
+pub fn clear_screen_rainbow() {
+    // Kompletten Bildschirm Bunt machen
+    draw_rainbow();
+
+    // Cursor wieder an Anfang setzten
+    set_pos(0, 0);
+}
+
+/**
+ Description: Calculate a color value interpolated in one dimensions
+*/
+fn lin_inter_pol_1d(x: u32, xr: u32, l: u32, r: u32) -> u32 {
+    return ((((l >> 16) * (xr - x) + (r >> 16) * x) / xr) << 16)
+        | (((((l >> 8) & 0xFF) * (xr - x) + ((r >> 8) & 0xFF) * x) / xr) << 8)
+        | (((l & 0xFF) * (xr - x) + (r & 0xFF) * x) / xr);
+}
+
+/**
+ Description: Calculate a color value interpolated in two dimensions
+*/
+fn lin_inter_pol_2d(
+    x: u32,
+    y: u32,
+    xres: u32,
+    yres: u32,
+    lt: u32,
+    rt: u32,
+    lb: u32,
+    rb: u32,
+) -> u32 {
+    return lin_inter_pol_1d(
+        y,
+        yres,
+        lin_inter_pol_1d(x, xres, lt, rt),
+        lin_inter_pol_1d(x, xres, lb, rb),
+    );
+}
+
+/**
+ Description: Draw colours
+*/
+pub fn draw_rainbow() {
+    let (xres, yres) = vga::get_res();
+
+    for y in 0..yres {
+        for x in 0..xres {
+            let pix = lin_inter_pol_2d(x, y, xres, yres, 0x0000FF, 0x00FF00, 0xFF0000, 0xFFFF00);
+            vga::draw_pixel(x, y, pix);
+        }
+    }
 }

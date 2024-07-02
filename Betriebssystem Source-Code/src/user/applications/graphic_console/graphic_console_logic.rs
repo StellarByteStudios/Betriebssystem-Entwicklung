@@ -191,10 +191,9 @@ fn handle_enter() -> bool {
     match command_array.get(0).unwrap().as_str() {
         "scream" => gc_programms::scream::init(), // Lustige Textausgabe
         "greet" => gc_programms::greet::init(),   // Andere lustige Textausgabe
-        "clear" => gc_programms::clear::init(),   // Bildschirm freiräumen
+        "clear" => gc_programms::clear::init(command_array), // Bildschirm freiräumen
         "echo" => gc_programms::echo::init(command_array), // Argumente wiedergeben
         "play" => gc_programms::play::init(command_array), // Song abspielen
-        _ => (),                                  // Newline wurde vorher schon ausgeben
     }
 
     // neue Zeile nach Befehl
