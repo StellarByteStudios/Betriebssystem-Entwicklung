@@ -25,9 +25,10 @@ extern "C" fn graphic_console_mandelbrot(myself: *mut thread::Thread) {
     args.remove(0);
      */
     // Größe des Bildes festlegen
-    let image_width = 200;
-    let image_height = 150;
+    let image_width = 400;
+    let image_height = 300;
 
+    // Wo wird es hin gezeichnet
     let startpixel: (u32, u32) = (500, 50);
 
     // Zeilenende
@@ -70,9 +71,10 @@ fn draw_mandelbrot(image_width: u32, image_height: u32, startpixel: (u32, u32)) 
             // Pixel holen
             let u = x as f32 / image_height as f32;
             let v = y as f32 / image_height as f32;
-            let t = mandelbrot(2.5 * (u - 0.5) - 1.4, 2.5 * (v - 0.5));
+            let t = mandelbrot(1.8 * (u - 0.2) - 1.4, 1.8 * (v - 0.5));
             // Zu Farbe umrechnen
             let pix = color((2.0 * t + 0.5) % 1.0);
+            //kprintln!("Pixelfarbe berechnet:t = {:10}; col = {:#x}", t, pix);
             vga::draw_pixel(x + startpixel.0, y + startpixel.1, pix);
         }
     }
