@@ -90,6 +90,8 @@ impl ListNode {
         // Ausgabe der eingenen Daten
         let mut output_string = String::new();
 
+        kprintln!("to_string (Node) angefangen");
+
         output_string.push_str(
             format!(
                 "Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ",
@@ -98,6 +100,8 @@ impl ListNode {
             )
             .as_str(),
         );
+
+        kprintln!("Head von to_string (list) zusammengepackt");
 
         // Ausgabe der Next Referenz wenn sie existiert
         if self.next.is_some() {
@@ -269,11 +273,17 @@ impl LinkedListAllocator {
         //kprintln!("= = = List Dump Ended = = =");
     }
 
+    // Funktioniert noch nicht wegen Konflikte der Stringklasse
     pub fn free_list_string(&mut self) -> String {
+        kprintln!("Vor dem String anlegen");
+
         let mut output_string = String::new();
+
+        kprintln!("Nach dem String anlegen");
 
         output_string.push_str("Freispeicherliste (mit Dummy-Element)\n");
         output_string.push_str("    Kopf: ");
+        kprintln!("Nach ersten pushes");
         output_string.push_str(self.head.to_string().as_str());
         output_string.push_str("\n");
         output_string.push_str(

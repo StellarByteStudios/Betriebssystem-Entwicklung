@@ -23,6 +23,8 @@ use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
 use alloc::string::String;
 
+use super::cpu;
+
 pub mod bump;
 pub mod list;
 
@@ -67,8 +69,25 @@ pub fn dump_free_list() {
     ALLOCATOR.lock().dump_free_list();
 }
 
+// Funktioniert noch nicht wegen konflikte mit der String-Klasse
 pub fn free_list_string() -> String {
-    return ALLOCATOR.lock().free_list_string();
+    kprintln!("Vor dem Alloc lock");
+
+    let mut lock = ALLOCATOR.lock();
+
+    kprintln!("Nach dem Alloc lock");
+
+    let ie: bool = cpu::disable_int_nested();
+
+    kprintln!("Nach dem int disable");
+
+    let formated_string: String = lock.free_list_string();
+
+    drop(lock);
+
+    cpu::enable_int_nested(ie);
+
+    return formated_string;
 }
 
 /**
