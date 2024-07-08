@@ -1,7 +1,9 @@
 pub mod clear;
 pub mod echo;
 pub mod greet;
+pub mod macrotest;
 pub mod mandelbrot;
 pub mod meminfo;
 pub mod play;
 pub mod scream;
+pub mod sysinfo;

@@ -24,6 +24,7 @@ extern crate spin; // we need a mutex in devices::cga_print
 mod devices;
 mod consts;
 mod kernel;
+#[macro_use] // import macros, too
 mod mylib;
 mod user;
 
@@ -216,7 +217,7 @@ fn init_all_threads_sync() {
 
 fn print_main_screen() {
     cga::clear();
-    println!("Byte OS: 0.5");
+    println!("Byte OS: 1.0");
     println!("------------------------------------\n");
     println!("Aktuelle Funktionalitaeten:");
     print!("    Bildschirmausgabe ");
@@ -236,7 +237,7 @@ fn print_main_screen() {
 fn print_main_graphic() {
     let text_h = font_8x8::CHAR_HEIGHT;
 
-    vga::draw_string(0, 0, vga::rgb_24(0, 255, 0), "Byte OS: 0.7");
+    vga::draw_string(0, 0, vga::rgb_24(0, 255, 0), "Byte OS: 1.0");
     vga::draw_string(
         0,
         text_h,
@@ -253,26 +254,70 @@ fn print_main_graphic() {
         0,
         text_h * 3,
         vga::rgb_24(0, 255, 0),
-        "    Bildschirmausgabe ",
+        "    - Bildschirmausgabe ",
     );
     vga::draw_string(
         0,
         text_h * 4,
         vga::rgb_24(0, 255, 0),
-        "    Heapverwaltung (mit Freispeicherliste)",
+        "    - Heapverwaltung (mit Freispeicherliste)",
     );
-    vga::draw_string(0, text_h * 5, vga::rgb_24(0, 255, 0), "    Interrupts");
+    vga::draw_string(0, text_h * 5, vga::rgb_24(0, 255, 0), "    - Interrupts");
     vga::draw_string(
         0,
         text_h * 6,
         vga::rgb_24(0, 255, 0),
-        "    Tastatureingabe (Ueber Interrupts)",
+        "    - Tastatureingabe (Ueber Interrupts)",
     );
+
     vga::draw_string(
         0,
         text_h * 7,
+        vga::rgb_24(0, 255, 0),
+        "    - Koroutinen (Kooperativ - verkettet)",
+    );
+    vga::draw_string(
+        0,
+        text_h * 8,
+        vga::rgb_24(0, 255, 0),
+        "    - Queue (Für die Threads)",
+    );
+    vga::draw_string(
+        0,
+        text_h * 9,
+        vga::rgb_24(0, 255, 0),
+        "    - Scheduler (Kooperativ)",
+    );
+    vga::draw_string(0, text_h * 10, vga::rgb_24(0, 255, 0), "    - Musik");
+    vga::draw_string(
+        0,
+        text_h * 11,
+        vga::rgb_24(0, 255, 0),
+        "    - Shellfunktionalität",
+    );
+    vga::draw_string(
+        0,
+        text_h * 12,
         vga::rgb_24(34, 80, 200),
-        "und vieles mehr ...",
+        "        * Ein und ausgabe von Text",
+    );
+    vga::draw_string(
+        0,
+        text_h * 13,
+        vga::rgb_24(34, 80, 200),
+        "        * Auswahl von Musik",
+    );
+    vga::draw_string(
+        0,
+        text_h * 14,
+        vga::rgb_24(34, 80, 200),
+        "        * Fraktalberechnung",
+    );
+    vga::draw_string(
+        0,
+        text_h * 15,
+        vga::rgb_24(34, 80, 200),
+        "        * und vieles mehr ...",
     )
 }
 
@@ -307,6 +352,8 @@ pub extern "C" fn startup(mbi: u64) {
 
     //print_main_screen();
     print_main_graphic();
+
+    pcspk::intro();
 
     input::wait_for_return();
 

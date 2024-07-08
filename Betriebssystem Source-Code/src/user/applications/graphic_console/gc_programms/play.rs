@@ -38,6 +38,7 @@ extern "C" fn graphic_console_play(myself: *mut thread::Thread) {
         "aero" | "Aero" | "aerodynamic" | "Aerodynamic" => pcspk::aerodynamic(),
         "starwars" | "Starwars" | "imperial" | "Imperial" => pcspk::starwars_imperial(),
         "entchen" | "Entchen" => pcspk::alle_meine_entchen(),
+        "intro" | "Intro" => pcspk::intro(),
         _ => graphic_console_printer::print_string("Song not avaiable... :("), // kein registrierter Song
     }
 

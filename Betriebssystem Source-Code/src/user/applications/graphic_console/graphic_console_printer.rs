@@ -1,3 +1,5 @@
+use core::sync::atomic::AtomicU32;
+
 use alloc::string::{self, String};
 use spin::Mutex;
 
@@ -14,7 +16,9 @@ static PRINTER: Mutex<bool> = Mutex::new(false);
 //const VGA_COLUMNS: u32 = consts::SCREEN_WIDTH / 10;
 
 const MAIN_COLOR: u32 = vga::rgb_24(0, 255, 0);
-const BG_COLOR: u32 = vga::rgb_24(0, 0, 0);
+const BG_MAIN_COLOR: u32 = vga::rgb_24(0, 0, 0);
+static FONT_COLOR: AtomicU32 = AtomicU32::new(MAIN_COLOR);
+static BG_COLOR: AtomicU32 = AtomicU32::new(BG_MAIN_COLOR);
 
 // Position setzen
 fn set_pos(x: u32, y: u32) {
@@ -81,7 +85,11 @@ pub fn print_char(b: char) {
     // Hintergrund einfärben
     for dx in 0..10 {
         for dy in 0..10 {
-            draw_pixel(cursor.0 * 10 + dx, cursor.1 * 10 + dy, BG_COLOR)
+            draw_pixel(
+                cursor.0 * 10 + dx,
+                cursor.1 * 10 + dy,
+                BG_COLOR.load(core::sync::atomic::Ordering::SeqCst),
+            )
         }
     }
 
@@ -89,7 +97,7 @@ pub fn print_char(b: char) {
     vga::draw_string(
         cursor.0 * 10,
         cursor.1 * 10,
-        MAIN_COLOR,
+        FONT_COLOR.load(core::sync::atomic::Ordering::SeqCst),
         String::from(b).as_str(),
     );
 
@@ -120,7 +128,7 @@ pub fn clear_screen() {
         // Jedes Zeichen pro Spalte
         for x in 0..vga::get_res().0 {
             // Leerzeichen schreiben
-            vga::draw_pixel(x, y, BG_COLOR);
+            vga::draw_pixel(x, y, BG_COLOR.load(core::sync::atomic::Ordering::SeqCst));
         }
     }
 
@@ -151,6 +159,28 @@ pub fn print_backspace() {
 
     // Nochmal zurück gehen (print_byte geht wieder eins vor)
     set_pos(new_pos.0, new_pos.1);
+}
+
+// Farbe der Schrift ändern
+pub fn set_font_color(r: u8, g: u8, b: u8) {
+    let rgb_value = vga::rgb_24(r, g, b);
+    FONT_COLOR.store(rgb_value, core::sync::atomic::Ordering::SeqCst);
+}
+
+// Farbe der schrift resetten
+pub fn reset_font_color() {
+    FONT_COLOR.store(MAIN_COLOR, core::sync::atomic::Ordering::SeqCst);
+}
+
+// Farbe des Hintergrunds ändern
+pub fn set_bg_color(r: u8, g: u8, b: u8) {
+    let rgb_value = vga::rgb_24(r, g, b);
+    BG_COLOR.store(rgb_value, core::sync::atomic::Ordering::SeqCst);
+}
+
+// Farbe des Hintergrunds resetten
+pub fn reset_bg_color() {
+    BG_COLOR.store(BG_MAIN_COLOR, core::sync::atomic::Ordering::SeqCst);
 }
 
 // = = = Code für bunten hintergrund = = = //

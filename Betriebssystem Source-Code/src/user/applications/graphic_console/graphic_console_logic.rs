@@ -86,20 +86,8 @@ fn read_command() -> String {
     // Lock holen
     let mut command_buffer = COMMAND_BUFFER.lock();
 
-    let mut command = String::new();
-
-    /* ============ Work-arround für Fehler im List-Allocator ============ */
-    // größe Testen
-    if command_buffer.1 <= 16 {
-        //kprintln!("Command wird ausgelesen");
-
-        // Command auslesen
-        command = command_buffer.0.clone();
-
-        //kprintln!("Command wurde kopiert");
-    }
-
-    /* ============ . . . . ============ */
+    // Command auslesen
+    let command = command_buffer.0.clone();
 
     // Buffer löschen
     command_buffer.0 = String::new(); //String::with_capacity((consts::SCREEN_WIDTH / 10 + 2) as usize);
@@ -157,16 +145,6 @@ fn handle_enter() -> bool {
         return false;
     }
 
-    /*
-    // Befehl zu lang?
-    if command.len() > 16 {
-        graphic_console_printer::print_char('\n');
-        kprintln!("zu langer Befehl");
-        reset_command();
-        return false;
-    }
-     */
-
     // = = = Befehl aufspalten für ggf argumente = = = //
 
     let command_array: Vec<String> = command.split(" ").map(str::to_string).collect();
@@ -195,6 +173,8 @@ fn handle_enter() -> bool {
         "echo" => gc_programms::echo::init(command_array), // Argumente wiedergeben
         "play" => gc_programms::play::init(command_array), // Song abspielen
         "mandelbrot" => gc_programms::mandelbrot::init(command_array), // Mandelbrot malen
+        "testprint" => gc_programms::macrotest::init(),
+        "sysinfo" => gc_programms::sysinfo::init(),
         //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
         _ => (), // Newline wurde vorher schon ausgeben
     }

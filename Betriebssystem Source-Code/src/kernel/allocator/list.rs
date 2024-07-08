@@ -329,7 +329,8 @@ impl LinkedListAllocator {
 
         // Ist der Angeforderte Platz mind. 16 Byte? Wichtig für Node
         // Wenn nicht, dann stretchen
-        let mut good_size: usize = layout.size();
+        //let mut good_size: usize = layout.size();
+        let (mut good_size, align) = LinkedListAllocator::size_align(layout);
 
         if good_size < 0x10 {
             //kprintln!("Streched Size in Allocation");
@@ -337,8 +338,7 @@ impl LinkedListAllocator {
         }
 
         // Freien Block suchen
-        let free_block_option: Option<&mut ListNode> =
-            self.find_free_block(good_size, layout.align());
+        let free_block_option: Option<&mut ListNode> = self.find_free_block(good_size, align);
 
         // Kurze Abfrage ob das funktioniert hat
         if free_block_option.is_none() {

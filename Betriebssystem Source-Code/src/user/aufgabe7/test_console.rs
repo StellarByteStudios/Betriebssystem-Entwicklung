@@ -9,7 +9,7 @@ use crate::{
 #[no_mangle]
 extern "C" fn graphic_console_thread(myself: *mut thread::Thread) {
     kprintln!("Zeichnen jetzt auf die Grafische Konsole");
-
+    /*
     super::graphic_demo::draw_colors();
 
     //graphic_console::clear_screen();
@@ -24,6 +24,10 @@ extern "C" fn graphic_console_thread(myself: *mut thread::Thread) {
 
     graphic_console_logic::init_keyboardhandler();
 
+    loop {}
+     */
+    graphic_console_logic::init_keyboardhandler();
+    graphic_console_printer::clear_screen_rainbow();
     loop {}
 }
 
