@@ -175,6 +175,8 @@ fn handle_enter() -> bool {
         "mandelbrot" => gc_programms::mandelbrot::init(command_array), // Mandelbrot malen
         "testprint" => gc_programms::macrotest::init(),
         "sysinfo" => gc_programms::sysinfo::init(),
+        "help" => gc_programms::help::init(command_array),
+        "threads" => gc_programms::show_threads::init(),
         //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
         _ => (), // Newline wurde vorher schon ausgeben
     }

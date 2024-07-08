@@ -51,6 +51,10 @@ pub fn init(args: Vec<String>) {
     scheduler::Scheduler::ready(graphic_thread);
 }
 
+pub fn print_help() {
+    vprintln!("No Help Implemented");
+}
+
 // = = = Berechnung für Mandelbrotmenge = = = //
 
 fn draw_mandelbrot(image_width: u32, image_height: u32, startpixel: (u32, u32)) {
@@ -79,5 +83,5 @@ fn draw_mandelbrot(image_width: u32, image_height: u32, startpixel: (u32, u32)) 
         }
     }
 
-    kprintln!("Mandelbrot erfolgreich berechnet");
+    kprintln!("calculates a definitive set of mandelbrot and prints it on screen");
 }

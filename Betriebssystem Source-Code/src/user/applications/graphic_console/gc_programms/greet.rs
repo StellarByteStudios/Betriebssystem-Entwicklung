@@ -25,3 +25,7 @@ pub fn init() {
     let graphic_thread = thread::Thread::new(scheduler::next_thread_id(), graphic_console_greet);
     scheduler::Scheduler::ready(graphic_thread);
 }
+
+pub fn print_help() {
+    vprintln!("Prints just a simple friendly Textmessage");
+}

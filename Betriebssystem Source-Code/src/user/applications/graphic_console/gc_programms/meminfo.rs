@@ -30,3 +30,7 @@ pub fn init() {
     */
     kprintln!("{}", allocator::free_list_string().as_str());
 }
+
+pub fn print_help() {
+    vprintln!("No Help Implemented");
+}

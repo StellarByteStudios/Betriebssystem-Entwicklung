@@ -22,3 +22,7 @@ pub fn init() {
     let graphic_thread = thread::Thread::new(scheduler::next_thread_id(), graphic_console_macro);
     scheduler::Scheduler::ready(graphic_thread);
 }
+
+pub fn print_help() {
+    vprintln!("Just a test of the macro \"vprint!\"");
+}

@@ -9,6 +9,16 @@ use crate::{
     user::applications::graphic_console::{graphic_console_logic, graphic_console_printer},
 };
 
+// Liste von Lieder
+const SONGS: &'static [&'static str] = &[
+    "mario",
+    "tetris",
+    "aerodynamic",
+    "imperial",
+    "entchen",
+    "intro",
+];
+
 /**
  Description: Entry function of the graphic demo thread
 */
@@ -52,4 +62,14 @@ pub fn init(args: Vec<String>) {
     let graphic_thread =
         thread::Thread::new_with_args(scheduler::next_thread_id(), graphic_console_play, args);
     scheduler::Scheduler::ready(graphic_thread);
+}
+
+pub fn print_help() {
+    vprintln!("play [option]");
+    vprintln!("    plays the song given in option");
+    vprintln!("    Hier eine Liste an Befehlen die es gibt");
+    // Alle Befehle einfach ausgeben
+    for i in 0..SONGS.len() {
+        vprintln!("      - {}", SONGS[i]);
+    }
 }

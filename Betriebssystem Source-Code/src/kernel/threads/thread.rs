@@ -32,6 +32,7 @@ extern "C" {
    Description: Meta data for a Thread
 */
 #[repr(C)]
+#[derive(Clone)]
 pub struct Thread {
     tid: usize,
     stack_ptr: usize,                  // stack pointer to saved context

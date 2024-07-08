@@ -39,3 +39,8 @@ pub fn init(args: Vec<String>) {
         thread::Thread::new_with_args(scheduler::next_thread_id(), graphic_console_echo, args);
     scheduler::Scheduler::ready(graphic_thread);
 }
+
+pub fn print_help() {
+    vprintln!("echo [message]");
+    vprintln!("    just prints the given arguments")
+}

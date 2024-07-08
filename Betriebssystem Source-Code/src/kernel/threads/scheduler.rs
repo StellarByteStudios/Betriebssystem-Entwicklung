@@ -17,7 +17,7 @@ use spin::Mutex;
 use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::threads::thread;
-use crate::mylib::queue;
+use crate::mylib::queue::{self, Queue};
 
 use super::thread::Thread;
 
@@ -59,6 +59,10 @@ pub fn deblock(that: *mut thread::Thread) {
     unsafe {
         SCHEDULER.lock().ready_queue.enqueue(Box::from_raw(that));
     }
+}
+
+pub fn get_ready_queue() -> Queue<Box<thread::Thread>> {
+    return SCHEDULER.lock().ready_queue.clone();
 }
 
 /* ========= Implementierung der Scheduler-Klasse ========= */
@@ -306,4 +310,8 @@ impl Scheduler {
 
         return (old_active, next_thread_box);
     }
+}
+
+impl Scheduler {
+    // Möglichkeit die Ready-Queue zu bekommen
 }

@@ -28,7 +28,7 @@ extern "C" fn graphic_console_thread(myself: *mut thread::Thread) {
      */
     graphic_console_logic::init_keyboardhandler();
     graphic_console_printer::clear_screen_rainbow();
-    loop {}
+    //loop {}
 }
 
 /**

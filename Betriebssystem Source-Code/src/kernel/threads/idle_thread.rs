@@ -16,7 +16,7 @@ extern "C" fn idle_thread_entry(myself: *mut thread::Thread) {
     loop {
         //kprintln!("idle: tid={}", Thread::get_tid(myself));
         //print!("I");
-        scheduler::Scheduler::yield_cpu();
+        //scheduler::Scheduler::yield_cpu();
     }
 }
 

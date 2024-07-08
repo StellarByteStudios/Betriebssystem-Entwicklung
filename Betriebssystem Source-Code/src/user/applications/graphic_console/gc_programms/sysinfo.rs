@@ -21,15 +21,19 @@ extern "C" fn graphic_console_sysinfo(myself: *mut thread::Thread) {
     vprintln!("(auch bunt)");
     graphic_console_printer::reset_font_color();
     graphic_console_printer::reset_bg_color();
-    vprintln!("    Heapverwaltung (mit Freispeicherliste)");
-    vprintln!("    Interrupts");
-    vprintln!("    Tastatureingabe (Ueber Interrupts)");
-    vprintln!("    Koroutinen (Kooperativ - verkettet)");
-    vprintln!("    Queue (Für die Threads)");
-    vprintln!("    Scheduler (Kooperativ)");
-    vprintln!("    Threads (Kooperativ)");
-    vprintln!("    Musik");
-    vprintln!("    Shellbefehle");
+    vprintln!("    - Heapverwaltung (mit Freispeicherliste)");
+    vprintln!("    - Interrupts");
+    vprintln!("    - Tastatureingabe (Ueber Interrupts)");
+    vprintln!("    - Koroutinen (Kooperativ - verkettet)");
+    vprintln!("    - Queue (Für die Threads)");
+    vprintln!("    - Scheduler (Kooperativ)");
+    vprintln!("    - Threads (Kooperativ)");
+    vprintln!("    - Musik");
+    vprintln!("    - Shellbefehle");
+    vprintln!("        * Ein und Ausgabe von Text");
+    vprintln!("        * Auswahl von Musik");
+    vprintln!("        * Fraktalberechnung");
+    vprintln!("        * und vieles mehr..");
     Scheduler::exit();
 }
 
@@ -39,4 +43,8 @@ extern "C" fn graphic_console_sysinfo(myself: *mut thread::Thread) {
 pub fn init() {
     let graphic_thread = thread::Thread::new(scheduler::next_thread_id(), graphic_console_sysinfo);
     scheduler::Scheduler::ready(graphic_thread);
+}
+
+pub fn print_help() {
+    vprintln!("Prints the information, what the OS is capable of");
 }

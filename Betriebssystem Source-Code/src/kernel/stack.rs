@@ -14,6 +14,7 @@ use crate::kernel::allocator;
 use crate::kernel::cpu;
 
 #[repr(C)]
+#[derive(Clone)]
 pub struct Stack {
     data: *mut u8,
     size: usize,

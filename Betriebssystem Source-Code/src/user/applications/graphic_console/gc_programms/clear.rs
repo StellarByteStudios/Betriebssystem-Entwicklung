@@ -43,3 +43,9 @@ pub fn init(args: Vec<String>) {
         thread::Thread::new_with_args(scheduler::next_thread_id(), graphic_console_clear, args);
     scheduler::Scheduler::ready(graphic_thread);
 }
+
+pub fn print_help() {
+    vprintln!("clear [optional color]");
+    vprintln!("    clears the screen, sets cursor on top");
+    vprintln!("    alternative with rainbow as option");
+}
