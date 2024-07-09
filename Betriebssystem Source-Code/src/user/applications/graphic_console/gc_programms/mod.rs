@@ -1,3 +1,4 @@
+pub mod cat;
 pub mod clear;
 pub mod echo;
 pub mod greet;

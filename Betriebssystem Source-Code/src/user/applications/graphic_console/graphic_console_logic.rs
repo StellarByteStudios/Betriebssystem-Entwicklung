@@ -178,6 +178,7 @@ fn handle_enter() -> bool {
         "help" => gc_programms::help::init(command_array),
         "kill" => gc_programms::kill::init(command_array),
         "silence" => gc_programms::silence::init(),
+        "cat" => gc_programms::cat::init(),
         "threads" => gc_programms::show_threads::init(), // Stürzt plötzlich regelmäßig ab
         //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
         _ => (), // Newline wurde vorher schon ausgeben

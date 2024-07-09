@@ -4,7 +4,7 @@
 #include <ctype.h> 
 #include <string.h>
 
-#define  INPUT_FILE   "bmp_hhu.c"
+#define  INPUT_FILE   "CrumpyCat.c"
 #include INPUT_FILE
 
 
