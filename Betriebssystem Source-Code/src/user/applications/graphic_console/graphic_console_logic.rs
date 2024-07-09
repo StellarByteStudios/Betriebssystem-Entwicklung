@@ -176,6 +176,8 @@ fn handle_enter() -> bool {
         "testprint" => gc_programms::macrotest::init(),
         "sysinfo" => gc_programms::sysinfo::init(),
         "help" => gc_programms::help::init(command_array),
+        "kill" => gc_programms::kill::init(command_array),
+        "silence" => gc_programms::silence::init(),
         "threads" => gc_programms::show_threads::init(), // Stürzt plötzlich regelmäßig ab
         //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
         _ => (), // Newline wurde vorher schon ausgeben

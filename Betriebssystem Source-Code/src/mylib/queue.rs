@@ -18,7 +18,7 @@ impl<T> Node<T> {
 
 // Definition der generischen Liste
 #[derive(Clone)]
-pub(crate) struct Queue<T> {
+pub struct Queue<T> {
     head: Link<T>,
 }
 

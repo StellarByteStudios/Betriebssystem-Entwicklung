@@ -62,7 +62,8 @@ pub fn deblock(that: *mut thread::Thread) {
 }
 
 pub fn get_ready_queue() -> Queue<Box<thread::Thread>> {
-    return SCHEDULER.lock().ready_queue.clone();
+    let queue = SCHEDULER.lock().ready_queue.clone();
+    return queue;
 }
 
 /* ========= Implementierung der Scheduler-Klasse ========= */
@@ -194,7 +195,7 @@ impl Scheduler {
         Parameters: \
                `tokill_tid` id of the thread to be killed. Calling thread cannot kill itself.
     */
-    pub fn kill(tokill_tid: usize) {
+    pub fn kill(tokill_tid: usize) -> bool {
         //kprintln!("Killing Thread: {}", tokill_tid);
         //kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
 
@@ -202,9 +203,10 @@ impl Scheduler {
         let dummy_thread: Box<Thread> = Thread::new(tokill_tid, Self::dummy_thread_function);
 
         // Thread löschen
-        SCHEDULER.lock().ready_queue.remove(dummy_thread);
+        let success: bool = SCHEDULER.lock().ready_queue.remove(dummy_thread);
 
-        //kprintln!("Queue after kill: {}", SCHEDULER.lock().ready_queue);
+        // War das Löschen erfolgreich?
+        return success;
     }
 
     // Dummyfunktion die nichts macht

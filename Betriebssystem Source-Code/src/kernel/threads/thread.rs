@@ -39,6 +39,7 @@ pub struct Thread {
     stack: stack::Stack,               // memory for stack
     entry: extern "C" fn(*mut Thread), // Function the Thread is running
     args: Vec<String>,
+    name: String,
 }
 
 impl Thread {
@@ -58,6 +59,7 @@ impl Thread {
             stack: my_stack,
             entry: my_entry,
             args: my_args,
+            name: String::from("Nameless"),
         });
 
         thread.thread_prepare_stack();
@@ -76,6 +78,7 @@ impl Thread {
             stack: my_stack,
             entry: my_entry,
             args: Vec::new(),
+            name: String::from("Nameless"),
         });
 
         thread.thread_prepare_stack();
@@ -116,6 +119,13 @@ impl Thread {
     */
     pub fn get_args(thread_object: *const Thread) -> Vec<String> {
         unsafe { (*thread_object).args.clone() }
+    }
+
+    /**
+       Description: Return Args of `cor_object`
+    */
+    pub fn get_name(thread_object: *const Thread) -> String {
+        unsafe { (*thread_object).name.clone() }
     }
 
     /**
@@ -204,6 +214,11 @@ impl PartialEq for Thread {
 // Ausgabe der Threads
 impl Display for Thread {
     fn fmt(&self, w: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
-        return write!(w, "Thread: {}", Self::get_tid(self));
+        return write!(
+            w,
+            "Thread ({}): {}",
+            Self::get_name(self),
+            Self::get_tid(self)
+        );
     }
 }
