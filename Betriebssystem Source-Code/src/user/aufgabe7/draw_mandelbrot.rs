@@ -1,85 +1,13 @@
-use super::complex_numbers::Complex;
+use crate::mylib::mathadditions::{
+    complex_numbers::Complex,
+    math::{cos, log2},
+};
+
 // Constants for the Mandelbrot calculation
 const MAX_ITER: u32 = 100;
 //const WIDTH: u32 = 800;
 //const HEIGHT: u32 = 600;
 const SCALE: i32 = 1000; // This scale is used to convert coordinates to fixed-point
-
-// =========== Funktionen die im Core-Crate nicht drin sind =========== //
-
-const LN2: f32 = 0.69314718056;
-// Approximate the natural logarithm using a series expansion
-fn ln(x: f32) -> f32 {
-    if x <= 0.0 {
-        return f32::NAN; // Not a Number
-    }
-    if x == 1.0 {
-        return 0.0;
-    }
-
-    // Reduce the range of x to [1, 2)
-    let mut y = x;
-    let mut k = 0;
-    while y > 1.5 {
-        y /= 2.0;
-        k += 1;
-    }
-    while y < 0.5 {
-        y *= 2.0;
-        k -= 1;
-    }
-
-    // Use the series expansion to approximate ln(1 + z) where z = y - 1
-    let z = y - 1.0;
-    let mut term = z;
-    let mut sum = 0.0;
-    let mut n = 1.0;
-
-    for _ in 0..10 {
-        sum += term / n;
-        term *= -z;
-        n += 1.0;
-    }
-
-    sum + (k as f32) * LN2
-}
-
-// Calculate log2 using the change of base formula
-fn log2(x: f32) -> f32 {
-    ln(x) / LN2 as f32
-}
-
-// Function to compute factorial
-fn factorial(n: u64) -> u64 {
-    if n == 0 {
-        1
-    } else {
-        (1..=n).product()
-    }
-}
-
-// Function to compute power
-fn pow(x: f32, n: u32) -> f64 {
-    let mut result = 1.0;
-    for _ in 0..n {
-        result *= x;
-    }
-    result as f64
-}
-
-// Function to compute cosine using Taylor series expansion
-fn cos(x: f32) -> f64 {
-    let mut sum = 0.0;
-    let terms = 10; // Number of terms in the series
-
-    for n in 0..terms {
-        let numerator = pow(-1.0, n as u32) * pow(x, 2 * n as u32);
-        let denominator = factorial(2 * n as u64) as f64;
-        sum += numerator / denominator;
-    }
-
-    sum
-}
 
 // =========== Eingentliche Berechnung =========== //
 
