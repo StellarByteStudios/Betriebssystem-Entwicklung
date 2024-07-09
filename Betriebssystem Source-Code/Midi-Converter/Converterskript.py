@@ -6,13 +6,13 @@ from mido import MidiFile
 def main():
 
     # Pfad zum Midi-File
-    pathToMedi = "Midifiles/intro.mid"
+    pathToMedi = "Midifiles/NyanCat.mid"
     # Pfad zur Ausgabe-Datei
-    pathToMethod = "MidiOutput/intro.txt"
+    pathToMethod = "MidiOutput/NyanCat.txt"
 
     # Speed-Faktor
     #bpm = 100
-    speedFactor = 700 #* bpm/120
+    speedFactor = 215 #* bpm/120
 
     # Midi-File einlesen
     midifile = MidiFile(pathToMedi)
@@ -20,7 +20,7 @@ def main():
     notes_and_rests = midi_to_frequencies_durations_and_rests(midifile, speedFactor)
 
     # Frequenzen in Methoden-Format schreiben
-    formatedMethod = "pub fn intro() {\n"
+    formatedMethod = "pub fn nyancat() {\n"
 
     delayskip = 0
     for item in notes_and_rests:
