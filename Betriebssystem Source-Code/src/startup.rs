@@ -67,6 +67,7 @@ use user::aufgabe4;
 use user::aufgabe5;
 use user::aufgabe6;
 use user::aufgabe7;
+use user::aufgabe7::calculate_newton_fractals::draw_newton;
 
 use crate::devices::cga::attribute;
 use crate::devices::cga::get_bytes;
@@ -352,8 +353,9 @@ pub extern "C" fn startup(mbi: u64) {
 
     //print_main_screen();
     print_main_graphic();
+    //draw_newton();
 
-    pcspk::intro();
+    //pcspk::intro();
 
     input::wait_for_return();
 
