@@ -52,7 +52,7 @@ pub fn init(args: Vec<String>) {
 }
 
 pub fn print_help() {
-    vprintln!("No Help Implemented");
+    vprintln!("Calculates a definitive set of mandelbrot and prints it on screen");
 }
 
 // = = = Berechnung für Mandelbrotmenge = = = //

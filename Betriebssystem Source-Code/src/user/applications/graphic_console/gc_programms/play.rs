@@ -51,7 +51,7 @@ extern "C" fn graphic_console_play(myself: *mut thread::Thread) {
         "entchen" | "Entchen" => pcspk::alle_meine_entchen(),
         "intro" | "Intro" => pcspk::intro(),
         "nyan" | "Nyan" | "nyancat" | "Nyancat" => pcspk::nyancat(),
-        _ => graphic_console_printer::print_string("Song not avaiable... :("), // kein registrierter Song
+        _ => vprintln!("Song not avaiable... :("), // kein registrierter Song
     }
 
     Scheduler::exit();

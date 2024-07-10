@@ -43,5 +43,5 @@ pub fn init() {
 }
 
 pub fn print_help() {
-    vprintln!("Shows all currently running Threads");
+    vprintln!("Shows all currently running Threads !(BUGGY)!");
 }
