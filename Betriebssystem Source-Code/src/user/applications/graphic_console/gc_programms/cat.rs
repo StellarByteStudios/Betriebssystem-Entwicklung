@@ -15,8 +15,8 @@ use crate::{
 extern "C" fn graphic_console_cat(myself: *mut thread::Thread) {
     vprintln!("Painting Crumpyyy");
     vga::draw_bitmap(
-        300,
-        200,
+        500,
+        20,
         mylib::picturepainting::pictures::crumpy_cat::WIDTH,
         mylib::picturepainting::pictures::crumpy_cat::HEIGHT,
         mylib::picturepainting::pictures::crumpy_cat::DATA,

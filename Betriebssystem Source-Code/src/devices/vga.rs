@@ -106,6 +106,11 @@ impl VGA {
                 b = bitmap[idx];
                 idx = idx + 1;
 
+                // Alphakanal überspringen?
+                if bpp == 4 {
+                    idx = idx + 1;
+                }
+
                 self.draw_pixel(xpos + x, ypos + y, rgb_24(r, g, b));
             }
         }
