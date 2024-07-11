@@ -37,5 +37,5 @@ pub fn init() {
 }
 
 pub fn print_help() {
-    vprintln!("No Help Implemented");
+    vprintln!("prints the current state of the heap");
 }

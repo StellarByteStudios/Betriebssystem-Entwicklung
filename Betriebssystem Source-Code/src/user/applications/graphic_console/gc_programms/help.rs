@@ -25,6 +25,7 @@ const COMMANDS: &'static [&'static str] = &[
     "kill [threadID]",
     "silence",
     "cat",
+    "meminfo",
 ];
 
 /**
@@ -65,6 +66,7 @@ extern "C" fn graphic_console_help(myself: *mut thread::Thread) {
             "kill" => gc_programms::kill::print_help(),
             "silence" => gc_programms::silence::print_help(),
             "cat" => gc_programms::cat::print_help(),
+            "meminfo" => gc_programms::meminfo::print_help(),
             _ => vprintln!("No Program called \"{}\"", args[1]),
         }
     }
