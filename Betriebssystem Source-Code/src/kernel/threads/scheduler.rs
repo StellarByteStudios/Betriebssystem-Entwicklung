@@ -66,6 +66,10 @@ pub fn get_ready_queue() -> Queue<Box<thread::Thread>> {
     return queue;
 }
 
+pub fn print_ready_queue() {
+    vprintln!("{}", SCHEDULER.lock().ready_queue);
+}
+
 /* ========= Implementierung der Scheduler-Klasse ========= */
 
 pub struct Scheduler {

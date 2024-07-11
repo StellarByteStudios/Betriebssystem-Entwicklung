@@ -33,6 +33,15 @@ pub fn draw_string(x: u32, y: u32, col: u32, string: &str) {
     }
 }
 
+pub fn draw_byte(x: u32, y: u32, col: u32, byte: u8) {
+    unsafe {
+        if VGA.is_none() {
+            return;
+        }
+        VGA.as_ref().unwrap().draw_byte(x, y, col, byte);
+    }
+}
+
 pub fn draw_bitmap(x: u32, y: u32, width: u32, height: u32, bitmap: &[u8], bpp: u32) {
     unsafe {
         if VGA.is_none() {
@@ -215,6 +224,41 @@ impl VGA {
                 idx = idx + 1;
             }
             x2 = x2 + char_width;
+        }
+    }
+
+    fn draw_byte(&self, x: u32, y: u32, col: u32, ch: u8) {
+        let char_width = font_8x8::CHAR_WIDTH;
+        let char_height = font_8x8::CHAR_HEIGHT;
+
+        let mut width_byte: u32 = char_width / 8;
+        if (char_width % 8) != 0 {
+            width_byte = width_byte + 1;
+        }
+
+        let x2 = x;
+
+        // Pixel ausserhalb des sichtbaren Bereichs?
+        if x >= self.width || y >= self.height {
+            return;
+        }
+
+        let chpix = self.get_char(font_8x8::DATA, ch);
+
+        // ein Zeichnen ausgeben
+        let mut idx = 0;
+        for yoff in 0..char_height {
+            let mut xpos = x2;
+            let ypos = y + yoff;
+            for xb in 0..width_byte {
+                for src in (0..8).rev() {
+                    if ((1 << src) & chpix[idx]) != 0 {
+                        draw_pixel(xpos, ypos, col);
+                    }
+                    xpos = xpos + 1;
+                }
+            }
+            idx = idx + 1;
         }
     }
 }

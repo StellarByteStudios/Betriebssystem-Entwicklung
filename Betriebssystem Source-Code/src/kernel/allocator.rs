@@ -69,6 +69,10 @@ pub fn dump_free_list() {
     ALLOCATOR.lock().dump_free_list();
 }
 
+pub fn dump_free_list_graphic() {
+    ALLOCATOR.lock().dump_free_list_graphic()
+}
+
 // Funktioniert noch nicht wegen konflikte mit der String-Klasse
 pub fn free_list_string() -> String {
     kprintln!("Vor dem Alloc lock");

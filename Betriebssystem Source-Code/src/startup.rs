@@ -22,10 +22,12 @@ extern crate spin; // we need a mutex in devices::cga_print
 // insert other modules
 #[macro_use] // import macros, too
 mod devices;
-mod consts;
-mod kernel;
 #[macro_use] // import macros, too
 mod mylib;
+
+mod consts;
+mod kernel;
+
 mod user;
 
 use core::panic::PanicInfo;

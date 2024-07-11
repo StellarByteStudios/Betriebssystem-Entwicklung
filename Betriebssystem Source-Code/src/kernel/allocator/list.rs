@@ -86,6 +86,23 @@ impl ListNode {
         //kprintln!("None");
     }
 
+    fn v_print(&self) {
+        // Ausgabe der eingenen Daten
+        vprint!(
+            "Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ",
+            self.size,
+            self.start_addr()
+        );
+
+        // Ausgabe der Next Referenz wenn sie existiert
+        if self.next.is_some() {
+            vprintln!("{:#8x}", self.next.as_ref().unwrap().start_addr());
+            return;
+        }
+
+        vprintln!("None");
+    }
+
     fn to_string(&self) -> String {
         // Ausgabe der eingenen Daten
         let mut output_string = String::new();
@@ -268,6 +285,40 @@ impl LinkedListAllocator {
         // Einrückung
         print!("    ");
         current_node.print();
+        //current_node.k_print();
+
+        //kprintln!("= = = List Dump Ended = = =");
+    }
+    // Dump free list
+    pub fn dump_free_list_graphic(&mut self) {
+        kprintln!("= = = List Dump Started = = =");
+        vprintln!("Freispeicherliste (mit Dummy-Element)");
+        kprintln!("Nach erster ausgabe");
+        //print!("    Kopf: ");
+        //self.head.print();
+        //println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
+        //println!("Alle Elemente in der Liste ausgeben:");
+
+        // Anfang der Liste holen
+        let mut current_node: &mut ListNode = self.head.borrow_mut();
+
+        kprintln!("Head geholt");
+
+        // Solange es noch Listenelemente gibt
+        while current_node.next.is_some() {
+            // Einrückung
+            vprintln!("    ");
+            // Element ausgeben
+            current_node.v_print();
+            //current_node.k_print();
+
+            // Element weitergehen
+            current_node = current_node.next.as_mut().unwrap();
+        }
+        // Letztes Element ausgeben
+        // Einrückung
+        vprintln!("    ");
+        current_node.v_print();
         //current_node.k_print();
 
         //kprintln!("= = = List Dump Ended = = =");

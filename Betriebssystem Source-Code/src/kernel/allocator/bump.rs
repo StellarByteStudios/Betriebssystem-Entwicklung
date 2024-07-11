@@ -66,6 +66,21 @@ impl BumpAllocator {
         println!("- - Allocated Blocks:         {:8}\n", self.allocations);
     }
 
+    pub fn dump_free_list_graphic(&mut self) {
+        vprintln!("Memory-Dump of Bump-Allocator:");
+        vprintln!(
+            "- - Heap Start:               {:#8x};    Heap End:         {:#x}",
+            self.heap_start,
+            self.heap_end
+        );
+        vprintln!(
+            "- - Heap Next-Pointer offset: {:#8x};    Next free memory: {:#x}",
+            self.next,
+            self.heap_start + self.next
+        );
+        vprintln!("- - Allocated Blocks:         {:8}\n", self.allocations);
+    }
+
     pub fn free_list_string(&mut self) -> String {
         let mut output_string = String::new();
 

@@ -82,6 +82,8 @@ pub fn print_char(b: char) {
     // Formatierung holen
     //let attribute: u8 = attribute(Color::Black, Color::Green, false);
 
+    //kprintln!("vor dem Draw");
+
     // Hintergrund einfärben
     for dx in 0..10 {
         for dy in 0..10 {
@@ -94,11 +96,11 @@ pub fn print_char(b: char) {
     }
 
     // normal Ausgeben
-    vga::draw_string(
+    vga::draw_byte(
         cursor.0 * 10,
         cursor.1 * 10,
         FONT_COLOR.load(core::sync::atomic::Ordering::SeqCst),
-        String::from(b).as_str(),
+        b as u8,
     );
 
     // Curser normal eins weiter setzten
@@ -115,7 +117,9 @@ pub fn print_char(b: char) {
 
 // Ganzen String Ausgeben
 pub fn print_string(string: &str) {
+    //kprintln!("Printing");
     for c in string.chars() {
+        //kprintln!("===");
         print_char(c);
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     kernel::{
-        allocator,
+        allocator, cpu,
         threads::{
             scheduler::{self, Scheduler},
             thread,
@@ -15,7 +15,13 @@ use crate::{
 #[no_mangle]
 extern "C" fn graphic_console_meminfo(myself: *mut thread::Thread) {
     // Infos ausprinten
-    graphic_console_printer::print_string(allocator::free_list_string().as_str());
+    kprintln!("Liste wird jetzt ausgegeben");
+    let ie = cpu::disable_int_nested();
+
+    allocator::dump_free_list_graphic();
+
+    cpu::enable_int_nested(ie);
+
     Scheduler::exit();
 }
 
@@ -23,12 +29,11 @@ extern "C" fn graphic_console_meminfo(myself: *mut thread::Thread) {
  Description: Create and add the graphic demo thread
 */
 pub fn init() {
-    /*
     let graphic_thread: alloc::boxed::Box<thread::Thread> =
         thread::Thread::new(scheduler::next_thread_id(), graphic_console_meminfo);
     scheduler::Scheduler::ready(graphic_thread);
-    */
-    kprintln!("{}", allocator::free_list_string().as_str());
+
+    //kprintln!("{}", allocator::free_list_string().as_str());
 }
 
 pub fn print_help() {
