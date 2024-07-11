@@ -5,6 +5,7 @@
 2) Warum stürzt der Scheduler ab, wenn ich die Queue kopiere?
 3) Was müsste ich bei den Threads ändern für Float-Support?
 4) Wie reproduzierbar müssen alte Aufgaben sein? (Grafikmodus, Polling Tastatur und Sound)
+5) Macros um nicht jedes Programm immer überall zu registrieren?
 
 ## Inspiration
 1) Bei falschen Eingaben Fehler-Meldung
