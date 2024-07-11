@@ -9,3 +9,4 @@
 ## Inspiration
 1) Bei falschen Eingaben Fehler-Meldung
 2) Scrollen indem man die Pixel um 10px hoch schiebt
+3) Möglichkeit das System zu beenden

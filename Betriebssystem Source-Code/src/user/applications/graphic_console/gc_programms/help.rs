@@ -61,7 +61,7 @@ extern "C" fn graphic_console_help(myself: *mut thread::Thread) {
             "testprint" => gc_programms::macrotest::print_help(),
             "sysinfo" => gc_programms::sysinfo::print_help(),
             "help" => gc_programms::help::print_help(),
-            "threads" => gc_programms::show_threads::print_help(),
+            "threads" => gc_programms::threads::print_help(),
             "kill" => gc_programms::kill::print_help(),
             "silence" => gc_programms::silence::print_help(),
             "cat" => gc_programms::cat::print_help(),

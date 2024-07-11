@@ -9,6 +9,6 @@ pub mod mandelbrot;
 pub mod meminfo;
 pub mod play;
 pub mod scream;
-pub mod show_threads;
 pub mod silence;
 pub mod sysinfo;
+pub mod threads;

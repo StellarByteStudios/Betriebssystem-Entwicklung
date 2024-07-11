@@ -10,6 +10,26 @@ use crate::{consts, devices::keyboard, user::applications::graphic_console::gc_p
 
 use super::graphic_console_printer;
 
+/*
+// Macro um die Programme dynamisch zu registrieren
+
+// Liste aller Programme
+const COMMANDS: &'static [&'static str] = &[
+    "scream",
+    "greet",
+    "clear",
+    "echo",
+    "play",
+    "mandelbrot",
+    "testprint",
+    "sysinfo",
+    "help",
+    "threads",
+    "kill",
+    "silence",
+    "cat",
+]; */
+
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
 
@@ -164,7 +184,18 @@ fn handle_enter() -> bool {
 
     // Erstmal neue Zeile für den Befehl
     graphic_console_printer::print_char('\n');
+    /*
+    // Gibt es das Programm überhaupt?
+    let programm_name = command_array.get(0).unwrap();
+    if !COMMANDS.contains(&programm_name.as_str()) {
+        vprintln!("Command \"{}\" not avaiable", command_array.get(0).unwrap());
+    }
 
+    // Programm ausführen
+
+    call_init!("scream"); */
+
+    // /* Altes matching
     // Matching auf andere Befehle
     match command_array.get(0).unwrap().as_str() {
         "scream" => gc_programms::scream::init(), // Lustige Textausgabe
@@ -179,11 +210,11 @@ fn handle_enter() -> bool {
         "kill" => gc_programms::kill::init(command_array),
         "silence" => gc_programms::silence::init(),
         "cat" => gc_programms::cat::init(),
-        "threads" => gc_programms::show_threads::init(), // Stürzt plötzlich regelmäßig ab
+        "threads" => gc_programms::threads::init(), // Stürzt plötzlich regelmäßig ab
         //"meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
         _ => (), // Newline wurde vorher schon ausgeben
     }
-
+    // */
     // neue Zeile nach Befehl
     //graphic_console_printer::print_char('\n');
 
