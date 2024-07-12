@@ -344,6 +344,7 @@ pub const fn get_screen_height() -> u32 {
 }
 
 /* * == liest die letzte Zeile in dem Buffer und gibt die Größe zurück  == * */
+// Wurde nie benutzt
 pub fn read_line_into_buffer(buffer: &mut [char; CGA_COLUMNS as usize]) -> u32 {
     // Ende der Zeile Finden (Leerzeicheichen überspringen)
     // Dabei immer weiter mit dem Cursor nach hinten springen

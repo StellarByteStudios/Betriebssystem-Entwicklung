@@ -140,6 +140,38 @@ pub fn clear_screen() {
     set_pos(0, 0);
 }
 
+pub fn scrollup() {
+    // Für alle Zeilen die darunterliegenden Werte Kopieren
+    for y in 0..vga::get_res().1 - 10 {
+        // Einzelne Pixel kopieren
+        for x in 0..vga::get_res().0 {
+            // Pixel untendrunter holen
+            let pixel_color = vga::get_pixel(x, y + 10);
+
+            // Pixel 10 drüber schreiben
+            vga::draw_pixel(x, y, pixel_color);
+        }
+    }
+
+    // Letzte Zeile ausschwärzen
+    for y in vga::get_res().1 - 10..vga::get_res().1 {
+        for x in 0..vga::get_res().0 {
+            // Pixel schreiben
+            vga::draw_pixel(x, y, BG_COLOR.load(core::sync::atomic::Ordering::SeqCst));
+        }
+    }
+    kprintln!("=========================== Finished Scrollup");
+
+    // Cursor wieder eine Zeile nach oben setzen
+    let cursor = CURSOR.lock();
+
+    let cursorpos = (cursor.0, cursor.1);
+
+    drop(cursor);
+
+    set_pos(cursorpos.0, cursorpos.1 - 1);
+}
+
 pub fn print_backspace() {
     // Cursor-Possition holen
     let cursor_pos: (u32, u32) = get_pos();

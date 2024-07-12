@@ -24,6 +24,15 @@ pub fn draw_pixel(x: u32, y: u32, col: u32) {
     }
 }
 
+pub fn get_pixel(x: u32, y: u32) -> u32 {
+    unsafe {
+        if VGA.is_none() {
+            return 0;
+        }
+        return VGA.as_ref().unwrap().get_pixel(x, y);
+    }
+}
+
 pub fn draw_string(x: u32, y: u32, col: u32, string: &str) {
     unsafe {
         if VGA.is_none() {
@@ -173,6 +182,31 @@ impl VGA {
             _ => {
                 //println!("Error: bpp not supported");
             }
+        }
+    }
+
+    /**
+     Description: Returns the color at Position `x`, `y`.
+    */
+    fn get_pixel(&self, x: u32, y: u32) -> u32 {
+        let mut ptr: u64;
+
+        // Pixel ausserhalb des sichtbaren Bereichs?
+        if x >= self.width || y >= self.height {
+            return 0;
+        }
+
+        // Adresse des Pixels berechnen und Inhalt holen
+        ptr = self.addr + (4 * x + 4 * y * self.width) as u64;
+
+        unsafe {
+            let b = *(ptr as *mut u8);
+            ptr = ptr + 1;
+            let g = *(ptr as *mut u8);
+            ptr = ptr + 1;
+            let r = *(ptr as *mut u8);
+
+            return rgb_24(r, g, b);
         }
     }
 

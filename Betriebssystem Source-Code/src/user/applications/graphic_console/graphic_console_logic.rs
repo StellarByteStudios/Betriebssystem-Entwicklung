@@ -211,8 +211,9 @@ fn handle_enter() -> bool {
         "silence" => gc_programms::silence::init(),
         "cat" => gc_programms::cat::init(),
         "threads" => gc_programms::threads::init(),
-        "meminfo" => gc_programms::meminfo::init(), // Infos zum Heap ausgeben (hängt auf)
-        _ => (),                                    // Newline wurde vorher schon ausgeben
+        "meminfo" => gc_programms::meminfo::init(),
+        "scrollup" => gc_programms::scrollup::init(),
+        _ => (), // Newline wurde vorher schon ausgeben
     }
     // */
     // neue Zeile nach Befehl

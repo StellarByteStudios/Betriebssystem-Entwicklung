@@ -26,6 +26,7 @@ const COMMANDS: &'static [&'static str] = &[
     "silence",
     "cat",
     "meminfo",
+    "scrollup",
 ];
 
 /**
@@ -67,6 +68,7 @@ extern "C" fn graphic_console_help(myself: *mut thread::Thread) {
             "silence" => gc_programms::silence::print_help(),
             "cat" => gc_programms::cat::print_help(),
             "meminfo" => gc_programms::meminfo::print_help(),
+            "scrollup" => gc_programms::scrollup::print_help(),
             _ => vprintln!("No Program called \"{}\"", args[1]),
         }
     }
