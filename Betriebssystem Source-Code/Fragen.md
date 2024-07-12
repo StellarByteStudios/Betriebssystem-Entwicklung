@@ -9,6 +9,7 @@
 
 ## Inspiration
 1) Bei falschen Eingaben Fehler-Meldung
-2) Scrollen indem man die Pixel um 10px hoch schiebt (WIP)
-3) Möglichkeit das System zu beenden
+2) > Scrollen indem man die Pixel um 10px hoch schiebt (WIP)
+3) ~~Möglichkeit das System zu beenden~~
 4) Namen der Threads angeben
+5) cpu halt im Idle-Thread

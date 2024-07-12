@@ -61,11 +61,11 @@ fn newton_method(z: Complex) -> (Option<Complex>, u32) {
 }
 
 fn polynomial(z: Complex) -> Complex {
-    // Example polynomial: 5z^3 - 1
-    z * z * z * 5.0 - Complex { a: 1.0, b: 0.0 }
+    // Example polynomial: z^3 - 1
+    z * z * z - Complex { a: 1.0, b: 0.0 }
 }
 
 fn polynomial_derivative(z: Complex) -> Complex {
-    // Derivative of the example polynomial: 15*z^2
-    z * z * 15.0
+    // Derivative of the example polynomial: 3*z^2
+    z * z * 3.0
 }
