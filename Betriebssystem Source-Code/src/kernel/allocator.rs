@@ -75,15 +75,15 @@ pub fn dump_free_list_graphic() {
 
 // Funktioniert noch nicht wegen konflikte mit der String-Klasse
 pub fn free_list_string() -> String {
-    kprintln!("Vor dem Alloc lock");
+    //kprintln!("Vor dem Alloc lock");
 
     let mut lock = ALLOCATOR.lock();
 
-    kprintln!("Nach dem Alloc lock");
+    //kprintln!("Nach dem Alloc lock");
 
     let ie: bool = cpu::disable_int_nested();
 
-    kprintln!("Nach dem int disable");
+    //kprintln!("Nach dem int disable");
 
     let formated_string: String = lock.free_list_string();
 

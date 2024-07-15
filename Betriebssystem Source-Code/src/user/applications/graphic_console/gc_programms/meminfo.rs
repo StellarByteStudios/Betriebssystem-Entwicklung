@@ -15,7 +15,6 @@ use crate::{
 #[no_mangle]
 extern "C" fn graphic_console_meminfo(myself: *mut thread::Thread) {
     // Infos ausprinten
-    kprintln!("Liste wird jetzt ausgegeben");
     let ie = cpu::disable_int_nested();
 
     allocator::dump_free_list_graphic();

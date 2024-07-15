@@ -27,7 +27,9 @@ extern "C" fn graphic_console_thread(myself: *mut thread::Thread) {
     loop {}
      */
     graphic_console_logic::init_keyboardhandler();
-    graphic_console_printer::clear_screen_rainbow();
+    graphic_console_printer::clear_screen();
+    vprintln!("= = = = = =  Welcome to the ByteOS Shell. Type help for infos about the Commands  = = = = = =\n")
+    //graphic_console_printer::clear_screen_rainbow();
     //loop {}
 }
 

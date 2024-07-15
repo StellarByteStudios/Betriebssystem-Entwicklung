@@ -15,8 +15,8 @@ static PRINTER: Mutex<bool> = Mutex::new(false);
 //const VGA_ROWS: u32 = consts::SCREEN_HEIGHT / 10;
 //const VGA_COLUMNS: u32 = consts::SCREEN_WIDTH / 10;
 
-const MAIN_COLOR: u32 = vga::rgb_24(0, 255, 0);
-const BG_MAIN_COLOR: u32 = vga::rgb_24(0, 0, 0);
+const MAIN_COLOR: u32 = vga::rgb_24(70, 255, 50);
+const BG_MAIN_COLOR: u32 = vga::rgb_24(30, 30, 30);
 static FONT_COLOR: AtomicU32 = AtomicU32::new(MAIN_COLOR);
 static BG_COLOR: AtomicU32 = AtomicU32::new(BG_MAIN_COLOR);
 
@@ -61,7 +61,7 @@ fn get_pos() -> (u32, u32) {
 // Einzelnen Char schreiben
 pub fn print_char(b: char) {
     // Muss man vielleicht hochscrollen?
-    //scroll_with_check();
+    scroll_with_check();
 
     // Lock zum zeichnen
     let printlock = PRINTER.lock();
@@ -160,7 +160,7 @@ pub fn scrollup() {
             vga::draw_pixel(x, y, BG_COLOR.load(core::sync::atomic::Ordering::SeqCst));
         }
     }
-    kprintln!("=========================== Finished Scrollup");
+    //kprintln!("=========================== Finished Scrollup");
 
     // Cursor wieder eine Zeile nach oben setzen
     let cursor = CURSOR.lock();
@@ -170,6 +170,16 @@ pub fn scrollup() {
     drop(cursor);
 
     set_pos(cursorpos.0, cursorpos.1 - 1);
+}
+
+fn scroll_with_check() {
+    // Cursorpossition holen
+    let cursor_pos: (u32, u32) = get_pos();
+    // Scoll wenn Bildschirm voll
+    if cursor_pos.1 >= (vga::get_res().1 / 10) - 1 {
+        //kprintln!("WARNING: Scrollup after checker!");
+        scrollup();
+    }
 }
 
 pub fn print_backspace() {

@@ -291,9 +291,9 @@ impl LinkedListAllocator {
     }
     // Dump free list
     pub fn dump_free_list_graphic(&mut self) {
-        kprintln!("= = = List Dump Started = = =");
+        //kprintln!("= = = List Dump Started = = =");
         vprintln!("Freispeicherliste (mit Dummy-Element)");
-        kprintln!("Nach erster ausgabe");
+        //kprintln!("Nach erster ausgabe");
         //print!("    Kopf: ");
         //self.head.print();
         //println!("Heap Start: {:#8x};    Heap End {:#8x};", self.heap_start, self.heap_end);
@@ -302,7 +302,7 @@ impl LinkedListAllocator {
         // Anfang der Liste holen
         let mut current_node: &mut ListNode = self.head.borrow_mut();
 
-        kprintln!("Head geholt");
+        //kprintln!("Head geholt");
 
         // Solange es noch Listenelemente gibt
         while current_node.next.is_some() {

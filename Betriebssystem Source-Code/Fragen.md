@@ -6,6 +6,7 @@
 3) > Was müsste ich bei den Threads ändern für Float-Support?
 4) > Wie reproduzierbar müssen alte Aufgaben sein? (Grafikmodus, Polling Tastatur und Sound)
 5) > Macros um nicht jedes Programm immer überall zu registrieren?
+6) Ist es möglich in UEFI zu booten (no suitable video mode found)
 
 ## Inspiration
 1) Bei falschen Eingaben Fehler-Meldung
