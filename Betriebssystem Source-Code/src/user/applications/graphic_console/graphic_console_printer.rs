@@ -21,7 +21,7 @@ static FONT_COLOR: AtomicU32 = AtomicU32::new(MAIN_COLOR);
 static BG_COLOR: AtomicU32 = AtomicU32::new(BG_MAIN_COLOR);
 
 // Position setzen
-fn set_pos(x: u32, y: u32) {
+pub fn set_pos(x: u32, y: u32) {
     // Ist der Cursor im Scope des Bildschirms
     // VGA Columns
     if x >= vga::get_res().0 / 10 {
@@ -44,7 +44,7 @@ fn set_pos(x: u32, y: u32) {
 }
 
 // Position lesen
-fn get_pos() -> (u32, u32) {
+pub fn get_pos() -> (u32, u32) {
     // Lock holen
     let cursorlock = CURSOR.lock();
 

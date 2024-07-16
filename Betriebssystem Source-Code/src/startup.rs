@@ -42,6 +42,7 @@ use devices::keyboard; // shortcut for keyboard
                        //use devices::
 
 use devices::pit;
+use devices::rtc;
 use devices::vga;
 use kernel::allocator;
 use kernel::cpu;
@@ -189,8 +190,7 @@ fn aufgabe6() {
 
 fn aufgabe7() {
     threads::idle_thread::init();
-    //aufgabe5::music_thread::init();
-    //aufgabe7::graphic_demo::init();
+    aufgabe7::clock::init();
     aufgabe7::test_console::init();
 
     // Scheduler aufsetzen
@@ -355,6 +355,7 @@ pub extern "C" fn startup(mbi: u64) {
 
     //print_main_screen();
     print_main_graphic();
+    kprintln!("Die Aktuelle Zeit: {}", rtc::get_time());
     //draw_newton();
 
     //pcspk::intro();

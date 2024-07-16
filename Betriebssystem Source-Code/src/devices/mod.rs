@@ -9,5 +9,6 @@ pub mod key;
 pub mod keyboard;
 pub mod pcspk;
 pub mod pit;
+pub mod rtc;
 pub mod serial;
 pub mod vga;
