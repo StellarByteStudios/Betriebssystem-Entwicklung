@@ -13,4 +13,6 @@
 2) > Scrollen indem man die Pixel um 10px hoch schiebt (WIP)
 3) ~~Möglichkeit das System zu beenden~~
 4) Namen der Threads angeben
-5) cpu halt im Idle-Thread
+5) > cpu halt im Idle-Thread
+6) Farbenwechsel von Hintergrund und Schrift
+7) Speicherqueue verbessern

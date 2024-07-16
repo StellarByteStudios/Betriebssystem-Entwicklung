@@ -89,7 +89,7 @@ impl ListNode {
     fn v_print(&self) {
         // Ausgabe der eingenen Daten
         vprint!(
-            "Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ",
+            "Node: Size = Dec:{0:12} | Hex:{0:#10x}; Addr = {1:#10x};  Next = ",
             self.size,
             self.start_addr()
         );
@@ -111,7 +111,7 @@ impl ListNode {
 
         output_string.push_str(
             format!(
-                "Node: Size = Dec:{0:7} | Hex:{0:#8x}; Addr = {1:#8x};  Next = ",
+                "Node: Size = Dec:{0:12} | Hex:{0:#10x}; Addr = {1:#10x};  Next = ",
                 self.size,
                 self.start_addr()
             )
@@ -201,15 +201,11 @@ impl LinkedListAllocator {
     //
     // Return: 'ListNode' or 'None'
     fn find_free_block(&mut self, size: usize, align: usize) -> Option<&'static mut ListNode> {
-        //kprintln!("Suche freien Block im Speicher");
-
         // Anfang der Liste holen
         let mut current_node: &mut ListNode = self.head.borrow_mut();
 
         // Solange es noch Listenelemente gibt
         while current_node.next.is_some() {
-            //kprintln!("Iteration in der Whileschleife");
-
             // Checken ob Platz groß genug ist
             if Self::check_block_for_alloc(current_node.next.as_mut().unwrap(), size, align)
                 .is_err()
@@ -307,7 +303,7 @@ impl LinkedListAllocator {
         // Solange es noch Listenelemente gibt
         while current_node.next.is_some() {
             // Einrückung
-            vprintln!("    ");
+            vprint!(" *  ");
             // Element ausgeben
             current_node.v_print();
             //current_node.k_print();
@@ -317,7 +313,7 @@ impl LinkedListAllocator {
         }
         // Letztes Element ausgeben
         // Einrückung
-        vprintln!("    ");
+        vprint!(" *  ");
         current_node.v_print();
         //current_node.k_print();
 

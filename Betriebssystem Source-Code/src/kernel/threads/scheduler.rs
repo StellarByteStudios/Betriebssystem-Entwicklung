@@ -97,7 +97,7 @@ impl Scheduler {
     */
     pub fn schedule() {
         let ie = cpu::disable_int_nested();
-        kprintln!("Die Queue zum Start {}", SCHEDULER.lock().ready_queue);
+        //kprintln!("Die Queue zum Start {}", SCHEDULER.lock().ready_queue);
         let next_thread = SCHEDULER.lock().ready_queue.dequeue();
         if let Some(that) = next_thread {
             // convert 'next_thread' into raw pointer.
