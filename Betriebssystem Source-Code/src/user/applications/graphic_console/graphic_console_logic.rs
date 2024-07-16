@@ -210,6 +210,7 @@ fn handle_enter() -> bool {
         "kill" => gc_programms::kill::init(command_array),
         "silence" => gc_programms::silence::init(),
         "cat" => gc_programms::cat::init(),
+        "doge" => gc_programms::doge::init(),
         "threads" => gc_programms::threads::init(),
         "meminfo" => gc_programms::meminfo::init(),
         "scrollup" => gc_programms::scrollup::init(),

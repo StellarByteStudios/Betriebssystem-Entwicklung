@@ -4,11 +4,14 @@
 #include <ctype.h>
 #include <string.h>
 
-#define INPUT_FILE "CrumpyCat.c"
-#include INPUT_FILE
+#ifndef INPUT_FILE
+#define INPUT_FILE "default_pic.c"
+#endif
+#include "bitmapConverter.h"
 
 int main()
 {
+   printf("%s", INPUT_FILE);
    char buff[256];
    char output_fname[256];
    sprintf(buff, "%s", INPUT_FILE);
@@ -25,19 +28,21 @@ int main()
       exit(EXIT_FAILURE);
    }
 
-   fprintf(f, "pub const WIDTH:u32  = %d;\n", crumpycat.width);
-   fprintf(f, "pub const HEIGHT:u32 = %d;\n", crumpycat.height);
-   fprintf(f, "pub const BPP:u32    = %d;\n", crumpycat.bytes_per_pixel);
+   fprintf(f, "pub const WIDTH:u32  = %d;\n", gimp_image.width);
+   fprintf(f, "pub const HEIGHT:u32 = %d;\n", gimp_image.height);
+   fprintf(f, "pub const BPP:u32    = %d;\n", gimp_image.bytes_per_pixel);
    fprintf(f, "\n");
-   fprintf(f, "pub const DATA: &[u8;%ld] = b\"", sizeof(crumpycat.pixel_data));
+   fprintf(f, "pub const DATA: &[u8;%ld] = b\"", sizeof(gimp_image.pixel_data));
 
-   for (int i = 0; i < sizeof(crumpycat.pixel_data); i++)
+   for (int i = 0; i < sizeof(gimp_image.pixel_data); i++)
    {
-      printf("Pixeldata %d, {%d}\n", i, crumpycat.pixel_data[i]);
-      fprintf(f, "\\x%02x", crumpycat.pixel_data[i]);
+      // printf("Pixeldata %d, {%d}\n", i, picture.pixel_data[i]);
+      fprintf(f, "\\x%02x", gimp_image.pixel_data[i]);
    }
 
    fprintf(f, "\";\n");
+
+   printf("Successfully converted");
 
    fclose(f);
    exit(EXIT_SUCCESS);

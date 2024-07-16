@@ -18,5 +18,8 @@
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
         "./Cargo.toml"
-    ]
+    ],
+    "files.associations": {
+        "bitmapconverter.h": "c"
+    }
 }
