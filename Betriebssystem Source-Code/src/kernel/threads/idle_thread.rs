@@ -1,3 +1,4 @@
+use crate::kernel::cpu;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::thread;
 use crate::kernel::threads::thread::Thread;
@@ -14,18 +15,7 @@ extern "C" fn idle_thread_entry(myself: *mut thread::Thread) {
     scheduler::set_initialized();
 
     loop {
-        //kprintln!("idle: tid={}", Thread::get_tid(myself));
-        //print!("I");
-        //scheduler::Scheduler::yield_cpu();
+        // verursacht Zeitweise Abstürze?
+        cpu::halt();
     }
 }
-
-/* Alte Variante
-#[no_mangle]
-extern "C" fn idle_thread_entry(myself: *mut thread::Thread) {
-    loop {
-        //kprintln!("idle: tid={}", Thread::get_tid(myself));
-        //print!("I");
-        scheduler::Scheduler::yield_cpu();
-    }
-}*/
