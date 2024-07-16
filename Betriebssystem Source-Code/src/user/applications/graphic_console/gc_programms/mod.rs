@@ -1,5 +1,6 @@
 pub mod cat;
 pub mod clear;
+pub mod clock;
 pub mod doge;
 pub mod echo;
 pub mod greet;

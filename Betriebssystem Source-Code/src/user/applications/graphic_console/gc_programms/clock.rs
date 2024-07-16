@@ -8,14 +8,8 @@ use crate::user::applications::graphic_console::graphic_console_printer;
 use alloc::boxed::Box;
 use alloc::format;
 
-pub fn init() {
-    let clock_thread: Box<Thread> =
-        thread::Thread::new(scheduler::next_thread_id(), clock_thread_entry);
-    scheduler::Scheduler::ready(clock_thread);
-}
-
 #[no_mangle]
-extern "C" fn clock_thread_entry(myself: *mut thread::Thread) {
+extern "C" fn graphic_console_clock(myself: *mut thread::Thread) {
     scheduler::set_initialized();
 
     loop {
@@ -44,4 +38,14 @@ extern "C" fn clock_thread_entry(myself: *mut thread::Thread) {
 
         scheduler::Scheduler::yield_cpu();
     }
+}
+
+pub fn init() {
+    let clock_thread: Box<Thread> =
+        thread::Thread::new(scheduler::next_thread_id(), graphic_console_clock);
+    scheduler::Scheduler::ready(clock_thread);
+}
+
+pub fn print_help() {
+    vprintln!("Starts the Clock shown on the top left corner");
 }

@@ -190,7 +190,7 @@ fn aufgabe6() {
 
 fn aufgabe7() {
     threads::idle_thread::init();
-    aufgabe7::clock::init();
+    applications::graphic_console::gc_programms::clock::init();
     aufgabe7::test_console::init();
 
     // Scheduler aufsetzen
@@ -355,7 +355,7 @@ pub extern "C" fn startup(mbi: u64) {
 
     //print_main_screen();
     print_main_graphic();
-    kprintln!("Die Aktuelle Zeit: {}", rtc::get_time());
+    //kprintln!("Die Aktuelle Zeit: {}", rtc::get_time());
     //draw_newton();
 
     //pcspk::intro();

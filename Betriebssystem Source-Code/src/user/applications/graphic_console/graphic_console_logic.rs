@@ -214,6 +214,7 @@ fn handle_enter() -> bool {
         "threads" => gc_programms::threads::init(),
         "meminfo" => gc_programms::meminfo::init(),
         "scrollup" => gc_programms::scrollup::init(),
+        "clock" => gc_programms::clock::init(),
         _ => (), // Newline wurde vorher schon ausgeben
     }
     // */
