@@ -14,6 +14,7 @@ use crate::{
 #[no_mangle]
 extern "C" fn graphic_console_cat(myself: *mut thread::Thread) {
     vprintln!("Painting Crumpyyy");
+
     vga::draw_bitmap(
         500,
         20,
@@ -22,7 +23,6 @@ extern "C" fn graphic_console_cat(myself: *mut thread::Thread) {
         mylib::picturepainting::pictures::crumpy_cat::DATA,
         mylib::picturepainting::pictures::crumpy_cat::BPP,
     );
-
     Scheduler::exit();
 }
 
