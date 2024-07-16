@@ -15,4 +15,4 @@
 4) Namen der Threads angeben
 5) > cpu halt im Idle-Thread
 6) Farbenwechsel von Hintergrund und Schrift
-7) Speicherqueue verbessern
+7) (Speicherqueue verbessern)

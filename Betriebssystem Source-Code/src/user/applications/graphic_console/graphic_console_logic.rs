@@ -176,11 +176,12 @@ fn handle_enter() -> bool {
 
     // = = = Befehl matchen = = = //
     // Konsole beenden
+    /*
     if command_array.get(0).unwrap() == "exit" || command_array.get(0).unwrap() == "quit" {
         graphic_console_printer::print_char('\n');
         kprintln!("System wird beendet");
         return true;
-    }
+    } */
 
     // Erstmal neue Zeile für den Befehl
     graphic_console_printer::print_char('\n');
@@ -215,7 +216,10 @@ fn handle_enter() -> bool {
         "meminfo" => gc_programms::meminfo::init(),
         "scrollup" => gc_programms::scrollup::init(),
         "clock" => gc_programms::clock::init(),
-        _ => (), // Newline wurde vorher schon ausgeben
+        _ => vprintln!(
+            "Command \"{}\" is not supportet",
+            command_array.get(0).unwrap().as_str()
+        ), // Falscher Befehl
     }
     // */
     // neue Zeile nach Befehl
