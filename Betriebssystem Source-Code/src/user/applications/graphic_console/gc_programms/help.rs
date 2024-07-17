@@ -87,8 +87,12 @@ extern "C" fn graphic_console_help(myself: *mut thread::Thread) {
  Description: Create and add the graphic demo thread
 */
 pub fn init(args: Vec<String>) {
-    let graphic_thread =
-        thread::Thread::new_with_args(scheduler::next_thread_id(), graphic_console_help, args);
+    let graphic_thread = thread::Thread::new_with_args(
+        scheduler::next_thread_id(),
+        args[0].clone(),
+        graphic_console_help,
+        args,
+    );
     scheduler::Scheduler::ready(graphic_thread);
 }
 

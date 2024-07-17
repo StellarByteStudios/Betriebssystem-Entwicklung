@@ -1,3 +1,5 @@
+use alloc::string::ToString;
+
 use crate::{
     kernel::{
         allocator, cpu,
@@ -28,8 +30,11 @@ extern "C" fn graphic_console_meminfo(myself: *mut thread::Thread) {
  Description: Create and add the graphic demo thread
 */
 pub fn init() {
-    let graphic_thread: alloc::boxed::Box<thread::Thread> =
-        thread::Thread::new(scheduler::next_thread_id(), graphic_console_meminfo);
+    let graphic_thread: alloc::boxed::Box<thread::Thread> = thread::Thread::new_name(
+        scheduler::next_thread_id(),
+        "meminfo".to_string(),
+        graphic_console_meminfo,
+    );
     scheduler::Scheduler::ready(graphic_thread);
 
     //kprintln!("{}", allocator::free_list_string().as_str());

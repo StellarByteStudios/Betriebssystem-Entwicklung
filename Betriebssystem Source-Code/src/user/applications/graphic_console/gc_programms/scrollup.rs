@@ -1,3 +1,5 @@
+use alloc::string::ToString;
+
 use crate::{
     kernel::threads::{
         scheduler::{self, Scheduler},
@@ -20,7 +22,11 @@ extern "C" fn graphic_console_scrollup(myself: *mut thread::Thread) {
  Description: Create and add the graphic demo thread
 */
 pub fn init() {
-    let graphic_thread = thread::Thread::new(scheduler::next_thread_id(), graphic_console_scrollup);
+    let graphic_thread = thread::Thread::new_name(
+        scheduler::next_thread_id(),
+        "scrollup".to_string(),
+        graphic_console_scrollup,
+    );
     scheduler::Scheduler::ready(graphic_thread);
 }
 

@@ -38,8 +38,12 @@ extern "C" fn graphic_console_clock(myself: *mut thread::Thread) {
 }
 
 pub fn init(args: Vec<String>) {
-    let clock_thread: Box<Thread> =
-        thread::Thread::new_with_args(scheduler::next_thread_id(), graphic_console_clock, args);
+    let clock_thread: Box<Thread> = thread::Thread::new_with_args(
+        scheduler::next_thread_id(),
+        args[0].clone(),
+        graphic_console_clock,
+        args,
+    );
     scheduler::Scheduler::ready(clock_thread);
 }
 

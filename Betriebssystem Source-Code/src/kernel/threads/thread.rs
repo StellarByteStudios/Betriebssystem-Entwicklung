@@ -48,6 +48,7 @@ impl Thread {
     */
     pub fn new_with_args(
         my_cid: usize,
+        thread_name: String,
         my_entry: extern "C" fn(*mut Thread),
         my_args: Vec<String>,
     ) -> Box<Thread> {
@@ -59,7 +60,30 @@ impl Thread {
             stack: my_stack,
             entry: my_entry,
             args: my_args,
-            name: String::from("Nameless"),
+            name: thread_name,
+        });
+
+        thread.thread_prepare_stack();
+        thread
+    }
+
+    /**
+       Description: Create new Thread (mit Name)
+    */
+    pub fn new_name(
+        my_cid: usize,
+        thread_name: String,
+        my_entry: extern "C" fn(*mut Thread),
+    ) -> Box<Thread> {
+        let my_stack = stack::Stack::new(STACK_SIZE);
+        let my_stack_ptr = my_stack.end_of_stack();
+        let mut thread = Box::new(Thread {
+            tid: my_cid,
+            stack_ptr: my_stack_ptr,
+            stack: my_stack,
+            entry: my_entry,
+            args: Vec::new(),
+            name: thread_name,
         });
 
         thread.thread_prepare_stack();

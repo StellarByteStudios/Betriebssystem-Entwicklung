@@ -45,6 +45,7 @@ extern "C" fn graphic_console_mandelbrot(myself: *mut thread::Thread) {
 pub fn init(args: Vec<String>) {
     let graphic_thread = thread::Thread::new_with_args(
         scheduler::next_thread_id(),
+        args[0].clone(),
         graphic_console_mandelbrot,
         args,
     );
