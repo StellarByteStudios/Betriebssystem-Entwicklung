@@ -45,7 +45,7 @@ impl fmt::Write for Writer {
 // from outside the 'std' crate.
 macro_rules! print {
     ($($arg:tt)*) => ({
-        $crate::cga_print::print(format_args!($($arg)*));
+        $crate::devices::cga_print::print(format_args!($($arg)*));
     });
 }
 

@@ -16,6 +16,23 @@
 #![allow(unused_macros)]
 #![feature(allocator_api)]
 
+use core::panic::PanicInfo;
+
+use alloc::{string::ToString, vec};
+use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
+use kernel::{
+    allocator, cpu, interrupts,
+    threads::{self, scheduler::Scheduler},
+};
+use mylib::input;
+use user::{
+    applications::{self, keyboard_handler},
+    aufgabe1::text_demo,
+    aufgabe2::heap_demo,
+    aufgabe3::keyboard_irq_demo,
+    aufgabe4, aufgabe5, aufgabe6, aufgabe7,
+};
+
 extern crate alloc;
 extern crate spin; // we need a mutex in devices::cga_print
 
@@ -29,60 +46,6 @@ mod consts;
 mod kernel;
 
 mod user;
-
-use core::panic::PanicInfo;
-use core::ptr::null;
-use core::ptr::null_mut;
-
-use alloc::string::String;
-use alloc::string::ToString;
-use alloc::vec;
-use devices::cga; // shortcut for cga
-use devices::cga_print;
-use devices::fonts::font_8x8;
-// used to import code needed by println!
-use devices::keyboard; // shortcut for keyboard
-                       //use devices::
-
-use devices::pit;
-use devices::rtc;
-use devices::vga;
-use kernel::allocator;
-use kernel::cpu;
-
-use kernel::interrupts;
-use kernel::interrupts::pic;
-use kernel::interrupts::pic::IRQ_KEYBOARD;
-use kernel::interrupts::pic::IRQ_TIMER;
-use kernel::threads;
-use kernel::threads::scheduler;
-use kernel::threads::scheduler::Scheduler;
-use kernel::threads::scheduler::SCHEDULER;
-use kernel::threads::thread;
-use kernel::threads::thread::Thread;
-use mylib::input;
-use user::applications; // Eigene geschriebene Anwendunden
-use user::applications::keyboard_handler;
-use user::aufgabe1::keyboard_demo;
-use user::aufgabe1::text_demo;
-use user::aufgabe2::heap_demo;
-use user::aufgabe2::sound_demo;
-use user::aufgabe3;
-use user::aufgabe3::keyboard_irq_demo;
-use user::aufgabe4;
-use user::aufgabe5;
-use user::aufgabe6;
-use user::aufgabe7;
-use user::aufgabe7::calculate_newton_fractals::draw_newton;
-
-use crate::devices::cga::attribute;
-use crate::devices::cga::get_bytes;
-use crate::devices::cga::set_attribute;
-use crate::devices::keyboard::key_hit;
-use crate::devices::keyboard::Keyboard;
-use crate::devices::pcspk;
-use crate::kernel::interrupts::intdispatcher;
-use crate::user::aufgabe2;
 
 fn own_tests() {
     keyboard_handler::run();
@@ -193,10 +156,11 @@ fn aufgabe6() {
 
 fn aufgabe7() {
     threads::idle_thread::init();
+    /*
     applications::graphic_console::gc_programms::clock::init(vec![
         "clock".to_string(),
         "start".to_string(),
-    ]);
+    ]); */
     aufgabe7::test_console::init();
 
     // Scheduler aufsetzen
