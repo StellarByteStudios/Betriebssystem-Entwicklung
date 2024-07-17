@@ -30,6 +30,7 @@ extern "C" fn graphic_console_play(myself: *mut thread::Thread) {
 
     // Gibt es überhaut ein Lied?
     if args.get(1).is_none() {
+        vprintln!("No Song given... :(");
         Scheduler::exit();
     }
 
