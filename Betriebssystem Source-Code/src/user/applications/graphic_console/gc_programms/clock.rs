@@ -10,8 +10,6 @@ use alloc::format;
 
 #[no_mangle]
 extern "C" fn graphic_console_clock(myself: *mut thread::Thread) {
-    scheduler::set_initialized();
-
     loop {
         // Interrupts zwischendrin disablen
         let ie: bool = cpu::disable_int_nested();
