@@ -1,6 +1,6 @@
 use core::{
     fmt,
-    sync::atomic::{AtomicU32, AtomicU8, Ordering::SeqCst},
+    sync::atomic::{AtomicI8, AtomicU32, AtomicU8, Ordering::SeqCst},
 };
 
 use crate::kernel::cpu;
@@ -8,6 +8,7 @@ use crate::kernel::cpu;
 const CURRENT_YEAR: u32 = 2024; // Change this each year!
 
 const TIMEZONE: u8 = 2; // Time Zone (Summertime Berlin)
+static TIMEZONE_ATOMIC: AtomicU8 = AtomicU8::new(2); // Time Zone (Summertime Berlin)
 
 static CENTURY_REGISTER: AtomicU8 = AtomicU8::new(0); // Set by ACPI table parsing code if possible
 
@@ -58,6 +59,22 @@ pub fn get_time() -> DateTime {
         month,
         year,
     };
+}
+
+// Sets the Timezone to a new value
+pub fn set_timezone(timezone: u8) -> bool {
+    // Check intervall (Negative Zeitzonen gehen grad noch nicht; Tagesüberschlag geht noch nicht)
+    /*
+    if timezone < -12 || timezone > 12 {
+        return false;
+    } */
+
+    if timezone > 12 {
+        return false;
+    }
+
+    TIMEZONE_ATOMIC.store(timezone, SeqCst);
+    return true;
 }
 
 fn get_update_in_progress_flag() -> bool {
@@ -183,6 +200,10 @@ fn read_rtc() {
     }
 
     // Calculate with Timezones
+    /*
+    let timezone: u8 = TIMEZONE_ATOMIC.load(SeqCst);
+    HOUR.fetch_add(timezone, SeqCst);
+     */
     HOUR.fetch_add(TIMEZONE, SeqCst);
 
     // Calculate the full (4-digit) year

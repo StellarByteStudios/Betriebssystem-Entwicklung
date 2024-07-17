@@ -34,6 +34,9 @@ use core::panic::PanicInfo;
 use core::ptr::null;
 use core::ptr::null_mut;
 
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec;
 use devices::cga; // shortcut for cga
 use devices::cga_print;
 use devices::fonts::font_8x8;
@@ -190,7 +193,10 @@ fn aufgabe6() {
 
 fn aufgabe7() {
     threads::idle_thread::init();
-    applications::graphic_console::gc_programms::clock::init();
+    applications::graphic_console::gc_programms::clock::init(vec![
+        "clock".to_string(),
+        "start".to_string(),
+    ]);
     aufgabe7::test_console::init();
 
     // Scheduler aufsetzen

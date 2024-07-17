@@ -215,7 +215,7 @@ fn handle_enter() -> bool {
         "threads" => gc_programms::threads::init(),
         "meminfo" => gc_programms::meminfo::init(),
         "scrollup" => gc_programms::scrollup::init(),
-        "clock" => gc_programms::clock::init(),
+        "clock" => gc_programms::clock::init(command_array),
         _ => vprintln!(
             "Command \"{}\" is not supportet",
             command_array.get(0).unwrap().as_str()
