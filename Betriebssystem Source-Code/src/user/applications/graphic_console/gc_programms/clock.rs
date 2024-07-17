@@ -99,14 +99,15 @@ fn clock_loop() {
     }
 
     loop {
-        // Interrupts zwischendrin disablen
-        let ie: bool = cpu::disable_int_nested();
-
         // Position festsetzen vom Bildschirm
         let clock_cursor_pos: (u32, u32) = GRAPHIC_CLOCK_POS;
 
         // Uhrzeit holen
         let datetime: rtc::DateTime = rtc::get_time();
+        let datetime_string: String = format!("{}", datetime);
+
+        // Interrupts zwischendrin disablen
+        let ie: bool = cpu::disable_int_nested();
 
         // Alte Cursor-Position speicher
         let old_cursor_pos: (u32, u32) = graphic_console_printer::get_pos();
@@ -115,7 +116,7 @@ fn clock_loop() {
         graphic_console_printer::set_pos(clock_cursor_pos.0, clock_cursor_pos.1);
 
         // Uhr ausgeben
-        graphic_console_printer::print_string(format!("{}", datetime).as_str());
+        graphic_console_printer::print_string(datetime_string.as_str());
         // Cursor wieder an richtige Stelle setzen
         graphic_console_printer::set_pos(old_cursor_pos.0, old_cursor_pos.1);
 
