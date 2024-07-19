@@ -199,6 +199,7 @@ fn handle_enter() -> bool {
     // /* Altes matching
     // Matching auf andere Befehle
     match command_array.get(0).unwrap().as_str() {
+        "animation" => gc_programms::animation::init(command_array),
         "scream" => gc_programms::scream::init(), // Lustige Textausgabe
         "greet" => gc_programms::greet::init(),   // Andere lustige Textausgabe
         "clear" => gc_programms::clear::init(command_array), // Bildschirm freiräumen

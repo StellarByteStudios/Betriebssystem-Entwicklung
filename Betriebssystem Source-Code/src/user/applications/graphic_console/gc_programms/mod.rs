@@ -1,3 +1,4 @@
+pub mod animation;
 pub mod cat;
 pub mod clear;
 pub mod clock;

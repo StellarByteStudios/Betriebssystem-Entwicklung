@@ -1,4 +1,5 @@
 import argparse
+import os
 from PIL import Image
 
 def image_to_rust_bitmap(image_path, output_path):
@@ -24,15 +25,24 @@ def image_to_rust_bitmap(image_path, output_path):
 
 
 def main():
-    # Namen des Inputfiles lesen
-    parser = argparse.ArgumentParser(description="Convert a C-style bitmap to a Rust array")
-    parser.add_argument('input_file', help='The input C file containing the bitmap')
+    # Read the name of the input folder
+    parser = argparse.ArgumentParser(description="Convert all images in a folder to Rust arrays")
+    parser.add_argument('input_folder', help='The input folder containing the images')
     args = parser.parse_args()
 
-    input_file = args.input_file
-    output_file = input_file.rsplit('.', 1)[0] + '.rs'
+    input_folder = args.input_folder
 
-    image_to_rust_bitmap(input_file, output_file)
+    # List all files in the folder
+    for file_name in os.listdir(input_folder):
+        # Full path to the image file
+        image_path = os.path.join(input_folder, file_name)
+
+        # Check if the file is an image (by extension)
+        if file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+            # Define the output Rust file path
+            output_file = os.path.join(input_folder, file_name.rsplit('.', 1)[0] + '.rs')
+            # Convert the image to a Rust Bitmap
+            image_to_rust_bitmap(image_path, output_file)
 
 
 

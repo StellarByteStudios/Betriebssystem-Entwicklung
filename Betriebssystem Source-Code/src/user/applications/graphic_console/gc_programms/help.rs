@@ -12,6 +12,7 @@ use crate::{
 
 // Liste von befehlen
 const COMMANDS: &'static [&'static str] = &[
+    "animation",
     "scream",
     "greet",
     "clear [color]",
@@ -56,6 +57,7 @@ extern "C" fn graphic_console_help(myself: *mut thread::Thread) {
         vprintln!("Hilfe fuer den Befehl \"{}\"", args[1]);
         // Hinweis für den Befehl ausgeben
         match args[1].as_str() {
+            "animation" => gc_programms::animation::print_help(),
             "scream" => gc_programms::scream::print_help(),
             "greet" => gc_programms::greet::print_help(),
             "clear" => gc_programms::clear::print_help(),
