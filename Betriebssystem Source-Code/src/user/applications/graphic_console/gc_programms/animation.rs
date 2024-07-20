@@ -11,7 +11,7 @@ use crate::{
 };
 
 // Liste von Lieder
-const ANIMATIONS: &'static [&'static str] = &["blink"];
+const ANIMATIONS: &'static [&'static str] = &["blink", "charmander", "ghost"];
 
 /**
  Description: Entry function of the graphic demo thread
@@ -39,7 +39,9 @@ extern "C" fn graphic_console_animate(myself: *mut thread::Thread) {
     // Raussuchen welches Lied gemeint wird
     match args.get(1).unwrap().as_str() {
         "blinking" => animate::animate_blink(500, 20),
-        _ => vprintln!("Animation not avaiable... :("), // kein registrierter Song
+        "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate::animate_charmander(500, 20),
+        "ghost" | "gilbert" | "Gilbert" => animate::animate_ghost(500, 20),
+        _ => vprintln!("Animation not avaiable... :("), // nicht registriert
     }
 
     Scheduler::exit();
