@@ -28,7 +28,7 @@ extern "C" fn graphic_console_fontchange(myself: *mut thread::Thread) {
     if args.len() < 3 {
         vprintln!("reset {} color", args.get(1).unwrap().as_str());
         match args.get(1).unwrap().as_str() {
-            "letters" | "letters" | "front" => graphic_console_printer::reset_font_color(),
+            "letters" | "letter" | "front" => graphic_console_printer::reset_font_color(),
             "bg" | "background" => graphic_console_printer::reset_bg_color(),
             _ => vprintln!("only can use letters/front or bg/background"),
         }
