@@ -38,7 +38,7 @@ extern "C" fn graphic_console_animate(myself: *mut thread::Thread) {
 
     // Raussuchen welches Lied gemeint wird
     match args.get(1).unwrap().as_str() {
-        "blinking" => animate::animate_blink(500, 20),
+        "blink" | "blinking" => animate::animate_blink(500, 20),
         "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate::animate_charmander(500, 20),
         "ghost" | "gilbert" | "Gilbert" => animate::animate_ghost(500, 20),
         _ => vprintln!("Animation not avaiable... :("), // nicht registriert
