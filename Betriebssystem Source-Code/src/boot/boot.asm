@@ -87,6 +87,27 @@ MULTIBOOT_HEADER_CHKSUM	equ	-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
    MULTIBOOT_GRAPHICS_HEIGHT equ 720
    MULTIBOOT_GRAPHICS_BPP    equ 32
 %endif
+;%else
+;	%define ALIGN    (1 << 0)
+;	%define MEMINFO  (1 << 1)
+;	%define VIDINFO  (1 << 2)
+;	%define FLAGS    (ALIGN | MEMINFO | VIDINFO)
+;	%define MAGIC    0x1BADB002
+;	%define CHECKSUM -(MAGIC + FLAGS)
+;
+;	MULTIBOOT_GRAPHICS_MODE   equ 0
+;  	MULTIBOOT_GRAPHICS_WIDTH  equ 1024
+;   	MULTIBOOT_GRAPHICS_HEIGHT equ 768
+;   	MULTIBOOT_GRAPHICS_BPP    equ 32
+
+;section .multiboot
+;    dd MAGIC
+;    dd FLAGS
+;    dd CHECKSUM
+;    dd 0, 0, 0, 0, 0
+;    dd 0 ; 0 = set graphics mode
+;    dd 1024, 768, 32 ; Width, height, depth
+;%endif
 
 [SECTION .text]
 
