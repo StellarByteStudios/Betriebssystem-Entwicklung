@@ -4,6 +4,7 @@ pub mod clear;
 pub mod clock;
 pub mod doge;
 pub mod echo;
+pub mod fontchange;
 pub mod greet;
 pub mod help;
 pub mod kill;

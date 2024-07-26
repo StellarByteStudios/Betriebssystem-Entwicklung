@@ -217,6 +217,7 @@ fn handle_enter() -> bool {
         "meminfo" => gc_programms::meminfo::init(),
         "scrollup" => gc_programms::scrollup::init(),
         "clock" => gc_programms::clock::init(command_array),
+        "fontchange" => gc_programms::fontchange::init(command_array),
         _ => vprintln!(
             "Command \"{}\" is not supportet",
             command_array.get(0).unwrap().as_str()
