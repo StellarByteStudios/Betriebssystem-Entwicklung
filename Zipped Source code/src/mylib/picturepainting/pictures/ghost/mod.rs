@@ -1,0 +1,10 @@
+pub mod ghost00;
+pub mod ghost01;
+pub mod ghost02;
+pub mod ghost03;
+pub mod ghost04;
+pub mod ghost05;
+pub mod ghost06;
+pub mod ghost07;
+pub mod ghost08;
+pub mod ghost09;
