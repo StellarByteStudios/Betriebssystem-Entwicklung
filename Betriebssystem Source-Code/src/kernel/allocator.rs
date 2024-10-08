@@ -39,9 +39,9 @@ static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator:
 /**
  Description: Initialization of the allocator. Must be called early in 'startup'.
 */
-pub fn init() {
+pub fn init(heap_start: usize, heap_size: usize) {
     unsafe {
-        ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
+        ALLOCATOR.lock().init(heap_start, heap_size);
     }
 }
 
@@ -70,7 +70,8 @@ pub fn dump_free_list() {
 }
 
 pub fn dump_free_list_graphic() {
-    ALLOCATOR.lock().dump_free_list_graphic()
+    //Funktioniert nicht mit Vorgegebenem Allokator
+    // ALLOCATOR.lock().dump_free_list_graphic()
 }
 
 // Funktioniert noch nicht wegen konflikte mit der String-Klasse
@@ -85,13 +86,16 @@ pub fn free_list_string() -> String {
 
     //kprintln!("Nach dem int disable");
 
-    let formated_string: String = lock.free_list_string();
+    //Funktioniert nicht mit Vorgegebenem Allokator
+    //let formated_string: String = lock.free_list_string();
 
     drop(lock);
 
     cpu::enable_int_nested(ie);
 
-    return formated_string;
+    //Funktioniert nicht mit Vorgegebenem Allokator
+    //return formated_string;
+    return String::new();
 }
 
 /**

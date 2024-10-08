@@ -12,7 +12,7 @@ use alloc::boxed::Box;
 use core::ptr::null_mut;
 use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
-use crate::consts::CLOCK_POS;
+use crate::consts::{CLOCK_POS, GRAPHIC_BYTE_CLOCK_POS, GRAPHIC_CLOCK_POS};
 use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::interrupts::intdispatcher;
@@ -25,6 +25,7 @@ use crate::kernel::threads::scheduler::Scheduler;
 use crate::kernel::threads::scheduler::SCHEDULER;
 use crate::kernel::threads::thread;
 use crate::kernel::threads::thread::Thread;
+use crate::user::applications::graphic_console::graphic_console_printer;
 
 use super::cga_print;
 
@@ -108,8 +109,9 @@ impl isr::ISR for PitISR {
         // rotates 360 degress in about 1s
 
         // Müssen wir die Uhr aktuallisieren?
-        /*
+
         if systime % 100 == 0 {
+            /* Text Mode version
             // Interrupts zwischendrin disablen
             let ie: bool = cpu::disable_int_nested();
 
@@ -134,7 +136,34 @@ impl isr::ISR for PitISR {
 
             // Interrupts wieder freischalten
             cpu::enable_int_nested(ie);
-        } */
+            */
+
+            /* Grafikmodus  version */
+            // Interrupts zwischendrin disablen
+            let ie: bool = cpu::disable_int_nested();
+
+            // Position festsetzen vom Bildschirm
+            let clock_cursor_pos: (u32, u32) = GRAPHIC_BYTE_CLOCK_POS;
+
+            // Berechnen welches Zeichen überhaupt ausgeben
+            let clock_index: usize =
+                (SYS_TIME_DISPLAY.fetch_add(1, core::sync::atomic::Ordering::SeqCst)) % 4;
+            let clock_char: u8 = CLOCK_SYMBOLS[clock_index];
+
+            // Alte Cursor-Position speicher
+            let old_cursor_pos: (u32, u32) = graphic_console_printer::get_pos();
+
+            // Position der Uhr Setzen
+            graphic_console_printer::set_pos(clock_cursor_pos.0, clock_cursor_pos.1);
+
+            // Uhr ausgeben
+            graphic_console_printer::print_char(clock_char as char);
+            // Cursor wieder an richtige Stelle setzen
+            graphic_console_printer::set_pos(old_cursor_pos.0, old_cursor_pos.1);
+
+            // Interrupts wieder freischalten
+            cpu::enable_int_nested(ie);
+        }
 
         // We try to switch to the next thread
         // Prüfen, ob der Scheduler grade frei ist

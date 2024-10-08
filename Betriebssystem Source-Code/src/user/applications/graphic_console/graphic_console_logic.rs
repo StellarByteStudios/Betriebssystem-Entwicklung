@@ -6,7 +6,9 @@ use alloc::{
 };
 use spin::Mutex; // String-Klasse für einfacheres Matching der Commands
 
-use crate::{consts, devices::keyboard, user::applications::graphic_console::gc_programms};
+// Funktioniert nicht mit neuen Threads
+//use crate::{consts, devices::keyboard, user::applications::graphic_console::gc_programms};
+use crate::{consts, devices::keyboard};
 
 use super::graphic_console_printer;
 
@@ -196,8 +198,9 @@ fn handle_enter() -> bool {
 
     call_init!("scream"); */
 
-    // /* Altes matching
+    /* Altes matching
     // Matching auf andere Befehle
+    // Funktioniert nicht mit neuen Threads
     match command_array.get(0).unwrap().as_str() {
         "animation" => gc_programms::animation::init(command_array),
         "scream" => gc_programms::scream::init(), // Lustige Textausgabe
@@ -223,7 +226,7 @@ fn handle_enter() -> bool {
             command_array.get(0).unwrap().as_str()
         ), // Falscher Befehl
     }
-    // */
+     */
     // neue Zeile nach Befehl
     //graphic_console_printer::print_char('\n');
 

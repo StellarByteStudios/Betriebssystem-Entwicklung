@@ -6,12 +6,14 @@ use alloc::boxed::Box;
 use alloc::string::ToString;
 
 pub fn init() {
+    // Funktioniert nicht mit neuer Threadsstruktur
+    /*
     let idle_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         "Idle-Thread".to_string(),
         idle_thread_entry,
     );
-    scheduler::Scheduler::ready(idle_thread);
+    scheduler::Scheduler::ready(idle_thread); */
 }
 
 #[no_mangle]

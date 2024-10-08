@@ -10,7 +10,7 @@
 */
 
 use alloc::boxed::Box;
-use core::ptr::null;
+use core::ptr::{null, null_mut};
 use core::sync::atomic::{AtomicBool, Ordering};
 use spin::Spin;
 
@@ -58,7 +58,9 @@ impl Mutex {
             }
 
             // switch vorbereiten
-            let threads2switch: (*mut Thread, *mut Thread) = scheduler::prepare_block();
+            // Funktioniert nicht mit Vorgegebenem Allokator
+            //let threads2switch: (*mut Thread, *mut Thread) = scheduler::prepare_block();
+            let threads2switch: (*mut Thread, *mut Thread) = (null_mut(), null_mut());
 
             // Geblockten Thread in die Warteschlange machen
             self.wait_queue
@@ -92,7 +94,8 @@ impl Mutex {
         }
 
         // Nächsten Thread aus wait_queue in die queue des Schedulers packen
-        scheduler::deblock(Box::into_raw(next.unwrap()));
+        // Funktioniert nicht mit vorgegebenem Scheduler
+        //scheduler::deblock(Box::into_raw(next.unwrap()));
 
         // Queue freigeben
         drop(queue);

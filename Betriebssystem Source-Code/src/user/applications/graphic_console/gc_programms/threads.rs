@@ -23,7 +23,8 @@ extern "C" fn graphic_console_show_threads(myself: *mut thread::Thread) {
     // Liste an Threads holen
     let ie = cpu::disable_int_nested();
 
-    scheduler::print_ready_queue();
+    // Funktioniert nicht mit vorgegebenem Scheduler
+    //scheduler::print_ready_queue();
 
     cpu::enable_int_nested(ie);
 

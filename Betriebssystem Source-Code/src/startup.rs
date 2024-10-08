@@ -15,6 +15,8 @@
 #![allow(unused_imports)]
 #![allow(unused_macros)]
 #![feature(allocator_api)]
+// Iso-Neu
+#![feature(alloc_error_handler)]
 
 use core::panic::PanicInfo;
 
@@ -22,15 +24,17 @@ use alloc::{string::ToString, vec};
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
     allocator, cpu, interrupts,
-    threads::{self, scheduler::Scheduler},
+    threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
 use mylib::input;
+// Funktioniert nicht mehr wegen neuer Threads
 use user::{
-    applications::{self, keyboard_handler},
-    aufgabe1::text_demo,
-    aufgabe2::heap_demo,
-    aufgabe3::keyboard_irq_demo,
-    aufgabe4, aufgabe5, aufgabe6, aufgabe7,
+    applications::{self, graphic_console::graphic_console_printer, keyboard_handler},
+    hello_world_thread,
+    //aufgabe1::text_demo,
+    //aufgabe2::heap_demo,
+    //aufgabe3::keyboard_irq_demo,
+    //aufgabe4, aufgabe5, aufgabe6, aufgabe7,
 };
 
 extern crate alloc;
@@ -45,6 +49,7 @@ mod mylib;
 mod consts;
 mod kernel;
 
+mod boot;
 mod user;
 
 fn own_tests() {
@@ -55,7 +60,7 @@ fn init_all(mbi: u64) {
     kprintln!("OS initializing...");
 
     // init allocator
-    allocator::init();
+    allocator::init(allocator::HEAP_START, consts::HEAP_SIZE); // Konstruktor geändert
 
     // Multiboot-Infos für Grafik auslesen, falls vorhanden
     check_graphics_mode(mbi);
@@ -78,6 +83,7 @@ fn init_all(mbi: u64) {
     kprintln!("Initializing finished!");
 }
 
+/*
 fn aufgabe1() {
     //cga::clear();
     text_demo::run();
@@ -293,7 +299,7 @@ fn print_main_graphic() {
         "        * und vieles mehr ...",
     )
 }
-
+ */
 // Pruefen, ob wir in einem Grafikmodus sind
 // Falls ja setzen der Infos in VGA
 fn check_graphics_mode(mbi: u64) -> bool {
@@ -317,6 +323,7 @@ fn check_graphics_mode(mbi: u64) -> bool {
     true
 }
 
+/* Ursprüngliche Funktion, welche beim Startup lief */
 #[no_mangle]
 pub extern "C" fn startup(mbi: u64) {
     kprintln!("OS startup...");
@@ -324,7 +331,7 @@ pub extern "C" fn startup(mbi: u64) {
     init_all(mbi);
 
     //print_main_screen();
-    print_main_graphic();
+    //print_main_graphic();
     //kprintln!("Die Aktuelle Zeit: {}", rtc::get_time());
     //draw_newton();
 
@@ -340,7 +347,7 @@ pub extern "C" fn startup(mbi: u64) {
     //aufgabe4();
     //aufgabe5();
     //aufgabe6();
-    aufgabe7();
+    //aufgabe7();
 
     own_tests();
 
@@ -353,6 +360,113 @@ pub extern "C" fn startup(mbi: u64) {
     }
 }
 
+/* Neuer Startupblock
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*/
+
+// Konstanten im Linker-Skript
+extern "C" {
+    static ___KERNEL_DATA_START__: u64;
+    static ___KERNEL_DATA_END__: u64;
+}
+
+use crate::boot::multiboot::PhysRegion;
+use boot::multiboot;
+// Start- und Endadresse des Kernel-Images ermitteln,
+// aufrunden auf das naechste volle MB und zurueckgeben
+fn get_kernel_image_region() -> multiboot::PhysRegion {
+    let kernel_start: usize;
+    let kernel_end: usize;
+
+    unsafe {
+        kernel_start = &___KERNEL_DATA_START__ as *const u64 as usize;
+        kernel_end = &___KERNEL_DATA_END__ as *const u64 as usize;
+    }
+
+    // Kernel-Image auf das naechste MB aufrunden
+    let mut kernel_rounded_end = kernel_end & 0xFFFFFFFFFFF00000;
+    kernel_rounded_end += 0x100000 - 1; // 1 MB aufaddieren
+
+    PhysRegion {
+        start: kernel_start as u64,
+        end: kernel_rounded_end as u64,
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn kmain(mbi: u64) {
+    kprintln!("kmain");
+
+    let kernel_region = get_kernel_image_region();
+    kprintln!("   kernel_region: {:?}", kernel_region);
+
+    // Speicherverwaltung (1 MB) oberhalb des Images initialisieren
+    let heap_start = kernel_region.end as usize + 1;
+    allocator::init(heap_start, consts::HEAP_SIZE);
+
+    // Multiboot-Infos für Grafik auslesen, falls vorhanden
+    check_graphics_mode(mbi);
+
+    // Multiboot-Infos ausgeben
+    multiboot::dump(mbi);
+
+    // Interrupt-Strukturen initialisieren
+    interrupts::init();
+
+    // Tastatur-Unterbrechungsroutine 'einstoepseln'
+    Keyboard::plugin();
+
+    // Zeitgeber-Unterbrechungsroutine 'einstoepseln'
+    pit::plugin();
+
+    // Bildschirm frei machen
+    graphic_console_printer::clear_screen();
+
+    // Idle-Thread eintragen
+    /*let idle_thread = Thread::new(
+        scheduler::next_thread_id(),
+        sec_idle_thread::idle_thread_entry,
+        true,
+    );
+
+    scheduler::Scheduler::ready(idle_thread);*/
+    sec_idle_thread::init();
+
+    // HelloWorld-Thread eintragen
+    hello_world_thread::init();
+
+    // Scheduler starten & Interrupts erlauben
+    Scheduler::schedule();
+}
+
+/*
+* Panic Handler
+*/
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     kprintln!("Panic: {}", info);

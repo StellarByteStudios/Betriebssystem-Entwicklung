@@ -1,248 +1,327 @@
-use alloc::string::String;
-use alloc::vec::Vec;
 /* ╔═════════════════════════════════════════════════════════════════════════╗
-   ║ Module: Threads                                                         ║
+   ║ Module: thread                                                          ║
    ╟─────────────────────────────────────────────────────────────────────────╢
    ║ Descr.: Functions for creating, starting, switching and ending threads. ║
    ╟─────────────────────────────────────────────────────────────────────────╢
-   ║ Autor:  Michael Schoettner, 15.05.2023                                  ║
+   ║ Autor:  Michael Schoettner, 11.06.2024                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use alloc::{boxed::Box, rc::Rc};
-use core::borrow::{Borrow, BorrowMut};
-use core::ffi::c_void;
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec::Vec;
 use core::fmt;
-use core::fmt::Debug;
-use core::fmt::Display;
-use core::ptr;
 
-use crate::consts::{self, STACK_ENTRY_SIZE, STACK_SIZE};
-use crate::devices::{cga, kprint};
-use crate::kernel::{cpu, stack};
+use crate::consts;
+use crate::devices::cga;
+use crate::kernel::cpu;
+use crate::kernel::threads::scheduler;
+use crate::kernel::threads::stack;
+use crate::mylib::queue::Link;
 
-use super::scheduler::{Scheduler, SCHEDULER};
-
-// Description: Assembly functions in 'Thread.asm'
+// Diese Funktionen sind in 'thread.asm'
 extern "C" {
-    fn _thread_start(stack_ptr: usize);
-    fn _thread_switch(now_stack_ptr: *mut usize, then_stack: usize);
+    fn _thread_kernel_start(old_rsp0: u64);
+    fn _thread_user_start(old_rsp0: u64);
+    fn _thread_switch(now_rsp0: *mut u64, then_rsp0: u64, then_rsp0_end: u64);
 }
 
-/**
-   Description: Meta data for a Thread
-*/
+// Diese Funktion (setzt den Kernel-Stack im TSS) ist in 'boot.asm'
+extern "C" {
+    fn _tss_set_rsp0(old_rsp0: u64);
+}
+
+// Verwaltungsstruktur fuer einen Thread
 #[repr(C)]
-#[derive(Clone)]
 pub struct Thread {
     tid: usize,
-    stack_ptr: usize,                  // stack pointer to saved context
-    stack: stack::Stack,               // memory for stack
-    entry: extern "C" fn(*mut Thread), // Function the Thread is running
+    is_kernel_thread: bool,
+    old_rsp0: u64, // letzter genutzter Stackeintrag im Kernel-Stack
+    // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
+
+    // Speicher fuer den User-Stack
+    /*
+        Hier muss Code eingefuegt werden
+    */
+    kernel_stack: Box<stack::Stack>, // Speicher fuer den Kernel-Stack
+    entry: extern "C" fn(),
+
+    // Name und Argumente
     args: Vec<String>,
     name: String,
 }
 
 impl Thread {
+    // Neuen Thread anlegen
+    pub fn new(my_tid: usize, myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
+        // Speicher fuer die Stacks anlegen
+        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
+
+        /*
+           Hier muss Code eingefuegt werden
+        */
+
+        // Thread-Objekt anlegen
+        let mut threadobj = Box::new(Thread {
+            tid: my_tid,
+            is_kernel_thread: kernel_thread,
+            old_rsp0: 0,
+            kernel_stack: my_kernel_stack,
+            entry: myentry,
+            args: Vec::new(),
+            name: String::from("Nameless"),
+        });
+
+        threadobj.prepare_kernel_stack();
+
+        threadobj
+    }
+
+    /*
+     * Erwerterung für Name und Args
+     */
     /**
        Description: Create new Thread (Mit Args!)
     */
     pub fn new_with_args(
-        my_cid: usize,
+        my_tid: usize,
+        myentry: extern "C" fn(),
+        kernel_thread: bool,
         thread_name: String,
-        my_entry: extern "C" fn(*mut Thread),
         my_args: Vec<String>,
     ) -> Box<Thread> {
-        let my_stack = stack::Stack::new(STACK_SIZE);
-        let my_stack_ptr = my_stack.end_of_stack();
-        let mut thread = Box::new(Thread {
-            tid: my_cid,
-            stack_ptr: my_stack_ptr,
-            stack: my_stack,
-            entry: my_entry,
+        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
+
+        /*
+           Hier muss Code eingefuegt werden
+        */
+
+        // Thread-Objekt anlegen
+        let mut threadobj = Box::new(Thread {
+            tid: my_tid,
+            is_kernel_thread: kernel_thread,
+            old_rsp0: 0,
+            kernel_stack: my_kernel_stack,
+            entry: myentry,
             args: my_args,
             name: thread_name,
         });
 
-        thread.thread_prepare_stack();
-        thread
+        threadobj.prepare_kernel_stack();
+
+        threadobj
     }
 
     /**
        Description: Create new Thread (mit Name)
     */
     pub fn new_name(
-        my_cid: usize,
+        my_tid: usize,
+        myentry: extern "C" fn(),
+        kernel_thread: bool,
         thread_name: String,
-        my_entry: extern "C" fn(*mut Thread),
     ) -> Box<Thread> {
-        let my_stack = stack::Stack::new(STACK_SIZE);
-        let my_stack_ptr = my_stack.end_of_stack();
-        let mut thread = Box::new(Thread {
-            tid: my_cid,
-            stack_ptr: my_stack_ptr,
-            stack: my_stack,
-            entry: my_entry,
+        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
+
+        /*
+           Hier muss Code eingefuegt werden
+        */
+
+        // Thread-Objekt anlegen
+        let mut threadobj = Box::new(Thread {
+            tid: my_tid,
+            is_kernel_thread: kernel_thread,
+            old_rsp0: 0,
+            kernel_stack: my_kernel_stack,
+            entry: myentry,
             args: Vec::new(),
             name: thread_name,
         });
 
-        thread.thread_prepare_stack();
-        thread
+        threadobj.prepare_kernel_stack();
+
+        threadobj
     }
 
-    /**
-       Description: Create new Thread (ohne Args)
-    */
-    pub fn new(my_cid: usize, my_entry: extern "C" fn(*mut Thread)) -> Box<Thread> {
-        let my_stack = stack::Stack::new(STACK_SIZE);
-        let my_stack_ptr = my_stack.end_of_stack();
-        let mut thread = Box::new(Thread {
-            tid: my_cid,
-            stack_ptr: my_stack_ptr,
-            stack: my_stack,
-            entry: my_entry,
-            args: Vec::new(),
-            name: String::from("Nameless"),
-        });
-
-        thread.thread_prepare_stack();
-        thread
-    }
-
-    /**
-       Description: Start Thread `cor`
-    */
-    pub fn start(cor: *mut Thread) {
+    // Starten des 1. Kernel-Threads (rsp0 zeigt auf den praeparierten Stack)
+    // Wird vom Scheduler gerufen, wenn dieser gestartet wird.
+    // Alle anderen Threads werden mit 'switch' angestossen
+    pub fn start(now: *mut Thread) {
         unsafe {
-            _thread_start((*cor).stack_ptr as usize);
+            kprintln!("thread start, kernel-stack = {:x}", (*now).old_rsp0);
+            _thread_kernel_start((*now).old_rsp0);
         }
     }
 
-    // Switchen von zwei Stacks
-    // Der erste wird gespeichert und der nächste wird gestartet
-    pub fn switch(now: *mut Thread, next: *mut Thread) {
-        unsafe { _thread_switch((*now).stack_ptr.borrow_mut(), (*next).stack_ptr as usize) }
+    // Umschalten von Thread 'now' auf Thread 'then'
+    pub fn switch(now: *mut Thread, then: *mut Thread) {
+        unsafe {
+            kprint!(
+                "preempt: tid={}, old_rsp0={:x}",
+                Thread::get_tid(now),
+                (*now).old_rsp0
+            );
+            kprintln!(
+                " and switch to tid={}, old_rsp0={:x}",
+                Thread::get_tid(then),
+                (*then).old_rsp0
+            );
+            _thread_switch(
+                &mut (*now).old_rsp0,
+                (*then).old_rsp0,
+                (*then).kernel_stack.stack_end() as u64,
+            );
+        }
     }
 
-    /**
-       Description: Return raw pointer to self
-    */
-    pub fn get_raw_pointer(&mut self) -> *mut Thread {
-        self
+    //
+    // Kernel-Stack praeparieren, fuer das Starten eines Threads im Ring 0
+    // (wird in '_thread_kernel_start' und '_thread_switch' genutzt)
+    // Im Wesentlichen wird hiermit der Stack umgeschaltet und durch
+    // einen Ruecksprung die Funktion 'kickoff_kernel_thread' angesprungen.
+    //
+    // Die Interrupt werden nicht aktiviert.
+    //
+    fn prepare_kernel_stack(&mut self) {
+        let kickoff_kernel_addr = kickoff_kernel_thread as *const ();
+        let object: *const Thread = self;
+
+        // sp0 zeigt ans Ende des Speicherblocks, passt somit
+        let sp0: *mut u64 = self.kernel_stack.stack_end();
+
+        // Stack initialisieren. Es soll so aussehen, als waere soeben die
+        // die Funktion '_thread_kernel_start' aufgerufen worden. Diese
+        // Funktion hat als Parameter den Zeiger "object" erhalten.
+        // Da der Aufruf "simuliert" wird, kann fuer die Ruecksprung-
+        // adresse in 'kickoff_kernel_addr' nur ein unsinniger Wert eingetragen
+        // werden. Die Funktion 'kickoff_kernel_addr' muss daher dafuer sorgen,
+        // dass diese Adresse nie benoetigt, sie darf also nicht zurueckspringen,
+        // sonst kracht's.
+        unsafe {
+            *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
+
+            *sp0.offset(-1) = kickoff_kernel_addr as u64; // Adresse von 'kickoff_kernel_thread'
+
+            // Nun sichern wir noch alle Register auf dem Stack
+            *sp0.offset(-2) = 2; // rflags (IOPL=0, IE=0)
+            *sp0.offset(-3) = 0; // r8
+            *sp0.offset(-4) = 0; // r9
+            *sp0.offset(-5) = 0; // r10
+            *sp0.offset(-6) = 0; // r11
+            *sp0.offset(-7) = 0; // r12
+            *sp0.offset(-8) = 0; // r13
+            *sp0.offset(-9) = 0; // r14
+            *sp0.offset(-10) = 0; // r15
+
+            *sp0.offset(-11) = 0; // rax
+            *sp0.offset(-12) = 0; // rbx
+            *sp0.offset(-13) = 0; // rcx
+            *sp0.offset(-14) = 0; // rdx
+
+            *sp0.offset(-15) = 0; // rsi
+            *sp0.offset(-16) = object as u64; // rdi -> 1. Param. fuer 'kickoff_kernel_thread'
+            *sp0.offset(-17) = 0; // rbp
+
+            // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
+            // Eintrag auf dem Stack in 'rsp0'. Daruber gelangen wir in
+            // _thread_kernel_start an die noetigen Register
+            self.old_rsp0 = (sp0 as u64) - (8 * 17); // aktuellen Stack-Zeiger speichern
+        }
     }
 
-    /**
-       Description: Return Thread id of `cor_object`
-    */
+    //
+    // Diese Funktion wird verwendet, um einen Thread vom Ring 0 in den
+    // Ring 3 zu versetzen. Dies erfolgt wieder mit einem praeparierten Stack.
+    // Hier wird ein Interrupt-Stack-Frame gebaut, sodass beim Ruecksprung
+    // mit 'iretq' die Privilegstufe gewechselt wird. Wenn alles klappt
+    // landen wir in der Funktion 'kickoff_user_thread' und sind dann im Ring 3
+    //
+    // In den Selektoren RPL = 3, RFLAGS = IOPL=0, IE=1
+    //
+    // Die Interrupt werden durch den 'iretq' aktiviert.
+    //
+    fn switch_to_usermode(&mut self) {
+
+        /*
+            Hier muss Code eingefuegt werden
+        */
+
+        // Interrupt-Stackframe bauen
+
+        // In den Ring 3 schalten -> Aufruf von '_thread_user_start'
+    }
+
     pub fn get_tid(thread_object: *const Thread) -> usize {
         unsafe { (*thread_object).tid }
     }
 
-    /**
-       Description: Return Args of `cor_object`
-    */
-    pub fn get_args(thread_object: *const Thread) -> Vec<String> {
-        unsafe { (*thread_object).args.clone() }
-    }
-
-    /**
-       Description: Return Args of `cor_object`
-    */
-    pub fn get_name(thread_object: *const Thread) -> String {
-        unsafe { (*thread_object).name.clone() }
-    }
-
-    /**
-      Description: Prepare the stack of a newly created Thread. It is used to \
-                   switch the stack and return to the 'kickoff' function.  \
-                   The prepared stack is used in '_Thread_start' to start the first Thread.\
-                   Starting all other Threads is done in '_Thread_switch' where the \
-                   prepared stack is used to kickoff a Thread.
-    */
-    fn thread_prepare_stack(&mut self) {
-        let faddr = thread_kickoff as *const ();
-        let object: *const Thread = self;
-        let sp: *mut u64 = self.stack_ptr as *mut u64;
-
-        // The stack should look like a function of a thread was called with one
-        // parameter "object" (raw pointer to the Thread struct)
-        unsafe {
-            *sp = 0x131155 as u64; // dummy return address
-
-            *sp.offset(-1) = faddr as u64; // address of 'kickoff'
-
-            // save all registers on stack
-            *sp.offset(-2) = 0; // r8
-            *sp.offset(-3) = 0; // r9
-            *sp.offset(-4) = 0; // r10
-            *sp.offset(-5) = 0; // r11
-            *sp.offset(-6) = 0; // r12
-            *sp.offset(-7) = 0; // r13
-            *sp.offset(-8) = 0; // r14
-            *sp.offset(-9) = 0; // r15
-
-            *sp.offset(-10) = 0; // rax
-            *sp.offset(-11) = 0; // rbx
-            *sp.offset(-12) = 0; // rcx
-            *sp.offset(-13) = 0; // rdx
-
-            *sp.offset(-14) = 0; // rsi
-            *sp.offset(-15) = object as u64; // rdi -> 1. param. fuer 'kickoff'
-            *sp.offset(-16) = 0; // rbp
-            *sp.offset(-17) = 0x2; // rflags (IE = 0); interrupts disabled
-
-            // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
-            // Eintrag auf dem Stack in 'context'. Daruber gelangen wir in
-            // Thread_start an die noetigen Register
-            self.stack_ptr = self.stack_ptr - (consts::STACK_ENTRY_SIZE * 17);
-        }
-
-        /*
-              println!("Prepared Stack: top-address = {:x}", self.stack.get_data() as u64);
-              unsafe {
-                 println!("  {:x}: {:x}  // dummy raddr", sp as u64, *(sp) as u64);
-                 println!("  {:x}: {:x}  // *object", sp.offset(-15) as u64, *(sp.offset(-15)) as u64);
-                 println!("  {:x}: {:x}  // kickoff", sp.offset(-1) as u64, *(sp.offset(-1)) as u64);
-                 println!("  {:x}: last used ", sp.offset(-17) as u64);
-                 println!("");
-                 println!("  self.context = {:x}  // context", self.context);
-              }
-              loop {}
-        */
+    pub fn get_raw_pointer(&mut self) -> *mut Thread {
+        self
     }
 }
 
-/**
-   Description: Called indirectly by using the prepared stack in '_Thread_start' and '_Thread_switch'
-*/
-#[no_mangle]
-pub extern "C" fn thread_kickoff(object: *mut Thread) {
-    //kprintln!("kickoff");
-    cpu::enable_int(); // interrupts are disabled during Thread start
-    unsafe {
-        ((*object).entry)(object);
-    }
-    loop {
-        Scheduler::exit();
-        //Scheduler::yield_cpu();
-    }
-}
-
-// Vergleichbarkeit der Threads schaffen
+// Notwendig, für die Queue-Implementierung im Scheduler
 impl PartialEq for Thread {
     fn eq(&self, other: &Self) -> bool {
         self.tid == other.tid
     }
 }
 
-// Ausgabe der Threads
-impl Display for Thread {
-    fn fmt(&self, w: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
-        return write!(
-            w,
-            "Thread ({}): {}",
-            Self::get_name(self),
-            Self::get_tid(self)
+// Notwendig, falls wir die Ready-Queue ausgeben moechten
+impl fmt::Display for Thread {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.tid)
+    }
+}
+
+//
+// Dies ist die erste Rust-Funktion, die aufgerufen wird, wenn
+// ein neuer Thread startet (im Ring 0). Falls dies ein User-Thread
+// ist, so wird von hier aus 'switch_to_usermode' gerufen.
+//
+// Hier sind die Interrupts noch gesperrt.
+//
+#[no_mangle]
+pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
+    unsafe {
+        kprintln!(
+            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}",
+            (*object).tid,
+            (*object).old_rsp0,
+            (*object).is_kernel_thread
         );
     }
+
+    // Setzen von rsp0 im TSS
+    unsafe {
+        _tss_set_rsp0((*object).kernel_stack.stack_end() as u64);
+    }
+
+    // Falls dies ein User-Thread ist, schalten wir nun in den User-Mode
+    // Der Aufruf kehrt nicht zurueck, schaltet aber IE = 1
+    // Es geht anschliessend in 'kickoff_user_thread' weiter
+    unsafe {
+        if (*object).is_kernel_thread == false {
+            (*object).switch_to_usermode();
+        } else {
+            // Interrupts wieder zulassen
+            cpu::enable_int();
+            ((*object).entry)();
+        }
+    }
+    loop {}
+}
+
+//
+// Dies ist die  Rust-Funktion, die aufgerufen wird, wenn ein
+// Kernel-Thread (Ring 0) in den Ring 3 versetzt wird
+//
+#[no_mangle]
+pub extern "C" fn kickoff_user_thread(object: *mut Thread) {
+    // Einstiegsfunktion des Threads aufrufen
+
+    /*
+        Hier muss Code eingefuegt werden
+    */
+
+    loop {}
 }
