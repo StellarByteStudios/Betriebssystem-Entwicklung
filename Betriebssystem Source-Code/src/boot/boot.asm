@@ -379,11 +379,11 @@ _gdt:
 
 _tssd_start_adress:
 	; Limit wird auf Max gesetzt also alles mit F
-	dw 0xFFFF ; [00:15] limit
+	dw 0x0068 ; [00:15] limit
 	dw 0x0000 ; [16:31] Bit 0 bis 15 der Base-Adresse
 
 	dw 0x8900 ; [00:15] Seg Pressent = 1 | Priv. Level = 1 | 0  ||  Type = Avaiable? = 0x9  || Base 20+4  || Base 16+4
-	dw 0x008F ; [16:31] Base 24+4  || Base 28+4  ||  Granularity = 1 | 0 | 0 | Avaiable for Software = 0  ||  Limit 16+4
+	dw 0x0080 ; [16:31] Base 24+4  || Base 28+4  ||  Granularity = 1 | 0 | 0 | Avaiable for Software = 0  ||  Limit 16+4
 
 	dw 0x0000 ; [00:15] Bit 32 bis 47 der Base-Adresse
 	dw 0x0000 ; [16:31] Bit 48 bis 63 der Base-Adresse
