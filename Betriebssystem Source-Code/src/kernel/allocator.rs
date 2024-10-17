@@ -78,7 +78,7 @@ pub fn dump_free_list_graphic() {
 pub fn free_list_string() -> String {
     //kprintln!("Vor dem Alloc lock");
 
-    let mut lock = ALLOCATOR.lock();
+    //let mut lock = ALLOCATOR.lock();
 
     //kprintln!("Nach dem Alloc lock");
 
@@ -89,7 +89,7 @@ pub fn free_list_string() -> String {
     //Funktioniert nicht mit Vorgegebenem Allokator
     //let formated_string: String = lock.free_list_string();
 
-    drop(lock);
+    //drop(lock);
 
     cpu::enable_int_nested(ie);
 

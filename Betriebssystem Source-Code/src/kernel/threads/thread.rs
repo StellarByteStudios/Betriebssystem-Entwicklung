@@ -240,10 +240,11 @@ impl Thread {
     // Die Interrupt werden durch den 'iretq' aktiviert.
     //
     fn switch_to_usermode(&mut self) {
-
         /*
             Hier muss Code eingefuegt werden
         */
+
+        kprintln!("Switch to usermode wird ausgeführt")
 
         // Interrupt-Stackframe bauen
 

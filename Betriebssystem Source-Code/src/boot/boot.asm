@@ -241,29 +241,37 @@ _fill_tables3_done:
 [BITS 64]
 _longmode_start:
     
-   ; BSS löschen
-	  mov    rdi, ___BSS_START__
+	; BSS löschen
+	mov    rdi, ___BSS_START__
 _clear_bss:
-	  mov    byte [rdi], 0
-	  inc    rdi
-	  cmp    rdi, ___BSS_END__
-	  jne    _clear_bss
+	mov    byte [rdi], 0
+	inc    rdi
+	cmp    rdi, ___BSS_END__
+	jne    _clear_bss
 
-   ; TSS-Basisadresse im GDT-Eintrag setzen
-   call _tss_set_base_address
-
-   ; Kernel-Stack im TSS setzen -> rsp0 
-			mov rdi, _init_stack.end 
-   call _tss_set_rsp0
-
-   ; Lade TSS-Register mit dem TSS-Deskriptor
-   
-			;
-   ; Hier muss Code eingefuegt werden
-   ;
+	; TSS-Basisadresse im GDT-Eintrag setzen
+	call _tss_set_base_address
 
 
-   ; 'kmain' mit Parametern aufrufen    
+
+	; Kernel-Stack im TSS setzen -> rsp0 
+	mov rdi, _init_stack.end 
+	call _tss_set_rsp0
+
+_break_after_tss:
+
+	; Lade TSS-Register mit dem TSS-Deskriptor
+	; ; === Eigener Code === ; ;
+	xor rax, rax
+	mov rax, 0x6 	; Index 5 in das Register schreiben
+	shl rax, 3 		; Schiebe 3 Bits nach Links weil die untersten nicht verwendet werden
+	;mov ax, 6*8
+	ltr ax			; = = = = BEI DIESEM AUFRUF GEHT WAS SCHIEF
+	; ; ===  === ; ;
+
+
+
+	; 'kmain' mit Parametern aufrufen    
 	  xor    rax,rax
 	  mov    dword eax, _multiboot_addr
 	  mov    rdi, [rax]                 ; 1. Parameter wird in rdi uebergeben
@@ -277,9 +285,35 @@ _clear_bss:
 ; TSS Basisadresse in GDT-Eintrag setzen
 ;
 _tss_set_base_address:
-			;
-   ; Hier muss Code eingefuegt werden
-   ;
+	; ; === Eigener Code === ; ;
+;_break_tss_begin:
+	; Adresse der TSS in ein Register schreiben
+	mov rbx, _tss
+
+	; Adresse des TSS Descriptors in ein anderes Register schreiben
+	mov rax, _tssd_start_adress
+;_break_tss_rbx:
+	; Adresse Byteweise an die richtigen Stellen des Descriptors schreiben
+
+	; erster 2 Byte Abschnit
+	mov [rax+2], bx
+	; shiften
+	shr rbx, 16
+
+	; nächster 1 Byte Abschnitt, Teil 1 in Chaos Zeile
+	mov [rax+4], bl
+	shr rbx, 8
+
+	; nächster 1 Byte Abschnitt, Teil 2 in Chaos Zeile
+	mov [rax+7], bl
+	shr rbx, 8
+
+	; letzter 4 Byte Abschnitt
+	mov [rax+8], ebx
+;_break_tss_end:
+	ret
+	; ; ===  === ; ;
+
 
 
 ;
@@ -305,30 +339,69 @@ _get_tss_address:
 ; Segment-Deskriptoren
 ;
 _gdt:
-	  dw  0,0,0,0   ; NULL-Deskriptor
+	dw 0,0,0,0 ; NULL-Deskriptor
 
-	  ; Kernel 32-Bit-Codesegment-Deskriptor (nur fuer das Booten benoetigt)
-	  dw  0xFFFF    ; limit [00:15] = 4Gb - (0x100000*0x1000 = 4Gb)
-	  dw  0x0000    ; base  [00:15] = 0
-	  dw  0x9A00    ; base  [16:23] = 0, code read/exec, DPL=0, present
-	  dw  0x00CF    ; limit [16:19], granularity=4096, 386, base [24:31]
+	; Kernel 32-Bit-Codesegment-Deskriptor (nur fuer das Booten benoetigt)
+	dw 0xFFFF ; [00:15] limit = 4Gb - (0x100000*0x1000 = 4Gb)
+	dw 0x0000 ; [16:31] base = 0
+	dw 0x9A00 ; [32:47] base = 0, code read/exec, DPL=0, present
+	dw 0x00CF ; [48:63] base, granularity=4096, IA32,
 
-	  ; Kernel 64-Bit-Codesegment-Deskriptor
-  	dw  0xFFFF    ; limit [00:15] = 4Gb - (0x100000*0x1000 = 4Gb)
-	  dw  0x0000    ; base  [00:15] = 0
-	  dw  0x9A00    ; base  [16:23] = 0, code read/exec, DPL=0, present
-  	dw  0x00AF    ; limit [16:19], granularity=4096, 386, Long-Mode, base [24:31]
+	; Kernel 64-Bit-Codesegment-Deskriptor
+	dw 0xFFFF ; [00:15] limit
+	dw 0x0000 ; [16:31] base
+	dw 0x9A00 ; [32:47] base (8 bits), type = code, DPL=0, present
+	dw 0x00AF ; [48:63] limit (4 bits), long mode, granularity=4096
 
-	  ; Kernel 64-Bit-Datensegment-Deskriptor 
-	  dw  0xFFFF    ; limit [00:15] = 4Gb - (0x100000*0x1000 = 4Gb)
-	  dw  0x0000    ; base  [00:15] = 0
-	  dw  0x9200    ; base  [16:23] = 0, data read/write, DPL=0, present 
-	  dw  0x00CF    ; limit [16:19], granularity=4096, 386, base [24:31]
+	; Kernel 64-Bit-Datensegment-Deskriptor
+	dw 0xFFFF ; [00:15] limit
+	dw 0x0000 ; [16:31] base
+	dw 0x9200 ; [32:47] base address (8 bits), type = data, DPL=0, present
+	dw 0x00CF ; [48:63] limit (4 bits), long mode, granularity=4096
+
+
+	; ; === Eigener Code === ; ;
+
+	; User 64-Bit-Codesegment-Deskriptor
+	dw 0xFFFF ; [00:15] limit
+	dw 0x0000 ; [16:31] base
+	dw 0xFA00 ; [32:47] base (8 bits), type = code, DPL=3, present
+	dw 0x00AF ; [48:63] limit (4 bits), long mode, granularity=4096
+
+	; User 64-Bit-Datensegment-Deskriptor
+	dw 0xFFFF ; [00:15] limit
+	dw 0x0000 ; [16:31] base
+	dw 0xF200 ; [32:47] base address (8 bits), type = data, DPL=3, present
+	dw 0x00CF ; [48:63] limit (4 bits), long mode, granularity=4096
+
+
+	; TSSD 2*64 Bit Segmente
+
+_tssd_start_adress:
+	; Limit wird auf Max gesetzt also alles mit F
+	dw 0xFFFF ; [00:15] limit
+	dw 0x0000 ; [16:31] Bit 0 bis 15 der Base-Adresse
+
+	dw 0x8900 ; [00:15] Seg Pressent = 1 | Priv. Level = 1 | 0  ||  Type = Avaiable? = 0x9  || Base 20+4  || Base 16+4
+	dw 0x008F ; [16:31] Base 24+4  || Base 28+4  ||  Granularity = 1 | 0 | 0 | Avaiable for Software = 0  ||  Limit 16+4
+
+	dw 0x0000 ; [00:15] Bit 32 bis 47 der Base-Adresse
+	dw 0x0000 ; [16:31] Bit 48 bis 63 der Base-Adresse
+
+	dw 0x0000 ; [00:15] Reserved und genullt
+	dw 0x0000 ; [16:31] Reserved und genullt
+
+	; ; ===  === ; ;
 
 _gdt_80:
-   ; 4 Eintraege in der GDT
-			dw  4*8 - 1   ; GDT Limit=32, 7 GDT Eintraege - 1
-	  dq  _gdt      ; Adresse der GDT
+	; 4 Eintraege in der GDT
+	; ; === Alter Code === ; ;
+	;dw  4*8 - 1   ; GDT Limit=32, 7 GDT Eintraege - 1
+	;dq  _gdt      ; Adresse der GDT
+
+	; ; === Eigener Code === ; ;
+	dw  6*8 - 1 + 16   ; GDT Limit=32, 15 GDT Eintraege - 1
+	dq  _gdt      ; Adresse der GDT
 
 ;
 ; Addresse fuer die Multiboot-Infos wird hier gesichert
