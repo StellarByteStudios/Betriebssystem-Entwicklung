@@ -1,5 +1,6 @@
 break kmain
-break _break_after_tss
+break _thread_user_start
+#break _break_after_tss
 #break _break_tss_begin
 #break _break_tss_rbx
 #break _break_tss_end

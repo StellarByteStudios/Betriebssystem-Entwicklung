@@ -39,9 +39,8 @@ pub struct Thread {
     // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
 
     // Speicher fuer den User-Stack
-    /*
-        Hier muss Code eingefuegt werden
-    */
+    user_stack: Box<stack::Stack>, // Speicher fuer den User-Stack
+
     kernel_stack: Box<stack::Stack>, // Speicher fuer den Kernel-Stack
     entry: extern "C" fn(),
 
@@ -55,10 +54,7 @@ impl Thread {
     pub fn new(my_tid: usize, myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
         // Speicher fuer die Stacks anlegen
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-
-        /*
-           Hier muss Code eingefuegt werden
-        */
+        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -66,6 +62,7 @@ impl Thread {
             is_kernel_thread: kernel_thread,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
+            user_stack: my_user_stack,
             entry: myentry,
             args: Vec::new(),
             name: String::from("Nameless"),
@@ -90,10 +87,7 @@ impl Thread {
         my_args: Vec<String>,
     ) -> Box<Thread> {
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-
-        /*
-           Hier muss Code eingefuegt werden
-        */
+        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -101,6 +95,7 @@ impl Thread {
             is_kernel_thread: kernel_thread,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
+            user_stack: my_user_stack,
             entry: myentry,
             args: my_args,
             name: thread_name,
@@ -121,10 +116,7 @@ impl Thread {
         thread_name: String,
     ) -> Box<Thread> {
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-
-        /*
-           Hier muss Code eingefuegt werden
-        */
+        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -132,6 +124,7 @@ impl Thread {
             is_kernel_thread: kernel_thread,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
+            user_stack: my_user_stack,
             entry: myentry,
             args: Vec::new(),
             name: thread_name,
@@ -228,6 +221,46 @@ impl Thread {
         }
     }
 
+    /*
+
+    Diese Methode ist das big TO-DO
+
+
+     */
+    fn prepare_user_stack(&mut self) {
+        kprintln!("Ich bin in prepare user stack angekommen");
+        let kickoff_user_addr = kickoff_user_thread as *const ();
+        let object: *const Thread = self;
+
+        // sp0 zeigt ans Ende des Speicherblocks, passt somit
+        let sp0: *mut u64 = self.user_stack.stack_end();
+
+        unsafe {
+            *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
+
+            //*sp0.offset(-1) = kickoff_kernel_addr as u64; // Adresse von 'kickoff_kernel_thread'
+
+            // Nun sichern wir noch alle Register auf dem Stack
+            *sp0.offset(-1) = 0b0000_0000_0010_1011; // SS Register (Segment Selector)
+                                                     //15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-2) = self.old_rsp0; // ESP                         ===== Ka ob das so richtig ist
+            *sp0.offset(-3) = 0; // EFLAGS                                  ===== Ka wo ich die hernehmen soll
+            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS                  ===== Selbe wie SS nur mit Code?
+                                                     //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-5) = kickoff_user_addr as u64; // EIP              ===== Adresse für funktion?
+            *sp0.offset(-6) = 0; // ERROR Code                              ===== KA deswegen mal alles auf 0
+                                 //15-3 Bit Index in GDT? | 1Bit TI | 1Bit IDT | 1Bit EXT
+
+            // = = = Wo muss ich object as u64 als parameter für kickoff_kernel_ad
+            *sp0.offset(-7) = object as u64; // rdi -> 1. Param. fuer 'kickoff_kernel_thread' ?
+
+            // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
+            // Eintrag auf dem Stack in 'rsp0'. Daruber gelangen wir in
+            // _thread_kernel_start an die noetigen Register
+            self.old_rsp0 = (sp0 as u64) - (8 * 7); // aktuellen Stack-Zeiger speichern
+        }
+    }
+
     //
     // Diese Funktion wird verwendet, um einen Thread vom Ring 0 in den
     // Ring 3 zu versetzen. Dies erfolgt wieder mit einem praeparierten Stack.
@@ -244,11 +277,17 @@ impl Thread {
             Hier muss Code eingefuegt werden
         */
 
-        kprintln!("Switch to usermode wird ausgeführt")
+        kprintln!("Switch to usermode wird ausgeführt");
 
         // Interrupt-Stackframe bauen
+        self.prepare_user_stack();
+
+        kprintln!("Ich bin durch prepare_user_stack durchgekommen");
 
         // In den Ring 3 schalten -> Aufruf von '_thread_user_start'
+        unsafe {
+            _thread_user_start(self.old_rsp0);
+        }
     }
 
     pub fn get_tid(thread_object: *const Thread) -> usize {
@@ -320,9 +359,18 @@ pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
 pub extern "C" fn kickoff_user_thread(object: *mut Thread) {
     // Einstiegsfunktion des Threads aufrufen
 
-    /*
-        Hier muss Code eingefuegt werden
-    */
+    unsafe {
+        kprintln!(
+            "kickoff_user_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}",
+            (*object).tid,
+            (*object).old_rsp0,
+            (*object).is_kernel_thread
+        );
+    }
 
+    // Setzen von rsp0 im TSS
+    unsafe {
+        _tss_set_rsp0((*object).kernel_stack.stack_end() as u64);
+    }
     loop {}
 }
