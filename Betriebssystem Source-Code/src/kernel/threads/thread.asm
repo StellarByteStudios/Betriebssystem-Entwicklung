@@ -129,6 +129,8 @@ _thread_user_start:
     mov rsp, rdi                ; 1. Parameter -> load 'old_rsp'
     pop rdi                     ; Hier ist 'object: *mut Thread'
     iretq                       ; Thread-Wechsel und Umschalten in den User-Mode!
+    ; = = Bei dem iretq tritt jedes mal ein Int 13 = "General Protection Fault" auf
+    ; = = Im Debugger springt der rsp in dieser Methode viel rum
 
 
 ;

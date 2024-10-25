@@ -233,7 +233,8 @@ impl Thread {
         let object: *const Thread = self;
 
         // sp0 zeigt ans Ende des Speicherblocks, passt somit
-        let sp0: *mut u64 = self.user_stack.stack_end();
+        let sp0: *mut u64 = self.kernel_stack.stack_end();
+        let sp3: *mut u64 = self.user_stack.stack_end();
 
         unsafe {
             *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
