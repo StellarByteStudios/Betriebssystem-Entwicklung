@@ -17,6 +17,7 @@
 #![feature(allocator_api)]
 // Iso-Neu
 #![feature(alloc_error_handler)]
+#![feature(naked_functions)]
 
 use core::panic::PanicInfo;
 

@@ -39,14 +39,34 @@ alias = "iso"
 #
 [tasks.compile]
 command = "cargo"
-args = [ "build", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}" ]
+args = [
+    "build",
+    "-Z",
+    "build-std=core,alloc",
+    "-Z",
+    "build-std-features=compiler-builtins-mem",
+    "--target",
+    "${CARGO_CFG_TARGET_FAMILY}",
+    "${CARGO_BUILD_OPTION}",
+]
 
 
 # Besserer Checker 
 [tasks.check]
 command = "cargo"
-args = [ "check", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}", "--quiet", "--workspace", "--message-format=json"]
-
+args = [
+    "check",
+    "-Z",
+    "build-std=core,alloc",
+    "-Z",
+    "build-std-features=compiler-builtins-mem",
+    "--target",
+    "${CARGO_CFG_TARGET_FAMILY}",
+    "${CARGO_BUILD_OPTION}",
+    "--quiet",
+    "--workspace",
+    "--message-format=json",
+]
 
 
 # 
@@ -54,19 +74,57 @@ args = [ "check", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compil
 #
 [tasks.build-boot-asm]
 command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/boot.o", "${SOURCE_DIRECTORY}/boot/boot.asm" ]
+args = [
+    "-f",
+    "elf64",
+    "-w+error=label-redef-late",
+    "-o",
+    "${BUILD_DIRECTORY}/boot.o",
+    "${SOURCE_DIRECTORY}/boot/boot.asm",
+]
 
 [tasks.build-interrupt-asm]
 command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/interrupts.o", "${SOURCE_DIRECTORY}/kernel/interrupts/interrupts.asm" ]
+args = [
+    "-f",
+    "elf64",
+    "-w+error=label-redef-late",
+    "-o",
+    "${BUILD_DIRECTORY}/interrupts.o",
+    "${SOURCE_DIRECTORY}/kernel/interrupts/interrupts.asm",
+]
 
 [tasks.build-corouts-asm]
 command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/corouts.o", "${SOURCE_DIRECTORY}/kernel/corouts/coroutine.asm" ]
+args = [
+    "-f",
+    "elf64",
+    "-w+error=label-redef-late",
+    "-o",
+    "${BUILD_DIRECTORY}/corouts.o",
+    "${SOURCE_DIRECTORY}/kernel/corouts/coroutine.asm",
+]
 
 [tasks.build-thread-asm]
 command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/thread.o", "${SOURCE_DIRECTORY}/kernel/threads/thread.asm" ]
+args = [
+    "-f",
+    "elf64",
+    "-w+error=label-redef-late",
+    "-o",
+    "${BUILD_DIRECTORY}/thread.o",
+    "${SOURCE_DIRECTORY}/kernel/threads/thread.asm",
+]
+[tasks.build-syscall-asm]
+command = "nasm"
+args = [
+    "-f",
+    "elf64",
+    "-w+error=label-redef-late",
+    "-o",
+    "${BUILD_DIRECTORY}/syscall.o",
+    "${SOURCE_DIRECTORY}/kernel/syscall/syscalls.asm",
+]
 
 
 # 
@@ -74,35 +132,76 @@ args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/t
 #
 [tasks.link.mac]
 command = "${LINKER_MAC}"
-args = [ "-n", "-T", "${LINKER_FILE}", "-o", "${KERNEL}", "${BUILD_DIRECTORY}/boot.o", "${BUILD_DIRECTORY}/interrupts.o", "${BUILD_DIRECTORY}/corouts.o", "${BUILD_DIRECTORY}/thread.o", "${RUST_OBJECT}" ]
-dependencies = [ "compile", "build-boot-asm", "build-interrupt-asm", "build-corouts-asm", "build-thread-asm" ]
+args = [
+    "-n",
+    "-T",
+    "${LINKER_FILE}",
+    "-o",
+    "${KERNEL}",
+    "${BUILD_DIRECTORY}/boot.o",
+    "${BUILD_DIRECTORY}/interrupts.o",
+    "${BUILD_DIRECTORY}/corouts.o",
+    "${BUILD_DIRECTORY}/thread.o",
+    "${BUILD_DIRECTORY}/syscall.o",
+    "${RUST_OBJECT}",
+]
+dependencies = [
+    "compile",
+    "build-boot-asm",
+    "build-interrupt-asm",
+    "build-corouts-asm",
+    "build-thread-asm",
+    "build-syscall-asm",
+]
 
 [tasks.link.linux]
 command = "${LINKER_LINUX}"
-args = [ "-n", "-T", "${LINKER_FILE}", "-o", "${KERNEL}", "${BUILD_DIRECTORY}/boot.o", "${BUILD_DIRECTORY}/interrupts.o", "${BUILD_DIRECTORY}/corouts.o", "${BUILD_DIRECTORY}/thread.o", "${RUST_OBJECT}" ]
-dependencies = [ "compile", "build-boot-asm", "build-interrupt-asm", "build-corouts-asm", "build-thread-asm" ]
+args = [
+    "-n",
+    "-T",
+    "${LINKER_FILE}",
+    "-o",
+    "${KERNEL}",
+    "${BUILD_DIRECTORY}/boot.o",
+    "${BUILD_DIRECTORY}/interrupts.o",
+    "${BUILD_DIRECTORY}/corouts.o",
+    "${BUILD_DIRECTORY}/thread.o",
+    "${BUILD_DIRECTORY}/syscall.o",
+    "${RUST_OBJECT}",
+]
+dependencies = [
+    "compile",
+    "build-boot-asm",
+    "build-interrupt-asm",
+    "build-corouts-asm",
+    "build-thread-asm",
+    "build-syscall-asm",
+]
 
 #
 # Bootloader tasks
 #
 [tasks.grub-create-directory]
 command = "mkdir"
-args = [ "-p", "${BUILD_DIRECTORY}/isofiles/boot/grub" ]
+args = ["-p", "${BUILD_DIRECTORY}/isofiles/boot/grub"]
 
 [tasks.grub-copy-kernel]
 command = "cp"
-args = [ "${KERNEL}", "${BUILD_DIRECTORY}/isofiles/boot" ]
-dependencies = [ "link", "grub-create-directory" ]
+args = ["${KERNEL}", "${BUILD_DIRECTORY}/isofiles/boot"]
+dependencies = ["link", "grub-create-directory"]
 
 [tasks.grub-copy-cfg]
 command = "cp"
-args = [ "${SOURCE_DIRECTORY}/boot/grub.cfg", "${BUILD_DIRECTORY}/isofiles/boot/grub" ]
-dependencies = [ "grub-create-directory" ]
+args = [
+    "${SOURCE_DIRECTORY}/boot/grub.cfg",
+    "${BUILD_DIRECTORY}/isofiles/boot/grub",
+]
+dependencies = ["grub-create-directory"]
 
 [tasks.iso]
 command = "grub-mkrescue"
-args = [ "-o", "${ISO}", "${BUILD_DIRECTORY}/isofiles" ]
-dependencies = [ "grub-copy-kernel", "grub-copy-cfg" ]
+args = ["-o", "${ISO}", "${BUILD_DIRECTORY}/isofiles"]
+dependencies = ["grub-copy-kernel", "grub-copy-cfg"]
 
 
 ######################################
@@ -111,41 +210,81 @@ dependencies = [ "grub-copy-kernel", "grub-copy-cfg" ]
 
 [tasks.qemu.linux]
 command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND_LINUX}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+]
 #args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
-dependencies = [ "iso" ]
+dependencies = ["iso"]
 
 [tasks.qemu-ubuntu.linux]
 command = "qemu-system-x86_64"
 #args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
-dependencies = [ "iso" ]
+args = ["-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
+dependencies = ["iso"]
 
 [tasks.qemu.mac]
 command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_MAC}", "-machine", "pcspk-audiodev=snd0" ]
-dependencies = [ "iso" ]
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND_MAC}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+]
+dependencies = ["iso"]
 
 [tasks.qemu-gdb.linux]
 command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0", "-s", "-S" ]
-dependencies = [ "iso", "gdb-echo-for-vscode" ]
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND_LINUX}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+    "-s",
+    "-S",
+]
+dependencies = ["iso", "gdb-echo-for-vscode"]
 
 [tasks.qemu-gdb.mac]
 command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_MAC}", "-machine", "pcspk-audiodev=snd0", "-s", "-S" ]
-dependencies = [ "iso", "gdb-echo-for-vscode" ]
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND_MAC}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+    "-s",
+    "-S",
+]
+dependencies = ["iso", "gdb-echo-for-vscode"]
 
 [tasks.gdb-echo-for-vscode]
 command = "echo"
-args = [ "Debugging..." ]
+args = ["Debugging..."]
 
 [tasks.gdb]
 command = "gdb"
-args = [ "-x", "gdbcommands", "${KERNEL}" ]
+args = ["-x", "gdbcommands", "${KERNEL}"]
 
 [tasks.gdbt]
 #command = "gdb"
 #args = [ "-x", "gdbcommands", "${KERNEL}", "-tui" ]
 command = "gdbtui"
-args = [ "-x", "gdbcommands", "${KERNEL}"]
+args = ["-x", "gdbcommands", "${KERNEL}"]

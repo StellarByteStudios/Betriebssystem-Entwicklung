@@ -22,7 +22,18 @@
 _init_interrupts:
    call setup_idt
    call reprogram_pics
+   call setup_trap_gate
    ret
+
+
+; = = = = = Eingene funktion um Trap-Gate anzulegen = = = = = ;
+setup_trap_gate:
+
+	ret
+
+
+
+
 
 
 ; Second-level interrupt handler
