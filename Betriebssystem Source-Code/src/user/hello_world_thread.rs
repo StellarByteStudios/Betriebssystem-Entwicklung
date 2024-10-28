@@ -9,19 +9,22 @@ use crate::mylib::delay;
 pub extern "C" fn hello_world_thread_entry() {
     //    let tid = scheduler::get_active_tid();
     //    println!("Hello World! thread-id = {}", tid);
-    // kprintln!("Hello World");
-    //    let val = cpu::inb(1);
+    //kprintln!("Hello World");
+
     loop {
         vprint!("U");
+        let val: u8 = cpu::inb(0);
 
         /*
-        let mut x: u64 = 0;
+        let mut x: u16 = 0;
         loop {
             x = x + 1;
-            if x > 100000000 {
+            let val: u8 = cpu::inb(x);
+            vprint!("{}", x);
+            if x > 10000 {
                 break;
             }
-        } */
+        }*/
         delay::delay(100);
     }
 }

@@ -458,7 +458,7 @@ pub extern "C" fn kmain(mbi: u64) {
     sec_idle_thread::init();
 
     // HelloWorld-Thread eintragen
-    //hello_world_thread::init();
+    hello_world_thread::init();
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();

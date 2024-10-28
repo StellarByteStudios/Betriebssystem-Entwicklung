@@ -18,7 +18,7 @@ pub extern "C" fn idle_thread_entry() {
             if x > 100000000 {
                 break;
             }
-        } */
+        }*/
         delay::delay(100);
     }
 }
@@ -27,7 +27,7 @@ pub fn init() {
     let idle_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         idle_thread_entry,
-        false,
+        true,
         "sec_Idle-Thread".to_string(),
     );
     scheduler::Scheduler::ready(idle_thread);
