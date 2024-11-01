@@ -94,16 +94,16 @@ args = [
     "${SOURCE_DIRECTORY}/kernel/interrupts/interrupts.asm",
 ]
 
-[tasks.build-corouts-asm]
-command = "nasm"
-args = [
-    "-f",
-    "elf64",
-    "-w+error=label-redef-late",
-    "-o",
-    "${BUILD_DIRECTORY}/corouts.o",
-    "${SOURCE_DIRECTORY}/kernel/corouts/coroutine.asm",
-]
+#[tasks.build-corouts-asm]
+#command = "nasm"
+#args = [
+#    "-f",
+#    "elf64",
+#    "-w+error=label-redef-late",
+#    "-o",
+#    "${BUILD_DIRECTORY}/corouts.o",
+#    "${SOURCE_DIRECTORY}/kernel/corouts/coroutine.asm",
+#]
 
 [tasks.build-thread-asm]
 command = "nasm"
@@ -140,7 +140,7 @@ args = [
     "${KERNEL}",
     "${BUILD_DIRECTORY}/boot.o",
     "${BUILD_DIRECTORY}/interrupts.o",
-    "${BUILD_DIRECTORY}/corouts.o",
+    #"${BUILD_DIRECTORY}/corouts.o",
     "${BUILD_DIRECTORY}/thread.o",
     "${BUILD_DIRECTORY}/syscall.o",
     "${RUST_OBJECT}",
@@ -149,7 +149,7 @@ dependencies = [
     "compile",
     "build-boot-asm",
     "build-interrupt-asm",
-    "build-corouts-asm",
+    #"build-corouts-asm",
     "build-thread-asm",
     "build-syscall-asm",
 ]
@@ -164,7 +164,7 @@ args = [
     "${KERNEL}",
     "${BUILD_DIRECTORY}/boot.o",
     "${BUILD_DIRECTORY}/interrupts.o",
-    "${BUILD_DIRECTORY}/corouts.o",
+    #"${BUILD_DIRECTORY}/corouts.o",
     "${BUILD_DIRECTORY}/thread.o",
     "${BUILD_DIRECTORY}/syscall.o",
     "${RUST_OBJECT}",
@@ -173,7 +173,7 @@ dependencies = [
     "compile",
     "build-boot-asm",
     "build-interrupt-asm",
-    "build-corouts-asm",
+    #"build-corouts-asm",
     "build-thread-asm",
     "build-syscall-asm",
 ]

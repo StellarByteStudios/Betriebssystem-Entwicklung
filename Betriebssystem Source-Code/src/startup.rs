@@ -9,7 +9,6 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 #![no_std]
-#![feature(const_mut_refs)]
 #![allow(dead_code)] // avoid warnings
 #![allow(unused_variables)] // avoid warnings
 #![allow(unused_imports)]
