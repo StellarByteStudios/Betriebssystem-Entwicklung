@@ -2,6 +2,7 @@ use alloc::boxed::Box;
 use alloc::string::ToString;
 
 use crate::kernel::cpu;
+use crate::kernel::syscall::user_api::usr_hello_world;
 use crate::kernel::threads::thread::Thread;
 use crate::kernel::threads::{scheduler, thread};
 use crate::mylib::delay;
@@ -13,19 +14,15 @@ pub extern "C" fn hello_world_thread_entry() {
 
     loop {
         vprint!("U");
-        let val: u8 = cpu::inb(0);
+        // Funktioniert nicht im Usermode
+        //let val: u8 = cpu::inb(0);
+        // Funktioniert nicht im Usermode
+        //kprintln!("Nicht ausführbar!");
 
-        /*
-        let mut x: u16 = 0;
-        loop {
-            x = x + 1;
-            let val: u8 = cpu::inb(x);
-            vprint!("{}", x);
-            if x > 10000 {
-                break;
-            }
-        }*/
-        delay::delay(100);
+        // Serielle Ausgabe über Syscall
+        usr_hello_world();
+
+        delay::delay(70);
     }
 }
 

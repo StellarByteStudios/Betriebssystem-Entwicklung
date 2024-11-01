@@ -263,7 +263,7 @@ _break_after_tss:
 	; Lade TSS-Register mit dem TSS-Deskriptor
 	; ; === Eigener Code === ; ;
 	xor rax, rax
-	mov rax, 0x6 	; Index 5 in das Register schreiben
+	mov rax, 0x6 	; Index 6 in das Register schreiben
 	shl rax, 3 		; Schiebe 3 Bits nach Links weil die untersten nicht verwendet werden
 	;mov ax, 6*8
 	ltr ax			; = = = = BEI DIESEM AUFRUF GEHT WAS SCHIEF

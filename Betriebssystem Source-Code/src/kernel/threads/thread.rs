@@ -148,6 +148,7 @@ impl Thread {
     // Umschalten von Thread 'now' auf Thread 'then'
     pub fn switch(now: *mut Thread, then: *mut Thread) {
         unsafe {
+            /*
             kprint!(
                 "preempt: tid={}, old_rsp0={:x}",
                 Thread::get_tid(now),
@@ -157,7 +158,7 @@ impl Thread {
                 " and switch to tid={}, old_rsp0={:x}",
                 Thread::get_tid(then),
                 (*then).old_rsp0
-            );
+            );*/
             _thread_switch(
                 &mut (*now).old_rsp0,
                 (*then).old_rsp0,
@@ -228,7 +229,7 @@ impl Thread {
 
      */
     fn prepare_user_stack(&mut self) {
-        kprintln!("Ich bin in prepare user stack angekommen");
+        //kprintln!("Ich bin in prepare user stack angekommen");
         let kickoff_user_addr = kickoff_user_thread as *const ();
         let object: *const Thread = self;
 
@@ -274,7 +275,7 @@ impl Thread {
     // Die Interrupt werden durch den 'iretq' aktiviert.
     //
     fn switch_to_usermode(&mut self) {
-        kprintln!("Switch to usermode wird ausgeführt");
+        //kprintln!("Switch to usermode wird ausgeführt");
 
         // Interrupt-Stackframe bauen
         self.prepare_user_stack();

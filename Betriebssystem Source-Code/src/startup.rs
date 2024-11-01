@@ -24,7 +24,7 @@ use core::panic::PanicInfo;
 use alloc::{string::ToString, vec};
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
-    allocator, cpu, interrupts,
+    allocator, cpu, interrupts, syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
 use mylib::input;
@@ -438,6 +438,9 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Interrupt-Strukturen initialisieren
     interrupts::init();
+
+    // Trapgate initialisieren
+    syscall::syscall_dispatcher::init();
 
     // Tastatur-Unterbrechungsroutine 'einstoepseln'
     Keyboard::plugin();

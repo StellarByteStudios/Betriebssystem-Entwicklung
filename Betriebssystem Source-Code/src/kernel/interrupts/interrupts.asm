@@ -11,7 +11,10 @@
 
 [GLOBAL _init_interrupts]      ; export init function
 
+[Global _idt] ; expotieren des Labels für die Speicheradresse
+
 [EXTERN int_disp]             ; im Rust function
+[EXTERN int_gpf]              ; Funktion in Rust, welche GPF behandelt
 
 [SECTION .text]
 [BITS 64]
@@ -28,7 +31,7 @@ _init_interrupts:
 
 ; = = = = = Eingene funktion um Trap-Gate anzulegen = = = = = ;
 setup_trap_gate:
-
+	; Blatt erklärt nicht, was da rein muss
 	ret
 
 
@@ -56,9 +59,19 @@ _wrapper_%1:
 	push   r14
 	push   r15
 
-	; pass the vector as parameter to the Rust function
-	mov rdi, %1
-	call   int_disp
+	; do we have a general protection fault?
+	%if %1 == 13 
+		mov    rdi, [rsp+112] ; error code
+		mov    rdx, [rsp+120] ; rip
+		mov    rsi, [rsp+128] ; cs
+		call    int_gpf
+	%else
+		; pass the vector as parameter 
+		xor rax, rax
+		mov al, %1
+		mov    rdi, rax
+		call   int_disp
+	%endif
 
 	; Restore registers
 	pop    r15
@@ -84,9 +97,9 @@ _wrapper_%1:
  
 ; create 256 first-level handlers, one for each entry in the IDT
 %assign i 0
-%rep 256
-_wrapper i
-%assign i i+1
+	%rep 256
+	_wrapper i
+	%assign i i+1
 %endrep
 
 
@@ -102,7 +115,7 @@ setup_idt:
 	shr    rdx, 32
 	shr    rbx, 16
 
-	mov    r10, idt   ; pointer to the interrupt gate
+	mov    r10, _idt   ; pointer to the interrupt gate
 	mov    rcx, 255   ; counter (256 IDT entries)
 .loop:
 	add    [r10+0], ax
@@ -167,7 +180,7 @@ delay:
 ; Interrupt Descriptor Table with 256 entries
 ;
 
-idt:
+_idt: 
 %macro idt_entry 1
 	dw  (_wrapper_%1 - _wrapper_0) & 0xffff ; offset 0 .. 15
 	dw  0x0000 | 0x8 * 2 ; selector references the 64 bit code segment descriptor in the GDT, see 'boot.asm'
@@ -178,14 +191,14 @@ idt:
 %endmacro
 
 %assign i 0
-%rep 256
-idt_entry i
-%assign i i+1
+	%rep 256
+	idt_entry i
+	%assign i i+1
 %endrep
 
 
 ; needed for LIDT instruction, see 'setup_idt'
 idt_descr:
-	dw  256*8 - 1    ; 256 entries
-	dq idt
+	dw  256*16 - 1    ; 256 entries
+	dq _idt
 

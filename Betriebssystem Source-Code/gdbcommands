@@ -1,5 +1,7 @@
 break kmain
-break _thread_user_start
+break src/kernel/syscall/user_api.rs:hhu_tosr::kernel::syscall::user_api::usr_hello_world 
+break _break_syscallinit
+#break _thread_user_start
 #break _break_after_tss
 #break _break_tss_begin
 #break _break_tss_rbx
