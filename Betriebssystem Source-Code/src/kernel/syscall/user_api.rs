@@ -17,11 +17,12 @@
 use core::arch::asm;
 
 // Anzahl an Systemaufrufen
-// Muss mit NO_SYSCALLS in 'kernel/interrupts/interrupts.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 1;
+// Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
+pub const NO_SYSCALLS: usize = 2;
 
 // Funktionsnummern aller Systemaufrufe
 pub const SYSNO_HELLO_WORLD: usize = 0;
+pub const SYSNO_HELLO_WORLD_PRINT: usize = 1;
 /*
  * Hier muss Code eingefuegt werden
  */
@@ -29,6 +30,11 @@ pub const SYSNO_HELLO_WORLD: usize = 0;
 pub fn usr_hello_world() {
     //kprintln!("usr_hello_world wurde aufgerufen");
     syscall0(SYSNO_HELLO_WORLD as u64);
+}
+
+pub fn usr_hello_world_print(arg1: u64) {
+    //kprintln!("usr_hello_world wurde aufgerufen");
+    syscall1(SYSNO_HELLO_WORLD_PRINT as u64, arg1);
 }
 
 /*
@@ -66,8 +72,28 @@ pub fn syscall0(arg0: u64) -> u64 {
 pub fn syscall1(arg0: u64, arg1: u64) -> u64 {
     let mut ret: u64;
     unsafe {
-        asm!("int 0x80", // ===== Irgendwie lande ich hier immer in Int 13 (General Prot Fault)
-            inlateout("rax") arg0 => ret,
+        asm!(
+            "int 0x80", // Software interrupt for syscalls on x86_64 Linux
+            in("rax") arg0,     // Load arg0 into rax (typically the syscall number)
+            in("rdi") arg1,     // Load arg1 into rdi (first syscall parameter)
+            lateout("rax") ret, // Store return value from syscall in ret
+            options(preserves_flags, nostack)
+        );
+    }
+    ret
+}
+
+#[inline(always)]
+#[allow(unused_mut)]
+pub fn syscall2(arg0: u64, arg1: u64, arg2: u64) -> u64 {
+    let mut ret: u64;
+    unsafe {
+        asm!(
+            "int 0x80",           // Software interrupt for syscalls on x86_64 Linux
+            in("rax") arg0,       // Load arg0 into rax (typically the syscall number)
+            in("rdi") arg1,       // Load arg1 into rdi (first syscall parameter)
+            in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
+            lateout("rax") ret,   // Store return value from syscall in ret
             options(preserves_flags, nostack)
         );
     }
