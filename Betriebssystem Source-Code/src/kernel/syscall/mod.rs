@@ -13,6 +13,9 @@
  *    Erweitert von Michael Schoettner, 13.09.2023                           *
  *****************************************************************************/
 
-pub mod user_api;
-pub mod syscall_dispatcher;
 pub mod kfuncs;
+pub mod syscall_dispatcher;
+pub mod user_api;
+
+// Buffer für die Syscalls
+pub mod kernal_test_buffer;

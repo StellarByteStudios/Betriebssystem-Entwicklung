@@ -15,7 +15,7 @@ pub extern "C" fn hello_world_thread_entry() {
     let mut i: u64 = 1;
 
     loop {
-        vprint!("Syscall Helloworld mit Argumenten");
+        vprintln!("Syscall Helloworld mit Argumenten");
         // Funktioniert nicht im Usermode
         //let val: u8 = cpu::inb(0);
         // Funktioniert nicht im Usermode

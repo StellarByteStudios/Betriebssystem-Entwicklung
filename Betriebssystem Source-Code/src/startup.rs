@@ -30,10 +30,12 @@ use mylib::input;
 // Funktioniert nicht mehr wegen neuer Threads
 use user::{
     applications::{self, graphic_console::graphic_console_printer, keyboard_handler},
-    syscall_testthreads::{get_last_key_thread, get_thread_id, hello_world_thread}, //aufgabe1::text_demo,
-                                                                                   //aufgabe2::heap_demo,
-                                                                                   //aufgabe3::keyboard_irq_demo,
-                                                                                   //aufgabe4, aufgabe5, aufgabe6, aufgabe7,
+    syscall_testthreads::{
+        get_last_key_thread, get_thread_id, hello_world_thread, write_in_buffer_thead,
+    }, //aufgabe1::text_demo,
+       //aufgabe2::heap_demo,
+       //aufgabe3::keyboard_irq_demo,
+       //aufgabe4, aufgabe5, aufgabe6, aufgabe7,
 };
 
 extern crate alloc;
@@ -465,6 +467,7 @@ pub extern "C" fn kmain(mbi: u64) {
     // Andere Threads testen
     get_last_key_thread::init();
     get_thread_id::init();
+    write_in_buffer_thead::init();
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();
