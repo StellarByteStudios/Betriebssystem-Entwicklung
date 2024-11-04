@@ -13,7 +13,7 @@ pub extern "C" fn write_in_buffer_thread_entry() {
     let mut buffer = [0u8; LENGTH];
     buffer.copy_from_slice(TEXT.as_bytes());
 
-    let pointer_buffer = buffer.as_mut_ptr();
+    let pointer_buffer = buffer.as_ptr();
     vprintln!(
         "Syscall write: {}",
         usr_write(pointer_buffer, LENGTH as u64)

@@ -45,7 +45,12 @@ pub fn usr_getlastkey() -> u64 {
 pub fn usr_gettid() -> u64 {
     return syscall0(SYSNO_GET_THREAD_ID as u64);
 }
-pub fn usr_write(buff: *mut u8, len: u64) -> u64 {
+
+pub fn usr_write(buff: *const u8, len: u64) -> u64 {
+    return syscall2(SYSNO_WRITE as u64, buff as u64, len);
+}
+
+pub fn usr_read(buff: *mut u8, len: u64) -> u64 {
     return syscall2(SYSNO_WRITE as u64, buff as u64, len);
 }
 

@@ -5,7 +5,7 @@ use crate::kernel::syscall::kernal_test_buffer::{
 };
 
 #[no_mangle]
-pub extern "C" fn sys_write(buff: *mut u8, len: u64) -> i64 {
+pub extern "C" fn sys_write(buff: *const u8, len: u64) -> i64 {
     // Länge prüfen
     if len > BUFFERLENGTH as u64 {
         return -1;
