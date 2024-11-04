@@ -18,11 +18,13 @@ use core::arch::asm;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 2;
+pub const NO_SYSCALLS: usize = 4;
 
 // Funktionsnummern aller Systemaufrufe
 pub const SYSNO_HELLO_WORLD: usize = 0;
 pub const SYSNO_HELLO_WORLD_PRINT: usize = 1;
+pub const SYSNO_GET_LAST_KEY: usize = 2;
+pub const SYSNO_GET_THREAD_ID: usize = 3;
 /*
  * Hier muss Code eingefuegt werden
  */
@@ -35,6 +37,16 @@ pub fn usr_hello_world() {
 pub fn usr_hello_world_print(arg1: u64) {
     //kprintln!("usr_hello_world wurde aufgerufen");
     syscall1(SYSNO_HELLO_WORLD_PRINT as u64, arg1);
+}
+
+pub fn usr_getlastkey() -> u64 {
+    //kprintln!("usr_hello_world wurde aufgerufen");
+    return syscall0(SYSNO_GET_LAST_KEY as u64);
+}
+
+pub fn usr_gettid() -> u64 {
+    //kprintln!("usr_hello_world wurde aufgerufen");
+    return syscall0(SYSNO_GET_THREAD_ID as u64);
 }
 
 /*

@@ -13,8 +13,8 @@
 use core::arch::{asm, naked_asm};
 
 use crate::kernel::syscall;
-//use crate::kernel::syscall::kfuncs::sys_getlastkey::sys_getlastkey;
-//use crate::kernel::syscall::kfuncs::sys_gettid::sys_gettid;
+use crate::kernel::syscall::kfuncs::sys_getlastkey::sys_getlastkey;
+use crate::kernel::syscall::kfuncs::sys_gettid::sys_gettid;
 use crate::kernel::syscall::kfuncs::sys_hello_world::sys_hello_world;
 use crate::kernel::syscall::kfuncs::sys_hello_world_print::sys_hello_world_print;
 //use crate::kernel::syscall::kfuncs::sys_read::sys_read;
@@ -47,10 +47,11 @@ impl SyscallFuncTable {
             handle: [
                 sys_hello_world as *const _,
                 sys_hello_world_print as *const _,
+                sys_getlastkey as *const _,
+                sys_gettid as *const _,
                 //sys_write as *const _,
                 //sys_read as *const _,
-                //sys_getlastkey as *const _,
-                //sys_gettid as *const _,
+                //
             ],
         }
     }

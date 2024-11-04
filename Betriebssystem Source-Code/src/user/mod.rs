@@ -12,4 +12,4 @@ pub mod aufgabe7;
 
 pub mod applications;
 
-pub mod hello_world_thread;
+pub mod syscall_testthreads;

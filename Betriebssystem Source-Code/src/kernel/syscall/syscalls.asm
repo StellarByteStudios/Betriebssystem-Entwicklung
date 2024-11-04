@@ -24,7 +24,7 @@
 
 ; Hoechste Funktionsnummer für den System-Aufruf-Dispatcher
 ; Muss mit NO_SYSCALLS in 'kernel/syscall/mod.rs' konsistent sein!
-NO_SYSCALLS: equ 2
+NO_SYSCALLS: equ 4
 
 ; Vektor fuer Systemaufrufe
 SYSCALL_TRAPGATE: equ 0x80
@@ -80,7 +80,7 @@ _break_syscallinit
 _syscall_handler:
   ; Alle Register sichern
 
-	push   rax
+	;push   rax
 	push   rbx
 	push   rcx
 	push   rdx
@@ -149,6 +149,6 @@ _syscall_handler:
 	pop    rdx
 	pop    rcx
 	pop    rbx
-	pop    rax
+	;pop    rax
 
   iretq

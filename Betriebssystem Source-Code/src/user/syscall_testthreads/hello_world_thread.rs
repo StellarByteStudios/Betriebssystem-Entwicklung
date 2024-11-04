@@ -15,7 +15,7 @@ pub extern "C" fn hello_world_thread_entry() {
     let mut i: u64 = 1;
 
     loop {
-        //vprint!("U");
+        vprint!("Syscall Helloworld mit Argumenten");
         // Funktioniert nicht im Usermode
         //let val: u8 = cpu::inb(0);
         // Funktioniert nicht im Usermode
@@ -26,7 +26,7 @@ pub extern "C" fn hello_world_thread_entry() {
         usr_hello_world_print(i);
         i = i + 1;
 
-        delay::delay(70);
+        delay::delay(250);
     }
 }
 
