@@ -21,9 +21,12 @@
 use core::panic::PanicInfo;
 
 use alloc::{string::ToString, vec};
+use consts::TEMP_HEAP_SIZE;
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
-    allocator, cpu, interrupts, syscall,
+    allocator, cpu, interrupts,
+    paging::frames,
+    syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
 use mylib::input;
@@ -419,6 +422,19 @@ fn get_kernel_image_region() -> multiboot::PhysRegion {
     }
 }
 
+// Einen temperoraeren Heap anlegen, nach dem Ende des Kernel-Images
+fn create_temp_heap(kernel_end: usize) -> multiboot::PhysRegion {
+    let heap_start = kernel_end + 1;
+
+    // Temporaeren Heap einrichten, nach dem Kernel-Image
+    allocator::init(heap_start, TEMP_HEAP_SIZE);
+
+    PhysRegion {
+        start: heap_start as u64,
+        end: (heap_start + TEMP_HEAP_SIZE - 1) as u64,
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
@@ -426,15 +442,22 @@ pub extern "C" fn kmain(mbi: u64) {
     let kernel_region = get_kernel_image_region();
     kprintln!("   kernel_region: {:?}", kernel_region);
 
-    // Speicherverwaltung (1 MB) oberhalb des Images initialisieren
-    let heap_start = kernel_region.end as usize + 1;
-    allocator::init(heap_start, consts::HEAP_SIZE);
+    // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
+    let heap_region = create_temp_heap(kernel_region.end as usize);
+    kprintln!("kmain, heap: {:?}", heap_region);
 
     // Multiboot-Infos für Grafik auslesen, falls vorhanden
     check_graphics_mode(mbi);
 
+    // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
+    let phys_mem = multiboot::get_free_memory(mbi, kernel_region, heap_region);
+    kprintln!("kmain, free physical memory: {:?}", phys_mem);
+
     // Multiboot-Infos ausgeben
     multiboot::dump(mbi);
+
+    // Page-Frame-Management einrichten
+    frames::pf_init(phys_mem);
 
     // Interrupt-Strukturen initialisieren
     interrupts::init();

@@ -40,7 +40,7 @@ pub struct MultibootInfo {
     pub cmdline: u32,
     pub mods_count: u32,
     pub mods_addr: u32,
-    pub table: ELF_Section_Header_Table,
+    pub table: ElfSectionHeaderTable,
     pub mmap_length: u32,
     pub mmap_addr: u32,
     pub drives_length: u32,
@@ -85,7 +85,7 @@ pub struct MultibootFramebuffer {
 
 #[derive(Clone, Copy, Debug)]
 #[repr(C, packed)]
-pub struct ELF_Section_Header_Table {
+pub struct ElfSectionHeaderTable {
     pub num: u32,
     pub size: u32,
     pub addr: u32,
