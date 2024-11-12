@@ -123,11 +123,17 @@ impl<A> Locked<A> {
  Description: Helper function used in in `bump.rs` and `list.rs`.
               Rust requires pointers to be aligned.
 */
-fn align_up(addr: usize, align: usize) -> usize {
+pub fn align_up(addr: usize, align: usize) -> usize {
     let remainder = addr % align;
     if remainder == 0 {
         addr // addr already aligned
     } else {
         addr - remainder + align
     }
+}
+
+// Größe Runterschneiden
+pub fn align_down(size: usize, align: usize) -> usize {
+    let remainder = size % align;
+    return size - remainder;
 }

@@ -18,18 +18,23 @@
  * Autor:           Michael Schoettner, 21.1.2024                            *
  *****************************************************************************/
 
+use core::borrow::Borrow;
 use core::num;
 use core::ops::Add;
 use core::slice;
+use core::sync::atomic::AtomicUsize;
 use core::{mem, ptr};
 
 use alloc::alloc::Layout;
 use alloc::vec::Vec;
+use spin::Mutex;
 
 use crate::boot::multiboot::PhysRegion;
 use crate::consts::KERNEL_PHYS_SIZE;
 use crate::consts::PAGE_FRAME_SIZE;
 use crate::devices::kprint;
+
+use super::physlistallocator::PfListAllocator;
 
 // letzte nutzbare physikalische Adresse
 // (notwendig fuer das 1:1 mapping des Kernels in den Page-Tables)
@@ -40,6 +45,9 @@ static mut FREE_USER_PAGE_FRAMES: PfListAllocator = PfListAllocator::new();
 
 // Page-Frames 0 .. KERNEL_VM_SIZE - 1
 static mut FREE_KERNEL_PAGE_FRAMES: PfListAllocator = PfListAllocator::new();
+
+// Grenze für KernalFrames
+static KERNAL_SPACE_END_ADDRESS: AtomicUsize = AtomicUsize::new(0);
 
 // Eine physikalische Adresse
 #[derive(Clone, Copy, PartialEq, PartialOrd, Ord, Eq)]
@@ -64,9 +72,7 @@ impl PhysAddr {
     }
 
     pub fn get_max_phys_addr() -> PhysAddr {
-        unsafe {
-            MAX_PHYS_ADDR
-        }
+        unsafe { MAX_PHYS_ADDR }
     }
 }
 
@@ -91,37 +97,128 @@ impl Add<PhysAddr> for PhysAddr {
     }
 }
 
-
 // Initialisiert die Page-Frame-Liste anhand der uebergebenen freien Memory-Regionen
 // Bei Bedarf werden die Memory-Regionen angepasst, sodass die Startadresse
 // 4 KB aliginiert ist und auch die Grösse 4 KB oder ein Vielfaches davon ist
 pub fn pf_init(free: Vec<PhysRegion>) {
+    // Wie viele blöcke sind in dem Vektor drin
+    let blocks_count: usize = free.len();
 
-   /*
-    * Hier muss Code eingefuegt werden
-    */
-    
+    // Speichere wie voll der Kernal-space schon ist
+    let mut kernal_size: usize = 0;
+
+    // Speichere die letzte Adresse
+    let mut last_addres: u64 = 0;
+
+    // Temporäre Allokatoren basteln
+
+    let mut free_user_page_frames: PfListAllocator = PfListAllocator::new();
+    let mut free_kernal_page_frames: PfListAllocator = PfListAllocator::new();
+
+    // Durch alle Blöcke Durchlaufen
+    for i in 0..blocks_count {
+        // Bestimme die Größe
+        let block_size: usize = (free[i].end - free[i].start) as usize;
+
+        // Aktuallisieren der letzten Adresse
+        if last_addres < free[i].end {
+            last_addres = free[i].end;
+        }
+
+        // Wenn kernal_size + block_size kleiner als KERNEL_PHYS_SIZE
+        if kernal_size + block_size < KERNEL_PHYS_SIZE {
+            // Dann den Block komplett zu den Kernalframes hinzufügen
+            unsafe { free_kernal_page_frames.init_free_block(free[i].start as usize, block_size) };
+
+            // kernal_size anpassen
+            kernal_size = kernal_size + block_size;
+
+            continue;
+        }
+
+        // Wenn kernal_size <= KERNEL_PHYS_SIZE aber kernal_size + block_size größer KERNEL_PHYS_SIZE
+        if kernal_size <= KERNEL_PHYS_SIZE && kernal_size + block_size > KERNEL_PHYS_SIZE {
+            // Teile den Block in zwei
+            let kernal_block_size: usize = KERNEL_PHYS_SIZE - kernal_size;
+            let user_block_size: usize = block_size - kernal_block_size;
+            let border_address: usize = free[i].start as usize + kernal_block_size;
+
+            // Füge den unteren Block komplett zu den Kernalframs hinzufügen
+            unsafe {
+                free_kernal_page_frames.init_free_block(free[i].start as usize, kernal_block_size)
+            };
+            // Füge den oberen Block komplett zu den Userframes hinzufügen
+            unsafe { free_user_page_frames.init_free_block(border_address, user_block_size) }
+
+            // kernal_size anpassen
+            kernal_size = kernal_size + kernal_block_size;
+
+            // Kernal Spade Ende abspeichern
+            KERNAL_SPACE_END_ADDRESS.store(border_address, core::sync::atomic::Ordering::SeqCst);
+
+            continue;
+        }
+
+        // Wenn kernal_size größer KERNEL_PHYS_SIZE (Kernal ist abgedeckt)
+        // Dann den Block komplett zu den Userframs hinzufügen
+        unsafe { free_user_page_frames.init_free_block(free[i].start as usize, block_size) };
+    }
+
+    // Nun alles in den statischen Variablen speichern
+    unsafe { MAX_PHYS_ADDR = PhysAddr::new(last_addres) };
+    unsafe { FREE_KERNEL_PAGE_FRAMES = free_kernal_page_frames };
+    unsafe { FREE_USER_PAGE_FRAMES = free_user_page_frames };
 }
-
 
 // Alloziere 'pf_count' aufeinanderfolgende Page-Frames
 // Vom Kernel-Space, falls 'in_kernel_space' = true
 // Oder User-Space, falls 'in_kernel_space' = false
 pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
+    // Fall es ist im Kernel Space
+    if in_kernel_space {
+        unsafe {
+            let alloc_adress: *mut u64 = FREE_KERNEL_PAGE_FRAMES.alloc(
+                Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
+            );
+            return PhysAddr::new(alloc_adress as u64);
+        }
+    }
 
-   /*
-    * Hier muss Code eingefuegt werden
-    */
-
+    unsafe {
+        let alloc_adress: *mut u64 = FREE_USER_PAGE_FRAMES.alloc(
+            Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
+        );
+        return PhysAddr::new(alloc_adress as u64);
+    }
 }
-
 
 // Gebe 'pf_count' aufeinanderfolgende Page-Frames frei
 // Zuordnung User- oder Kernel-Space ergibt sich anhand der Adresse
 pub fn pf_free(pf_addr: PhysAddr, pf_count: usize) {
+    if pf_addr
+        < PhysAddr::new(KERNAL_SPACE_END_ADDRESS.load(core::sync::atomic::Ordering::SeqCst) as u64)
+    {
+        unsafe {
+            FREE_KERNEL_PAGE_FRAMES.dealloc(
+                pf_addr.as_mut_ptr(),
+                Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
+            );
+        }
+        return;
+    }
 
-   /*
-    * Hier muss Code eingefuegt werden
-    */
+    unsafe {
+        FREE_USER_PAGE_FRAMES.dealloc(
+            pf_addr.as_mut_ptr(),
+            Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
+        );
+    }
+}
 
+pub fn dump_kernal_frames() {
+    unsafe { FREE_KERNEL_PAGE_FRAMES.dump_free_list() };
+}
+
+pub fn dump_user_frames() {
+    unsafe { FREE_USER_PAGE_FRAMES.dump_free_list() };
 }

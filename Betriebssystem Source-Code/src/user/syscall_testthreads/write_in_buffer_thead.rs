@@ -28,7 +28,7 @@ pub extern "C" fn write_in_buffer_thread_entry() {
     let buffer_read: [u8; 15] = [0u8; LENGTH];
     let pointer_buffer_read: *mut u8 = buffer.as_mut_ptr();
     vprintln!(
-        "Syscall write: {}",
+        "Syscall read: {}",
         usr_read(pointer_buffer_read, LENGTH as u64)
     );
 
