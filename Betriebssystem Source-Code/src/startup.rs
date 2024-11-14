@@ -21,7 +21,7 @@
 use core::panic::PanicInfo;
 
 use alloc::{string::ToString, vec};
-use consts::TEMP_HEAP_SIZE;
+use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
     allocator::{self},
@@ -436,6 +436,17 @@ fn create_temp_heap(kernel_end: usize) -> multiboot::PhysRegion {
     }
 }
 
+fn ini_kernel_heap() {
+    // Wie viele Kachel brauchen wir
+    let heap_frames_count: usize = KERNEL_HEAP_SIZE / PAGE_FRAME_SIZE;
+
+    // Genug Speicher Anfordern
+    let kernal_heap_adress = pf_alloc(heap_frames_count, true);
+
+    // Allokator neu intitialisieren
+    allocator::init(kernal_heap_adress.raw() as usize, KERNEL_HEAP_SIZE);
+}
+
 #[no_mangle]
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
@@ -460,6 +471,9 @@ pub extern "C" fn kmain(mbi: u64) {
     // Page-Frame-Management einrichten
     frames::pf_init(phys_mem);
 
+    // Nochmal richtig Kernal-Heap initialisieren
+    ini_kernel_heap();
+
     // Interrupt-Strukturen initialisieren
     interrupts::init();
 
@@ -477,7 +491,6 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Erstmal in den Speicher gucken
     vprintln!("= = = Kernal Frames = = =");
-    kernel::paging::frames::dump_kernal_frames();
     dump_kernal_frames();
     //vprintln!("\n= = = User Frames = = =");
     //kernel::paging::frames::dump_user_frames();
