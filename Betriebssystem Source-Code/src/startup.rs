@@ -26,7 +26,7 @@ use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
     allocator::{self},
     cpu, interrupts,
-    paging::frames,
+    paging::frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
     syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
@@ -478,62 +478,67 @@ pub extern "C" fn kmain(mbi: u64) {
     // Erstmal in den Speicher gucken
     vprintln!("= = = Kernal Frames = = =");
     kernel::paging::frames::dump_kernal_frames();
+    dump_kernal_frames();
     //vprintln!("\n= = = User Frames = = =");
     //kernel::paging::frames::dump_user_frames();
 
     vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
 
-    let pf_alloc1 = kernel::paging::frames::pf_alloc(5, true);
-    let pf_alloc2 = kernel::paging::frames::pf_alloc(30, true);
-    let pf_alloc3 = kernel::paging::frames::pf_alloc(17, true);
+    let pf_alloc1 = pf_alloc(5, true);
+    let pf_alloc2 = pf_alloc(30, true);
+    let pf_alloc3 = pf_alloc(17, true);
 
     //kernel::paging::frames::pf_alloc(1, false);
     //kernel::paging::frames::pf_alloc(10, false);
 
     // Erstmal in den Speicher gucken
     vprintln!("\n\n= = = Kernal Frames = = =");
-    kernel::paging::frames::dump_kernal_frames();
+    dump_kernal_frames();
     //vprintln!("\n= = = User Frames = = =");
     //kernel::paging::frames::dump_user_frames();
 
     vprintln!("\n= = = gebe Teil davon frei = = =");
-    kernel::paging::frames::pf_free(pf_alloc1, 5);
+    pf_free(pf_alloc1, 5);
 
     vprintln!("\n\n= = = Kernal Frames = = =");
-    kernel::paging::frames::dump_kernal_frames();
+    dump_kernal_frames();
 
     vprintln!("\n= = = noch mehr Freigeben = = =");
-    kernel::paging::frames::pf_free(pf_alloc2, 30);
+    pf_free(pf_alloc2, 30);
 
     vprintln!("\n\n= = = Kernal Frames = = =");
-    kernel::paging::frames::dump_kernal_frames();
+    dump_kernal_frames();
     //vprintln!("\n= = = User Frames = = =");
     //kernel::paging::frames::dump_user_frames();
 
     vprintln!("\n-------------------------------------------------------\n= = = Userframes = = =");
-    kernel::paging::frames::dump_user_frames();
+    dump_user_frames();
 
     vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
-    let useralloc1 = kernel::paging::frames::pf_alloc(10, false);
-    let useralloc2 = kernel::paging::frames::pf_alloc(20, false);
-    let useralloc3 = kernel::paging::frames::pf_alloc(30, false);
-    let useralloc4 = kernel::paging::frames::pf_alloc(40, false);
-    let useralloc5 = kernel::paging::frames::pf_alloc(50, false);
-    let useralloc6 = kernel::paging::frames::pf_alloc(60, false);
+    let useralloc1 = pf_alloc(10, false);
+    let useralloc2 = pf_alloc(20, false);
+    let useralloc3 = pf_alloc(30, false);
+    let useralloc4 = pf_alloc(40, false);
+    let useralloc5 = pf_alloc(50, false);
+    let useralloc6 = pf_alloc(60, false);
 
     vprintln!("\n= = = Userframes nach dem Anfordern = = =");
-    kernel::paging::frames::dump_user_frames();
+    dump_user_frames();
 
     vprintln!("\n= = = Gebe durcheinander frei = = =");
-    kernel::paging::frames::pf_free(useralloc5, 50);
-    kernel::paging::frames::pf_free(useralloc1, 10);
-    kernel::paging::frames::pf_free(useralloc3, 30);
-    kernel::paging::frames::pf_free(useralloc4, 40);
-    kernel::paging::frames::pf_free(useralloc6, 60);
-    kernel::paging::frames::pf_free(useralloc2, 20);
+    pf_free(useralloc5, 50);
+    pf_free(useralloc1, 10);
+    pf_free(useralloc3, 30);
+
+    vprintln!("\n= = = Userframes nach paar freigeben = = =");
+    dump_user_frames();
+
+    pf_free(useralloc4, 40);
+    pf_free(useralloc6, 60);
+    pf_free(useralloc2, 20);
 
     vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
-    kernel::paging::frames::dump_user_frames();
+    dump_user_frames();
 
     // Idle-Thread eintragen
     /*let idle_thread = Thread::new(
