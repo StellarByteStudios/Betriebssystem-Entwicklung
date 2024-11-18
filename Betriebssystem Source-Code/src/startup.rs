@@ -26,7 +26,10 @@ use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
     allocator::{self},
     cpu, interrupts,
-    paging::frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
+    paging::{
+        frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
+        pages,
+    },
     syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
@@ -50,6 +53,9 @@ extern crate spin; // we need a mutex in devices::cga_print
 mod devices;
 #[macro_use] // import macros, too
 mod mylib;
+
+#[macro_use]
+extern crate bitflags;
 
 mod consts;
 mod kernel;
@@ -470,6 +476,10 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Page-Frame-Management einrichten
     frames::pf_init(phys_mem);
+
+    // Paging fuer den Kernel aktivieren
+    let pml4_addr = pages::pg_init_kernel_tables();
+    pages::pg_set_cr3(pml4_addr);
 
     // Nochmal richtig Kernal-Heap initialisieren
     ini_kernel_heap();

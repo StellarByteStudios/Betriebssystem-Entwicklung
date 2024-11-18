@@ -14,6 +14,8 @@ use core::fmt;
 use crate::consts;
 use crate::devices::cga;
 use crate::kernel::cpu;
+use crate::kernel::paging::frames::PhysAddr;
+use crate::kernel::paging::pages;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::stack;
 use crate::mylib::queue::Link;
@@ -35,7 +37,8 @@ extern "C" {
 pub struct Thread {
     tid: usize,
     is_kernel_thread: bool,
-    old_rsp0: u64, // letzter genutzter Stackeintrag im Kernel-Stack
+    pml4_addr: PhysAddr, // Einstieg in die Seitentabellen
+    old_rsp0: u64,       // letzter genutzter Stackeintrag im Kernel-Stack
     // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
 
     // Speicher fuer den User-Stack
@@ -56,10 +59,14 @@ impl Thread {
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
+        // Page-Tables anlegen
+        let new_pml4_addr = pages::pg_init_kernel_tables();
+
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
             tid: my_tid,
             is_kernel_thread: kernel_thread,
+            pml4_addr: new_pml4_addr,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,
@@ -89,10 +96,14 @@ impl Thread {
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
+        // Page-Tables anlegen
+        let new_pml4_addr = pages::pg_init_kernel_tables();
+
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
             tid: my_tid,
             is_kernel_thread: kernel_thread,
+            pml4_addr: new_pml4_addr,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,
@@ -118,10 +129,14 @@ impl Thread {
         let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
+        // Page-Tables anlegen
+        let new_pml4_addr = pages::pg_init_kernel_tables();
+
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
             tid: my_tid,
             is_kernel_thread: kernel_thread,
+            pml4_addr: new_pml4_addr,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,
@@ -140,7 +155,7 @@ impl Thread {
     // Alle anderen Threads werden mit 'switch' angestossen
     pub fn start(now: *mut Thread) {
         unsafe {
-            kprintln!("thread start, kernel-stack = {:x}", (*now).old_rsp0);
+            pages::pg_set_cr3(now.as_ref().unwrap().pml4_addr); // Adressraum setzen
             _thread_kernel_start((*now).old_rsp0);
         }
     }

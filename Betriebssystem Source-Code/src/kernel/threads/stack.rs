@@ -9,6 +9,8 @@
 use alloc::alloc::Layout;
 use alloc::boxed::Box;
 use core::fmt;
+use core::ptr::null_mut;
+use x86_64::PhysAddr;
 
 use crate::consts;
 use crate::kernel::allocator;
@@ -40,6 +42,16 @@ impl Stack {
         );
 
         Box::new(Stack { data, size })
+    }
+
+    pub fn new_new(size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
+        /*
+         * Code hierin muss angepasst werden
+         */
+        return Box::new(Stack {
+            data: null_mut(),
+            size: 0,
+        });
     }
 
     pub fn stack_end(&self) -> *mut u64 {
