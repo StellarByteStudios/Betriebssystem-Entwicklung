@@ -143,13 +143,14 @@ impl PfListAllocator {
         let aligned_address = align_up(addr, PAGE_FRAME_SIZE);
 
         // Neue beschnittene Größe
+        /*
         kprintln!(
             "Size = {},     Alte-Adresse = {},    Aligned_adress = {},    dif = {}",
             size,
             addr,
             aligned_address,
             (aligned_address as i64) - (addr as i64)
-        );
+        ); */
         let cuted_size_unaligned: usize = size - (aligned_address - addr);
         let cuted_size: usize = align_down(cuted_size_unaligned, PAGE_FRAME_SIZE);
 
@@ -309,7 +310,7 @@ impl PfListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u64 {
-        kprintln!("   alloc: size={}, align={}", layout.size(), layout.align());
+        //kprintln!("   alloc: size={}, align={}", layout.size(), layout.align());
 
         // perform layout adjustments
         let (size, align) = PfListAllocator::size_align(layout);
