@@ -97,6 +97,15 @@ impl Add<PhysAddr> for PhysAddr {
     }
 }
 
+fn clean_frame(start_addr: *mut u64, size: usize) {
+    unsafe {
+        for i in 0..size / 8 {
+            let pointer = start_addr.add(i);
+            ptr::write(pointer, 0);
+        }
+    }
+}
+
 // Initialisiert die Page-Frame-Liste anhand der uebergebenen freien Memory-Regionen
 // Bei Bedarf werden die Memory-Regionen angepasst, sodass die Startadresse
 // 4 KB aliginiert ist und auch die Grösse 4 KB oder ein Vielfaches davon ist
@@ -180,6 +189,8 @@ pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
             let alloc_adress: *mut u64 = FREE_KERNEL_PAGE_FRAMES.alloc(
                 Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
             );
+            // angeforderten Speicher nullen
+            clean_frame(alloc_adress, pf_count * PAGE_FRAME_SIZE);
             return PhysAddr::new(alloc_adress as u64);
         }
     }
@@ -188,6 +199,8 @@ pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
         let alloc_adress: *mut u64 = FREE_USER_PAGE_FRAMES.alloc(
             Layout::from_size_align_unchecked(pf_count * PAGE_FRAME_SIZE, PAGE_FRAME_SIZE),
         );
+        // angeforderten Speicher nullen
+        clean_frame(alloc_adress, pf_count * PAGE_FRAME_SIZE);
         return PhysAddr::new(alloc_adress as u64);
     }
 }
