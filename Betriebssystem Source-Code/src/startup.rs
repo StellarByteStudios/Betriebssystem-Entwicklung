@@ -496,6 +496,8 @@ pub extern "C" fn kmain(mbi: u64) {
     // Zeitgeber-Unterbrechungsroutine 'einstoepseln'
     pit::plugin();
 
+    // Grafik funktioniert grad noch nicht wegen mapping
+    /*
     // Bildschirm frei machen
     graphic_console_printer::clear_screen();
 
@@ -563,6 +565,7 @@ pub extern "C" fn kmain(mbi: u64) {
     vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
     dump_user_frames();
 
+     */
     // Idle-Thread eintragen
     /*let idle_thread = Thread::new(
         scheduler::next_thread_id(),

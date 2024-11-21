@@ -10,6 +10,7 @@ pub extern "C" fn idle_thread_entry() {
     scheduler::set_initialized();
     loop {
         //vprint!("I");
+        kprintln!("Idling...");
 
         /*
         let mut x: u64 = 0;

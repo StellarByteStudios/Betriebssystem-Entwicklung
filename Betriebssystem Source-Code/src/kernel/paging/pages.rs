@@ -11,11 +11,13 @@
 use alloc::borrow::ToOwned;
 use bitflags::bitflags;
 use core::fmt;
+use core::ops::Add;
 use core::ops::BitOr;
 use core::ptr;
 use core::ptr::null_mut;
 use x86;
 
+use crate::boot::multiboot;
 use crate::consts::KERNEL_VM_SIZE;
 use crate::consts::PAGE_SIZE;
 use crate::consts::STACK_SIZE;
@@ -23,6 +25,8 @@ use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::frames::PhysAddr;
+
+use super::frames::pf_alloc;
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
@@ -50,8 +54,12 @@ impl PTEflags {
          *
          */
 
+        // Kernel_flags später ohne Userbit gesetzt
+        //let kernel_flags = PTEflags {
+        //    bits: 0b0000_0001_1000_0011,
+        //};
         let kernel_flags = PTEflags {
-            bits: 0b0000_0001_1111_1011,
+            bits: 0b0000_0000_0000_0111,
         };
         return kernel_flags;
     }
@@ -63,7 +71,7 @@ impl PTEflags {
          */
 
         let user_flags = PTEflags {
-            bits: 0b0000_0001_1111_1111,
+            bits: 0b0000_0000_0000_0111,
         };
         return user_flags;
     }
@@ -172,7 +180,64 @@ impl PageTable {
     // Diese Funktion richtet ein neues Mapping ein
     // 'vm_addr':     virtuelle Startaddresse des Mappings
     // 'nr_of_pages': Anzahl der Seiten, die ab 'vm_addr' gemappt werden sollen
-    fn mmap_kernel(&mut self, mut vm_addr: usize, nr_of_pages: usize) {
+    fn mmap_kernel_iterative(&mut self, mut vm_addr: usize, nr_of_pages: usize) {
+        // Self ist bereits eine Page die Angelegt wurde (lvl 4)
+
+        // Speicher für Page lvl 3 anfordern
+        let page_table_lvl_3_adress = pf_alloc(1, true);
+        let page_table_lvl_3 = unsafe { &mut *(page_table_lvl_3_adress.as_mut_ptr::<PageTable>()) };
+
+        // Page lvl 3 auf lvl 4 registrieren
+        self.entries[0] =
+            PageTableEntry::new(page_table_lvl_3_adress, PTEflags::flags_for_kernel_pages());
+        self.entries[0].update();
+
+        // Speicher für Page lvl 2 anfordern
+        let page_table_lvl_2_adress = pf_alloc(1, true);
+        let page_table_lvl_2 = unsafe { &mut *(page_table_lvl_2_adress.as_mut_ptr::<PageTable>()) };
+
+        // Page lvl 2 auf lvl 3 registrieren
+        page_table_lvl_3.entries[0] =
+            PageTableEntry::new(page_table_lvl_2_adress, PTEflags::flags_for_kernel_pages());
+        page_table_lvl_3.entries[0].update();
+
+        // zum testen
+        let mut pages_count: u64 = 0;
+
+        // lvl 1 Pages chronologisch die Physischen Adressen einteilen
+        // Speicher für Page lvl 1 anfordern (Das werden viele sein (64 mal für 128 MB))
+        for i in 0..64 {
+            // Pagetable Speicher holen
+            let page_table_lvl_1_adress = pf_alloc(1, true);
+            let page_table_lvl_1 =
+                unsafe { &mut *(page_table_lvl_1_adress.as_mut_ptr::<PageTable>()) };
+
+            // Pagetable füllen
+            for k in 0..512 {
+                // Physische Adresse Ausrechnen (Pagesize * 512 * i) + k * Pagesize
+                let adress: u64 = ((PAGE_SIZE * 512 * i) + (k * PAGE_SIZE)) as u64;
+                let phys_address = PhysAddr::new(adress);
+
+                page_table_lvl_1.entries[k] =
+                    PageTableEntry::new(phys_address, PTEflags::flags_for_kernel_pages());
+                page_table_lvl_1.entries[k].update();
+
+                // Neue Table einetragen
+                pages_count = pages_count + 1;
+            }
+
+            // Pagetable in Tabelle obendrüber registrieren
+            page_table_lvl_2.entries[i] =
+                PageTableEntry::new(page_table_lvl_1_adress, PTEflags::flags_for_kernel_pages());
+            page_table_lvl_2.entries[i].update();
+        }
+
+        kprintln!("Wirklich erstellte Seiten: {}", pages_count);
+
+        // Extra Videospeicher anlegen!!!
+        // Hole Multiboot infos
+        // Größe des Speichers berechnen pitch * height sind alle Bytes
+        // addr: 4244635648, pitch: 5120, width: 1280, height: 720, bpp: 32 (bisher immer gleich)
 
         /*
          * Hier muss Code eingefuegt werden
@@ -196,7 +261,7 @@ pub fn pg_init_kernel_tables() -> PhysAddr {
     // Alloziere eine Tabelle fuer Page Map Level 4 (PML4) -> 4 KB
     let pml4_addr = frames::pf_alloc(1, true);
     assert!(pml4_addr != PhysAddr(0));
-    //  kprintln!("pml4_addr = {:?}", pml4_addr);
+    //kprintln!("Adresse der Page Lvl 4 = {:?}", pml4_addr);
 
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_table;
@@ -204,10 +269,10 @@ pub fn pg_init_kernel_tables() -> PhysAddr {
 
     // Aufruf von "mmap"
     // !!!! In der Vorgabe stand da nur mmap. Glaube das ist falsch
-    pml4_table.mmap_kernel(0, nr_of_pages);
+    pml4_table.mmap_kernel_iterative(0, nr_of_pages);
 
     // CR3 setzen
-    pg_set_cr3(pml4_addr);
+    //pg_set_cr3(pml4_addr); //Auskommentiert, weil wir das erst später setzten wollen
     pml4_addr
 }
 
