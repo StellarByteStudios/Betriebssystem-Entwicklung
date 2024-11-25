@@ -18,13 +18,17 @@ use core::ptr::null_mut;
 use x86;
 
 use crate::boot::multiboot;
+use crate::boot::multiboot::MultibootFramebuffer;
+use crate::boot::multiboot::MultibootInfo;
 use crate::consts::KERNEL_VM_SIZE;
+use crate::consts::PAGE_FRAME_SIZE;
 use crate::consts::PAGE_SIZE;
 use crate::consts::STACK_SIZE;
 use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::frames::PhysAddr;
+use crate::mylib::mathadditions::math::pow;
 
 use super::frames::pf_alloc;
 
@@ -180,6 +184,96 @@ impl PageTable {
     // Diese Funktion richtet ein neues Mapping ein
     // 'vm_addr':     virtuelle Startaddresse des Mappings
     // 'nr_of_pages': Anzahl der Seiten, die ab 'vm_addr' gemappt werden sollen
+    fn mmap_kernel_one2one(&mut self, mut vm_addr: usize, nr_of_pages: usize) {
+        const ENTRIES_PER_TABLE: usize = 512; // For x86_64 4-level paging
+                                              //const ADDR_MASK: usize = 0x0000_FFFF_FFFF_F000; // Address mask for page-aligned addresses
+        let physical_address_counter: usize = vm_addr;
+
+        // Extract indices for each level of the page table
+        fn get_index(vm_addr: usize, level: usize) -> usize {
+            const SHIFTS: [usize; 4] = [12, 21, 30, 39]; // Bit shifts for PTE, PDE, PDPE, PML4
+            (vm_addr >> SHIFTS[level]) & 0x1FF // Extract 9 bits for the index
+        }
+
+        // Recursive helper function to map pages
+        fn map_recursive(
+            table: &mut PageTable,
+            mut vm_addr: usize,
+            mut nr_of_pages: usize,
+            level: usize,
+            mut physical_address_counter: usize,
+        ) {
+            if level == 0 {
+                // Base case: map the pages at level 0
+                for _ in 0..nr_of_pages {
+                    //let phys_addr = pf_alloc(1, true); // Allocate a physical frame
+                    //entry.set_addr(phys_addr); // Set the physical address
+
+                    // Index für in die Pagetable bereichen
+                    let table_index = get_index(vm_addr, level);
+
+                    // Entry mit physikalischer Adresse beschreiben und Flags setzen
+                    let entry = &mut table.entries[table_index];
+                    entry.set_addr(PhysAddr::new(physical_address_counter as u64));
+                    entry.set_flags(PTEflags::flags_for_kernel_pages());
+
+                    /*
+                    kprintln!(
+                        "!=!=!=! Gerade folgende Adresse gemapped: 0x{:x}; für Virtual Adress: 0x{:x}",
+                        physical_address_counter, vm_addr,
+                    ); */
+
+                    // Physikalische Adresse hochzählen
+                    physical_address_counter += PAGE_FRAME_SIZE;
+
+                    vm_addr += PAGE_SIZE;
+                }
+            } else {
+                // Recursive case: traverse or allocate next-level tables
+                let start_index = get_index(vm_addr, level);
+                let end_index = get_index(vm_addr + nr_of_pages * PAGE_SIZE - 1, level);
+
+                for idx in start_index..=end_index {
+                    let entry = &mut table.entries[idx];
+                    if !entry.is_present() {
+                        // Allocate the next level table if not present
+                        let next_table_addr = pf_alloc(1, true);
+
+                        // Entry mit physikalischer Adresse beschreiben und Flags setzen
+                        entry.set_addr(next_table_addr);
+                        entry.set_flags(PTEflags::flags_for_kernel_pages());
+                    }
+                    let next_table = unsafe { &mut *(entry.get_addr().as_mut_ptr::<PageTable>()) };
+
+                    // Determine how many pages to map within this index
+                    //let aligned_vm_addr = vm_addr & ADDR_MASK;
+                    //let pages_in_this_index =
+                    //    (aligned_vm_addr + (ENTRIES_PER_TABLE - idx) * PAGE_SIZE).min(nr_of_pages);
+                    let pages_in_this_index =
+                        (pow(ENTRIES_PER_TABLE as f32, level as u32) as usize).min(nr_of_pages);
+
+                    map_recursive(
+                        next_table,
+                        vm_addr,
+                        pages_in_this_index,
+                        level - 1,
+                        physical_address_counter,
+                    );
+                    // Physikalische Adresse für diese Table hochrechnen
+                    physical_address_counter += pages_in_this_index * PAGE_FRAME_SIZE;
+
+                    vm_addr += pages_in_this_index * PAGE_SIZE;
+                    nr_of_pages -= pages_in_this_index;
+                }
+            }
+        }
+
+        // Start the recursion from the top-level table (PML4)
+        map_recursive(self, vm_addr, nr_of_pages, 3, physical_address_counter);
+    }
+
+    // Iterative Testversion für Kernel 1:1 Mapping
+    #[deprecated]
     fn mmap_kernel_iterative(&mut self, mut vm_addr: usize, nr_of_pages: usize) {
         // Self ist bereits eine Page die Angelegt wurde (lvl 4)
 
@@ -233,23 +327,13 @@ impl PageTable {
         }
 
         kprintln!("Wirklich erstellte Seiten: {}", pages_count);
-
-        // Extra Videospeicher anlegen!!!
-        // Hole Multiboot infos
-        // Größe des Speichers berechnen pitch * height sind alle Bytes
-        // addr: 4244635648, pitch: 5120, width: 1280, height: 720, bpp: 32 (bisher immer gleich)
-
-        /*
-         * Hier muss Code eingefuegt werden
-         *
-         */
     }
 }
 
 // Hier richten wir Paging-Tabellen ein, um den Kernel von 0 - KERNEL_SPACE 1:1 zu mappen
 // Fuer die Page-Tables werden bei Bedarf Page-Frames alloziert
 // CR3 wird am Ende gesetzt
-pub fn pg_init_kernel_tables() -> PhysAddr {
+pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
     kprintln!("pg_init_kernel_tables");
 
     // Ausrechnen wie viel Seiten "gemappt" werden muessen
@@ -268,8 +352,29 @@ pub fn pg_init_kernel_tables() -> PhysAddr {
     unsafe { pml4_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
 
     // Aufruf von "mmap"
-    // !!!! In der Vorgabe stand da nur mmap. Glaube das ist falsch
-    pml4_table.mmap_kernel_iterative(0, nr_of_pages);
+    // Mappen von allen Physikalischen Adressen
+    pml4_table.mmap_kernel_one2one(0, nr_of_pages);
+
+    // Mappen des VGA Outputs
+    // Hole Multiboot infos
+    let mb_info = unsafe { MultibootInfo::read(mbi_ptr) };
+    let mb_fb: MultibootFramebuffer = mb_info.framebuffer;
+
+    // Größe des Speichers berechnen pitch * height sind alle Bytes
+    let video_addr = mb_fb.addr as usize;
+    let video_pitch = mb_fb.pitch;
+    let video_height = mb_fb.height;
+    // addr: 4244635648, pitch: 5120, width: 1280, height: 720, bpp: 32 (bisher immer gleich)
+    // Auf die Pages runden
+    let page_video_adress = video_addr & 0xFFFF_FFFF_FFFF_F000;
+    let how_many_pages = (((video_pitch * video_height) / PAGE_FRAME_SIZE as u32) + 1) as usize;
+
+    pml4_table.mmap_kernel_one2one(video_addr, how_many_pages);
+
+    kprintln!(
+        "========= Mappen hat funktioniert; Framebuffer mit {:} Pages",
+        how_many_pages
+    );
 
     // CR3 setzen
     //pg_set_cr3(pml4_addr); //Auskommentiert, weil wir das erst später setzten wollen

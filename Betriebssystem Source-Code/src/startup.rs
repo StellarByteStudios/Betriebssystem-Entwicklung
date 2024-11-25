@@ -478,11 +478,12 @@ pub extern "C" fn kmain(mbi: u64) {
     frames::pf_init(phys_mem);
 
     // Paging fuer den Kernel aktivieren
-    let pml4_addr = pages::pg_init_kernel_tables();
+    let pml4_addr = pages::pg_init_kernel_tables(mbi);
     pages::pg_set_cr3(pml4_addr);
 
     // Nochmal richtig Kernal-Heap initialisieren
-    ini_kernel_heap();
+    // Nicht sicher ob das noch nach dem Paging so läuft
+    //ini_kernel_heap();
 
     // Interrupt-Strukturen initialisieren
     interrupts::init();
@@ -497,7 +498,7 @@ pub extern "C" fn kmain(mbi: u64) {
     pit::plugin();
 
     // Grafik funktioniert grad noch nicht wegen mapping
-    /*
+
     // Bildschirm frei machen
     graphic_console_printer::clear_screen();
 
@@ -565,7 +566,6 @@ pub extern "C" fn kmain(mbi: u64) {
     vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
     dump_user_frames();
 
-     */
     // Idle-Thread eintragen
     /*let idle_thread = Thread::new(
         scheduler::next_thread_id(),

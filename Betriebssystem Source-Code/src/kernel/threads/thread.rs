@@ -60,7 +60,7 @@ impl Thread {
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables();
+        let new_pml4_addr = pages::pg_init_kernel_tables(0);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -97,7 +97,7 @@ impl Thread {
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables();
+        let new_pml4_addr = pages::pg_init_kernel_tables(0);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -130,7 +130,7 @@ impl Thread {
         let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
 
         // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables();
+        let new_pml4_addr = pages::pg_init_kernel_tables(0);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
