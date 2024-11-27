@@ -15,6 +15,7 @@ use core::ops::Add;
 use core::ops::BitOr;
 use core::ptr;
 use core::ptr::null_mut;
+use core::sync::atomic::AtomicUsize;
 use x86;
 
 use crate::boot::multiboot;
@@ -28,12 +29,14 @@ use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::frames::PhysAddr;
-use crate::mylib::mathadditions::math::pow;
+use crate::mylib::mathadditions::math::pow_usize;
 
 use super::frames::pf_alloc;
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
+
+const TABLES_IN_PHYSICAL_MEMORY: AtomicUsize = AtomicUsize::new(0);
 
 // Flags eines Eintrages in der Seitentabelle
 bitflags::bitflags! {
@@ -181,30 +184,32 @@ impl PageTable {
         }
     }
 
+    // Index zerhacken für die 4 Stufen der Page Tables
+    const fn get_index_in_table(vm_addr: usize, level: usize) -> usize {
+        const SHIFTS: [usize; 4] = [12, 21, 30, 39]; // Bit shifts for PTE, PDE, PDPE, PML4
+        (vm_addr >> SHIFTS[level]) & 0x1FF // Extract 9 bits for the index
+    }
+
     // Diese Funktion richtet ein neues Mapping ein
     // 'vm_addr':     virtuelle Startaddresse des Mappings
     // 'nr_of_pages': Anzahl der Seiten, die ab 'vm_addr' gemappt werden sollen
     fn mmap_kernel_one2one(&mut self, mut vm_addr: usize, nr_of_pages: usize) {
-        const ENTRIES_PER_TABLE: usize = 512; // For x86_64 4-level paging
-                                              //const ADDR_MASK: usize = 0x0000_FFFF_FFFF_F000; // Address mask for page-aligned addresses
+        //const ADDR_MASK: usize = 0x0000_FFFF_FFFF_F000; // Address mask for page-aligned addresses
         let physical_address_counter: usize = vm_addr;
 
-        // Extract indices for each level of the page table
         fn get_index(vm_addr: usize, level: usize) -> usize {
-            const SHIFTS: [usize; 4] = [12, 21, 30, 39]; // Bit shifts for PTE, PDE, PDPE, PML4
-            (vm_addr >> SHIFTS[level]) & 0x1FF // Extract 9 bits for the index
+            return super::pages::PageTable::get_index_in_table(vm_addr, level);
         }
 
         // Recursive helper function to map pages
-        fn map_recursive(
+        fn map_recursive_one2one(
             table: &mut PageTable,
             mut vm_addr: usize,
             mut nr_of_pages: usize,
             level: usize,
-            mut physical_address_counter: usize,
         ) {
             if level == 0 {
-                // Base case: map the pages at level 0
+                // Base case: Physikalische Adresse Mappen aber nicht anfordern
                 for _ in 0..nr_of_pages {
                     //let phys_addr = pf_alloc(1, true); // Allocate a physical frame
                     //entry.set_addr(phys_addr); // Set the physical address
@@ -214,62 +219,54 @@ impl PageTable {
 
                     // Entry mit physikalischer Adresse beschreiben und Flags setzen
                     let entry = &mut table.entries[table_index];
-                    entry.set_addr(PhysAddr::new(physical_address_counter as u64));
+                    entry.set_addr(PhysAddr::new(vm_addr as u64));
                     entry.set_flags(PTEflags::flags_for_kernel_pages());
 
-                    /*
-                    kprintln!(
-                        "!=!=!=! Gerade folgende Adresse gemapped: 0x{:x}; für Virtual Adress: 0x{:x}",
-                        physical_address_counter, vm_addr,
-                    ); */
-
-                    // Physikalische Adresse hochzählen
-                    physical_address_counter += PAGE_FRAME_SIZE;
+                    // Sonderfall, die erste Page soll wegen null-pointer auf nicht Present gesetzt werden
+                    if vm_addr == 0 {
+                        entry.set_flags(PTEflags::flags_for_kernel_pages() ^ PTEflags::PRESENT);
+                    }
 
                     vm_addr += PAGE_SIZE;
                 }
-            } else {
-                // Recursive case: traverse or allocate next-level tables
-                let start_index = get_index(vm_addr, level);
-                let end_index = get_index(vm_addr + nr_of_pages * PAGE_SIZE - 1, level);
 
-                for idx in start_index..=end_index {
-                    let entry = &mut table.entries[idx];
-                    if !entry.is_present() {
-                        // Allocate the next level table if not present
-                        let next_table_addr = pf_alloc(1, true);
+                // Rekursion wieder zurück kehren
+                return;
+            }
 
-                        // Entry mit physikalischer Adresse beschreiben und Flags setzen
-                        entry.set_addr(next_table_addr);
-                        entry.set_flags(PTEflags::flags_for_kernel_pages());
-                    }
-                    let next_table = unsafe { &mut *(entry.get_addr().as_mut_ptr::<PageTable>()) };
+            // Recursive case: traverse or allocate next-level tables
+            let start_index = get_index(vm_addr, level);
+            let end_index = get_index(vm_addr + nr_of_pages * PAGE_SIZE - 1, level);
 
-                    // Determine how many pages to map within this index
-                    //let aligned_vm_addr = vm_addr & ADDR_MASK;
-                    //let pages_in_this_index =
-                    //    (aligned_vm_addr + (ENTRIES_PER_TABLE - idx) * PAGE_SIZE).min(nr_of_pages);
-                    let pages_in_this_index =
-                        (pow(ENTRIES_PER_TABLE as f32, level as u32) as usize).min(nr_of_pages);
+            for idx in start_index..=end_index {
+                // Den Entry aus der Table laden
+                let entry = &mut table.entries[idx];
 
-                    map_recursive(
-                        next_table,
-                        vm_addr,
-                        pages_in_this_index,
-                        level - 1,
-                        physical_address_counter,
-                    );
-                    // Physikalische Adresse für diese Table hochrechnen
-                    physical_address_counter += pages_in_this_index * PAGE_FRAME_SIZE;
+                // Falls die Page untendrunter noch nie angefordert wurde muss sie neu angelegt werden
+                if !entry.is_present() {
+                    // Speicher für Pagetable allozieren
+                    let next_table_addr = pf_alloc(1, true);
 
-                    vm_addr += pages_in_this_index * PAGE_SIZE;
-                    nr_of_pages -= pages_in_this_index;
+                    // Entry mit physikalischer Adresse beschreiben und Flags setzen
+                    entry.set_addr(next_table_addr);
+                    entry.set_flags(PTEflags::flags_for_kernel_pages());
                 }
+
+                // Table laden, welche in dem Entry steht
+                let next_table = unsafe { &mut *(entry.get_addr().as_mut_ptr::<PageTable>()) };
+                // Berechnen wie viele Pages jetzt in der Ebene untendrunter angefordert werden müssebn
+                let pages_in_this_index = (pow_usize(PAGE_TABLE_ENTRIES, level)).min(nr_of_pages);
+
+                // Rekursiver Aufruf für die Pagetables untendrunter
+                map_recursive_one2one(next_table, vm_addr, pages_in_this_index, level - 1);
+
+                vm_addr += pages_in_this_index * PAGE_SIZE;
+                nr_of_pages -= pages_in_this_index;
             }
         }
 
         // Start the recursion from the top-level table (PML4)
-        map_recursive(self, vm_addr, nr_of_pages, 3, physical_address_counter);
+        map_recursive_one2one(self, vm_addr, nr_of_pages, 3);
     }
 
     // Iterative Testversion für Kernel 1:1 Mapping
@@ -342,10 +339,12 @@ pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
     kprintln!("   nr_of_pages = {}", nr_of_pages);
     kprintln!("   max_phys_addr = 0x{:x}", max_phys_addr);
 
+    // Speichern wie viele Pages für das 1:1 mapping benötigt werden (später für Thread-Pages wichtig)
+    TABLES_IN_PHYSICAL_MEMORY.store(nr_of_pages, core::sync::atomic::Ordering::SeqCst);
+
     // Alloziere eine Tabelle fuer Page Map Level 4 (PML4) -> 4 KB
     let pml4_addr = frames::pf_alloc(1, true);
     assert!(pml4_addr != PhysAddr(0));
-    //kprintln!("Adresse der Page Lvl 4 = {:?}", pml4_addr);
 
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_table;

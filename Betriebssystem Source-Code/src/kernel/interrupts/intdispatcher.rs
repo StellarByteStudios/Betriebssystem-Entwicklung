@@ -17,6 +17,7 @@ use crate::kernel::cpu;
 use crate::kernel::interrupts::isr;
 use alloc::{boxed::Box, vec::Vec};
 use core::sync::atomic::{AtomicUsize, Ordering};
+use x86_64::registers::control::Cr2;
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;
@@ -197,10 +198,11 @@ pub extern "C" fn int_gpf(error_code: u64, cs: u16, rip: u64) {
         kprint::WRITER.force_unlock();
     }
     kprintln!(
-        "general protection fault: error_code = 0x{:x}, cs:rip = 0x{:x}:0x{:x}",
+        "general protection fault: error_code = 0x{:x}, cs:rip = 0x{:x}:0x{:x}, CR2 = 0x{:x}",
         error_code,
         cs,
-        rip
+        rip,
+        Cr2::read()
     );
     loop {}
 }

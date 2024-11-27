@@ -63,6 +63,14 @@ pub fn pow(x: f32, n: u32) -> f64 {
     result as f64
 }
 
+pub fn pow_usize(x: usize, n: usize) -> usize {
+    let mut result: usize = 1;
+    for _ in 0..n {
+        result *= x;
+    }
+    result
+}
+
 // =========== Cosinus  =========== //
 
 pub fn cos(x: f32) -> f64 {

@@ -18,7 +18,7 @@
 #![feature(alloc_error_handler)]
 #![feature(naked_functions)]
 
-use core::panic::PanicInfo;
+use core::{panic::PanicInfo, ptr};
 
 use alloc::{string::ToString, vec};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
@@ -501,6 +501,15 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Bildschirm frei machen
     graphic_console_printer::clear_screen();
+
+    /*
+    // Test für nullpointer exception
+    let nullpointer: *mut u64 = 0xFF0 as *mut u64;
+    kprintln!("Der Pointer: {:?}", nullpointer);
+    // Zugreifen
+    unsafe {
+        let var = *nullpointer;
+    } */
 
     // Erstmal in den Speicher gucken
     vprintln!("= = = Kernal Frames = = =");
