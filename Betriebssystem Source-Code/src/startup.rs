@@ -17,6 +17,8 @@
 // Iso-Neu
 #![feature(alloc_error_handler)]
 #![feature(naked_functions)]
+// Nach Rust Update
+#![allow(static_mut_refs)]
 
 use core::{panic::PanicInfo, ptr};
 
