@@ -97,7 +97,7 @@ _thread_switch:
     call _tss_set_rsp0
 
     ; neue Seitentabellen laden (4. Param)
-    ;mov CR3, rcx
+    mov CR3, rcx
 
     ; Register des naechsten Threads laden
 
