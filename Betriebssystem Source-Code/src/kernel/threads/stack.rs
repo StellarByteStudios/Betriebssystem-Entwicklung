@@ -14,8 +14,8 @@ use core::ptr::null_mut;
 use crate::consts;
 use crate::kernel::allocator;
 use crate::kernel::cpu;
-use crate::kernel::paging::frames::PhysAddr;
 use crate::kernel::paging::pages;
+use crate::kernel::paging::physical_addres::PhysAddr;
 
 #[repr(C)]
 pub struct Stack {
