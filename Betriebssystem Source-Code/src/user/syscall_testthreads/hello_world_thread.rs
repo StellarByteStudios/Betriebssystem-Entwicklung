@@ -8,19 +8,10 @@ use crate::kernel::threads::{scheduler, thread};
 use crate::mylib::delay;
 
 pub extern "C" fn hello_world_thread_entry() {
-    //    let tid = scheduler::get_active_tid();
-    //    println!("Hello World! thread-id = {}", tid);
-    //kprintln!("Hello World");
-
     let mut i: u64 = 1;
 
     loop {
-        //vprintln!("Syscall Helloworld mit Argumenten");
         vprint!("U ");
-        // Funktioniert nicht im Usermode
-        //let val: u8 = cpu::inb(0);
-        // Funktioniert nicht im Usermode
-        //kprintln!("Nicht ausführbar!");
 
         // Serielle Ausgabe über Syscall
         usr_hello_world();
