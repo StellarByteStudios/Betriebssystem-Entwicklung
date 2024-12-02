@@ -35,12 +35,13 @@ use kernel::{
     syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread},
 };
-use mylib::input;
+use mylib::picturepainting::animate;
 // Funktioniert nicht mehr wegen neuer Threads
 use user::{
     applications::{self, graphic_console::graphic_console_printer, keyboard_handler},
     syscall_testthreads::{
-        get_last_key_thread, get_thread_id, hello_world_thread, write_in_buffer_thead,
+        animation_test_thread, get_last_key_thread, get_thread_id, hello_world_thread,
+        write_in_buffer_thead,
     }, //aufgabe1::text_demo,
        //aufgabe2::heap_demo,
        //aufgabe3::keyboard_irq_demo,
@@ -350,7 +351,7 @@ pub extern "C" fn startup(mbi: u64) {
 
     //pcspk::intro();
 
-    input::wait_for_return();
+    //input::wait_for_return();
 
     cga::clear();
 
@@ -585,11 +586,8 @@ pub extern "C" fn kmain(mbi: u64) {
     // HelloWorld-Thread eintragen
     hello_world_thread::init();
 
-    // HelloWorld-Thread eintragen
-    hello_world_thread::init();
-
-    // HelloWorld-Thread eintragen
-    hello_world_thread::init();
+    // Andere Threads ausprobieren
+    animation_test_thread::init();
 
     vprintln!("\n\n\n-------------------------------------------------------\nNach der Thread Initialisierung");
     vprintln!("\n\n= = = Kernal Frames = = =");

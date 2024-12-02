@@ -26,7 +26,7 @@ pub fn init() {
     let idle_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         hello_world_thread_entry,
-        true,
+        false,
         "user-hello-Thread".to_string(),
     );
     scheduler::Scheduler::ready(idle_thread);
