@@ -67,7 +67,8 @@ _thread_kernel_start:
 ;                      des Threads der die CPU nun bekommt. Benötigen wir um den 0
 ;                      Stack umzuschalten
 ;       then_rsp0_end: Erste benutzerbare Adresse des Kernel-Stacks von 'then_rsp0'
-;                      Wird benoetigt, um den RSP0-Eintrag im TSS zu aktualisieren          
+;                      Wird benoetigt, um den RSP0-Eintrag im TSS zu aktualisieren     
+;       then_pml4:     Pointer auf die neue Seitentabelle. Diese muss in CR3 geschrieben werden     
 _thread_switch:
 
     ; Register des aktuellen Threads auf dem Stack sichern
@@ -94,6 +95,9 @@ _thread_switch:
     ; aktualisiere RSP0 (Kernel-Stack) im TSS (3. Param, 'then_rsp0_end')
     mov rdi, rdx
     call _tss_set_rsp0
+
+    ; neue Seitentabellen laden (4. Param)
+    ;mov CR3, rcx
 
     ; Register des naechsten Threads laden
 

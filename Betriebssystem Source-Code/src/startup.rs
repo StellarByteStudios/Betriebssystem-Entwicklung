@@ -453,6 +453,62 @@ fn ini_kernel_heap() {
     allocator::init(kernal_heap_adress.raw() as usize, KERNEL_HEAP_SIZE);
 }
 
+fn ph_allocator_testing() {
+    // Erstmal in den Speicher gucken
+    vprintln!("= = = Kernal Frames = = =");
+    dump_kernal_frames();
+
+    vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
+
+    let pf_alloc1 = pf_alloc(5, true);
+    let pf_alloc2 = pf_alloc(30, true);
+    let pf_alloc3 = pf_alloc(17, true);
+
+    // Erstmal in den Speicher gucken
+    vprintln!("\n\n= = = Kernal Frames = = =");
+    dump_kernal_frames();
+    vprintln!("\n= = = gebe Teil davon frei = = =");
+    pf_free(pf_alloc1, 5);
+
+    vprintln!("\n\n= = = Kernal Frames = = =");
+    dump_kernal_frames();
+
+    vprintln!("\n= = = noch mehr Freigeben = = =");
+    pf_free(pf_alloc2, 30);
+
+    vprintln!("\n\n= = = Kernal Frames = = =");
+    dump_kernal_frames();
+
+    vprintln!("\n-------------------------------------------------------\n= = = Userframes = = =");
+    dump_user_frames();
+
+    vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
+    let useralloc1 = pf_alloc(10, false);
+    let useralloc2 = pf_alloc(20, false);
+    let useralloc3 = pf_alloc(30, false);
+    let useralloc4 = pf_alloc(40, false);
+    let useralloc5 = pf_alloc(50, false);
+    let useralloc6 = pf_alloc(60, false);
+
+    vprintln!("\n= = = Userframes nach dem Anfordern = = =");
+    dump_user_frames();
+
+    vprintln!("\n= = = Gebe durcheinander frei = = =");
+    pf_free(useralloc5, 50);
+    pf_free(useralloc1, 10);
+    pf_free(useralloc3, 30);
+
+    vprintln!("\n= = = Userframes nach paar freigeben = = =");
+    dump_user_frames();
+
+    pf_free(useralloc4, 40);
+    pf_free(useralloc6, 60);
+    pf_free(useralloc2, 20);
+
+    vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
+    dump_user_frames();
+}
+
 #[no_mangle]
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
@@ -483,7 +539,7 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Nochmal richtig Kernal-Heap initialisieren
     // Nicht sicher ob das noch nach dem Paging so läuft
-    //ini_kernel_heap();
+    ini_kernel_heap();
 
     // Interrupt-Strukturen initialisieren
     interrupts::init();
@@ -511,82 +567,33 @@ pub extern "C" fn kmain(mbi: u64) {
         let var = *nullpointer;
     } */
 
-    // Erstmal in den Speicher gucken
-    vprintln!("= = = Kernal Frames = = =");
-    dump_kernal_frames();
-    //vprintln!("\n= = = User Frames = = =");
-    //kernel::paging::frames::dump_user_frames();
+    //ph_allocator_testing();
 
-    vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
-
-    let pf_alloc1 = pf_alloc(5, true);
-    let pf_alloc2 = pf_alloc(30, true);
-    let pf_alloc3 = pf_alloc(17, true);
-
-    //kernel::paging::frames::pf_alloc(1, false);
-    //kernel::paging::frames::pf_alloc(10, false);
-
-    // Erstmal in den Speicher gucken
+    vprintln!(
+        "\n-------------------------------------------------------\nVor der Thread Initialisierung"
+    );
     vprintln!("\n\n= = = Kernal Frames = = =");
     dump_kernal_frames();
-    //vprintln!("\n= = = User Frames = = =");
-    //kernel::paging::frames::dump_user_frames();
-
-    vprintln!("\n= = = gebe Teil davon frei = = =");
-    pf_free(pf_alloc1, 5);
-
-    vprintln!("\n\n= = = Kernal Frames = = =");
-    dump_kernal_frames();
-
-    vprintln!("\n= = = noch mehr Freigeben = = =");
-    pf_free(pf_alloc2, 30);
-
-    vprintln!("\n\n= = = Kernal Frames = = =");
-    dump_kernal_frames();
-    //vprintln!("\n= = = User Frames = = =");
-    //kernel::paging::frames::dump_user_frames();
-
-    vprintln!("\n-------------------------------------------------------\n= = = Userframes = = =");
-    dump_user_frames();
-
-    vprintln!("\n= = = Vordere ein Wenig speicher an = = =");
-    let useralloc1 = pf_alloc(10, false);
-    let useralloc2 = pf_alloc(20, false);
-    let useralloc3 = pf_alloc(30, false);
-    let useralloc4 = pf_alloc(40, false);
-    let useralloc5 = pf_alloc(50, false);
-    let useralloc6 = pf_alloc(60, false);
-
-    vprintln!("\n= = = Userframes nach dem Anfordern = = =");
-    dump_user_frames();
-
-    vprintln!("\n= = = Gebe durcheinander frei = = =");
-    pf_free(useralloc5, 50);
-    pf_free(useralloc1, 10);
-    pf_free(useralloc3, 30);
-
-    vprintln!("\n= = = Userframes nach paar freigeben = = =");
-    dump_user_frames();
-
-    pf_free(useralloc4, 40);
-    pf_free(useralloc6, 60);
-    pf_free(useralloc2, 20);
-
-    vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
+    vprintln!("\n\n= = = User Frames = = =");
     dump_user_frames();
 
     // Idle-Thread eintragen
-    /*let idle_thread = Thread::new(
-        scheduler::next_thread_id(),
-        sec_idle_thread::idle_thread_entry,
-        true,
-    );
-
-    scheduler::Scheduler::ready(idle_thread);*/
     sec_idle_thread::init();
 
     // HelloWorld-Thread eintragen
-    //hello_world_thread::init();
+    hello_world_thread::init();
+
+    // HelloWorld-Thread eintragen
+    hello_world_thread::init();
+
+    // HelloWorld-Thread eintragen
+    hello_world_thread::init();
+
+    vprintln!("\n\n\n-------------------------------------------------------\nNach der Thread Initialisierung");
+    vprintln!("\n\n= = = Kernal Frames = = =");
+    dump_kernal_frames();
+    vprintln!("\n\n= = = User Frames = = =");
+    dump_user_frames();
 
     // Andere Threads testen
     //get_last_key_thread::init();

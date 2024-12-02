@@ -10,11 +10,12 @@ use alloc::alloc::Layout;
 use alloc::boxed::Box;
 use core::fmt;
 use core::ptr::null_mut;
-use x86_64::PhysAddr;
 
 use crate::consts;
 use crate::kernel::allocator;
 use crate::kernel::cpu;
+use crate::kernel::paging::frames::PhysAddr;
+use crate::kernel::paging::pages;
 
 #[repr(C)]
 pub struct Stack {
@@ -44,14 +45,32 @@ impl Stack {
         Box::new(Stack { data, size })
     }
 
-    pub fn new_new(size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
-        /*
-         * Code hierin muss angepasst werden
-         */
-        return Box::new(Stack {
-            data: null_mut(),
-            size: 0,
-        });
+    pub fn new_mapped_stack(size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
+        // Wenn es ein Kernal Stack ist, nix anders machen (Alten Konstruktor)
+        if kernel_stack {
+            return Stack::new(size);
+        }
+
+        // Ansonsten Methode zum Mappen in pages aufrufen
+        // Mapping anlegen
+        let start_pointer = pages::pg_mmap_user_stack(pml4_addr);
+        // Datapointer schieben (Stack wächst von oben nach unten)
+        let data =
+            ((start_pointer as usize) + (size as usize) - consts::STACK_ENTRY_SIZE) as *mut u8;
+
+        if data.is_null() {
+            println!("Panic: failed in 'Stack::new_mapped_stack'");
+            cpu::halt();
+        }
+
+        kprintln!(
+            "Stack::new_mapped_stack, memory block = [0x{:x}; 0x{:x}]",
+            start_pointer as usize,
+            (data as usize + consts::STACK_ENTRY_SIZE)
+        );
+
+        return Box::new(Stack { data, size });
+        //return Stack::new(size);
     }
 
     pub fn stack_end(&self) -> *mut u64 {

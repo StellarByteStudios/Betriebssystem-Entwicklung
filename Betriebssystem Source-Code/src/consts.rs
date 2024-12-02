@@ -14,7 +14,7 @@ pub const GRAPHIC_CLOCK_POS: (u32, u32) = ((1280 / 10) - 20, 0);
 pub const GRAPHIC_BYTE_CLOCK_POS: (u32, u32) = ((1280 / 10) - 1, 0);
 
 // (1 MB) 64 KB Heap für das Einrichten des Systems (siehe 'kmain')
-pub const TEMP_HEAP_SIZE: usize = 0x1_0000;
+pub const TEMP_HEAP_SIZE: usize = 0x10_0000;
 
 // 1 MB Heap für das Einrichten des Systems (siehe 'kmain')
 pub const KERNEL_HEAP_SIZE: usize = 0x10_0000;

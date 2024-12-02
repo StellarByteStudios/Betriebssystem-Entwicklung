@@ -15,7 +15,8 @@ pub extern "C" fn hello_world_thread_entry() {
     let mut i: u64 = 1;
 
     loop {
-        vprintln!("Syscall Helloworld mit Argumenten");
+        //vprintln!("Syscall Helloworld mit Argumenten");
+        vprint!("U ");
         // Funktioniert nicht im Usermode
         //let val: u8 = cpu::inb(0);
         // Funktioniert nicht im Usermode
@@ -34,7 +35,7 @@ pub fn init() {
     let idle_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         hello_world_thread_entry,
-        false,
+        true,
         "user-hello-Thread".to_string(),
     );
     scheduler::Scheduler::ready(idle_thread);

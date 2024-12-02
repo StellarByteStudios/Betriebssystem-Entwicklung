@@ -61,9 +61,9 @@ _wrapper_%1:
 
 	; do we have a general protection fault?
 	%if %1 == 13 
-		mov    rdi, [rsp+112] ; error code
-		mov    rdx, [rsp+120] ; rip
-		mov    rsi, [rsp+128] ; cs
+		mov    rdi, [rsp+120] ; error code
+		mov    rdx, [rsp+128] ; rip
+		mov    rsi, [rsp+136] ; cs
 		call    int_gpf
 	%else
 		; pass the vector as parameter 

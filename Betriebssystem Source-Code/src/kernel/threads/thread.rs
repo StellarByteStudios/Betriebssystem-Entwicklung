@@ -14,6 +14,7 @@ use core::fmt;
 use crate::consts;
 use crate::devices::cga;
 use crate::kernel::cpu;
+use crate::kernel::paging::frames::pf_alloc;
 use crate::kernel::paging::frames::PhysAddr;
 use crate::kernel::paging::pages;
 use crate::kernel::threads::scheduler;
@@ -24,7 +25,7 @@ use crate::mylib::queue::Link;
 extern "C" {
     fn _thread_kernel_start(old_rsp0: u64);
     fn _thread_user_start(old_rsp0: u64);
-    fn _thread_switch(now_rsp0: *mut u64, then_rsp0: u64, then_rsp0_end: u64);
+    fn _thread_switch(now_rsp0: *mut u64, then_rsp0: u64, then_rsp0_end: u64, then_pml4: u64);
 }
 
 // Diese Funktion (setzt den Kernel-Stack im TSS) ist in 'boot.asm'
@@ -53,31 +54,51 @@ pub struct Thread {
 }
 
 impl Thread {
-    // Neuen Thread anlegen
-    pub fn new(my_tid: usize, myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
-        // Speicher fuer die Stacks anlegen
-        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
+    // Interne Funktion die die Threads wirklich erstellt
+    fn internal_new(
+        myentry: extern "C" fn(),
+        kernel_thread: bool,
+        thread_name: String,
+        my_args: Vec<String>,
+    ) -> Box<Thread> {
+        // Neue ID erstellen
+        let new_tid = scheduler::next_thread_id();
 
-        // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables(0);
+        // Oberste Page-Table anlegen
+        //let new_pml4_addr = pf_alloc(1, true);
+        // Oberste Page-Table anlegen (mit Kernel initialisiert)
+        let new_pml4_addr = pages::pg_init_user_tables();
+
+        vprintln!("======= Neuen Thread angelegt.");
+        vprintln!("     Die pml4 liegt bei 0x{:x}", new_pml4_addr.0);
+
+        let my_kernel_stack =
+            stack::Stack::new_mapped_stack(consts::STACK_SIZE, true, new_pml4_addr);
+        let my_user_stack =
+            stack::Stack::new_mapped_stack(consts::STACK_SIZE, false, new_pml4_addr);
+        // Es hilft nicht, den Userstack einfach nur als Kernelstack anzulegen. Gibt trotzdem ProtFault.
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
-            tid: my_tid,
+            tid: new_tid,
             is_kernel_thread: kernel_thread,
             pml4_addr: new_pml4_addr,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,
             entry: myentry,
-            args: Vec::new(),
-            name: String::from("Nameless"),
+            args: my_args,
+            name: thread_name,
         });
 
         threadobj.prepare_kernel_stack();
 
-        threadobj
+        return threadobj;
+    }
+
+    // Neuen Thread anlegen
+    pub fn new(my_tid: usize, myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
+        return Thread::internal_new(myentry, kernel_thread, String::from("Nameless"), Vec::new());
     }
 
     /*
@@ -93,28 +114,7 @@ impl Thread {
         thread_name: String,
         my_args: Vec<String>,
     ) -> Box<Thread> {
-        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
-
-        // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables(0);
-
-        // Thread-Objekt anlegen
-        let mut threadobj = Box::new(Thread {
-            tid: my_tid,
-            is_kernel_thread: kernel_thread,
-            pml4_addr: new_pml4_addr,
-            old_rsp0: 0,
-            kernel_stack: my_kernel_stack,
-            user_stack: my_user_stack,
-            entry: myentry,
-            args: my_args,
-            name: thread_name,
-        });
-
-        threadobj.prepare_kernel_stack();
-
-        threadobj
+        return Thread::internal_new(myentry, kernel_thread, thread_name, my_args);
     }
 
     /**
@@ -126,58 +126,40 @@ impl Thread {
         kernel_thread: bool,
         thread_name: String,
     ) -> Box<Thread> {
-        let my_kernel_stack = stack::Stack::new(consts::STACK_SIZE);
-        let my_user_stack = stack::Stack::new(consts::STACK_SIZE);
-
-        // Page-Tables anlegen
-        let new_pml4_addr = pages::pg_init_kernel_tables(0);
-
-        // Thread-Objekt anlegen
-        let mut threadobj = Box::new(Thread {
-            tid: my_tid,
-            is_kernel_thread: kernel_thread,
-            pml4_addr: new_pml4_addr,
-            old_rsp0: 0,
-            kernel_stack: my_kernel_stack,
-            user_stack: my_user_stack,
-            entry: myentry,
-            args: Vec::new(),
-            name: thread_name,
-        });
-
-        threadobj.prepare_kernel_stack();
-
-        threadobj
+        return Thread::internal_new(myentry, kernel_thread, thread_name, Vec::new());
     }
 
     // Starten des 1. Kernel-Threads (rsp0 zeigt auf den praeparierten Stack)
     // Wird vom Scheduler gerufen, wenn dieser gestartet wird.
     // Alle anderen Threads werden mit 'switch' angestossen
     pub fn start(now: *mut Thread) {
+        kprintln!("======= In Kernal Start wird ausgeführt.");
         unsafe {
+            kprintln!(
+                "     Die pml4 liegt bei 0x{:x}",
+                now.as_ref().unwrap().pml4_addr.0
+            );
             pages::pg_set_cr3(now.as_ref().unwrap().pml4_addr); // Adressraum setzen
             _thread_kernel_start((*now).old_rsp0);
         }
     }
 
     // Umschalten von Thread 'now' auf Thread 'then'
+    /*  Parameterreihenfolge
+        1. rdi
+        2. rsi
+        3. rdx
+        4. rcx
+        5. r8
+        6. r9
+    */
     pub fn switch(now: *mut Thread, then: *mut Thread) {
         unsafe {
-            /*
-            kprint!(
-                "preempt: tid={}, old_rsp0={:x}",
-                Thread::get_tid(now),
-                (*now).old_rsp0
-            );
-            kprintln!(
-                " and switch to tid={}, old_rsp0={:x}",
-                Thread::get_tid(then),
-                (*then).old_rsp0
-            );*/
             _thread_switch(
                 &mut (*now).old_rsp0,
                 (*then).old_rsp0,
                 (*then).kernel_stack.stack_end() as u64,
+                (*now).pml4_addr.0,
             );
         }
     }
@@ -237,12 +219,6 @@ impl Thread {
         }
     }
 
-    /*
-
-    Diese Methode ist das big TO-DO
-
-
-     */
     fn prepare_user_stack(&mut self) {
         //kprintln!("Ich bin in prepare user stack angekommen");
         let kickoff_user_addr = kickoff_user_thread as *const ();
@@ -337,10 +313,11 @@ impl fmt::Display for Thread {
 pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
     unsafe {
         kprintln!(
-            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}",
+            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}",
             (*object).tid,
             (*object).old_rsp0,
-            (*object).is_kernel_thread
+            (*object).is_kernel_thread,
+            (*object).pml4_addr.0,
         );
     }
 
@@ -371,15 +348,6 @@ pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
 #[no_mangle]
 pub extern "C" fn kickoff_user_thread(object: *mut Thread) {
     // Einstiegsfunktion des Threads aufrufen
-    /*
-    unsafe {
-        kprintln!(
-            "kickoff_user_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}",
-            (*object).tid,
-            (*object).old_rsp0,
-            (*object).is_kernel_thread
-        );
-    } */
 
     // Setzen von rsp0 im TSS
     unsafe {

@@ -155,6 +155,10 @@ fn print_exception(vector: u32) {
     }
     kprint!("Panic: ");
 
+    if vector == 14 {
+        let temp = 0;
+    }
+
     match vector {
         0 => kprint!("division by zero"),
         1 => kprint!("debug exception"),
