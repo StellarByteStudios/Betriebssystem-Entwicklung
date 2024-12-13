@@ -1,8 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = [
-    "apps/hello",
-    "os"
-]
-
+members = ["os", "apps/hello"]

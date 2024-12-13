@@ -10,8 +10,11 @@ use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
 use core::fmt;
+use core::mem::transmute;
 
+use crate::boot::appregion::AppRegion;
 use crate::consts;
+use crate::consts::USER_CODE_VM_START;
 use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::paging::frames::pf_alloc;
@@ -127,6 +130,21 @@ impl Thread {
         thread_name: String,
     ) -> Box<Thread> {
         return Thread::internal_new(myentry, kernel_thread, thread_name, Vec::new());
+    }
+
+    // Thread fuer eine App anlegen
+    // Hier wird der Code & BSS eingemappt & ein Thread mit eigenem Adressraum erzeugt
+    pub fn new_app_thread(app: AppRegion) -> Box<Thread> {
+        // Entry-Thread konvertieren
+        let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
+
+        let app_thread =
+            Self::internal_new(thread_entry, false, String::from("Nameless"), Vec::new());
+
+        // App-Image mappen
+        pages::pg_mmap_user_app(app_thread.pml4_addr, app);
+
+        app_thread
     }
 
     // Starten des 1. Kernel-Threads (rsp0 zeigt auf den praeparierten Stack)

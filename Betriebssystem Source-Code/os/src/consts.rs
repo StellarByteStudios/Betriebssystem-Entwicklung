@@ -40,6 +40,9 @@ pub const KERNEL_VM_SIZE: usize = 0x100_0000_0000; // 1 TiB
 pub const KERNEL_VM_START: usize = 0;
 pub const KERNEL_VM_END: usize = KERNEL_VM_SIZE - 1;
 
+// Adresse an der Apps gelinkt werden (muss in den Apps beachtet werden!)
+pub const USER_CODE_VM_START: usize = 0x100_0000_0000; // 1 TiB
+
 //
 // Konstanten fuer den virtuellen Adresseraum des User-Modes
 // Vorerst nur fuer den Stack des User-Mode-Threads, beginnt ab 64 TiB - 1.

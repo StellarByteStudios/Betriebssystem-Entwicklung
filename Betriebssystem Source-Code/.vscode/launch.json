@@ -6,7 +6,7 @@
             "name": "qemu-gdb",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/target/hhu_tosr/debug/kernel.bin",
+            "program": "${workspaceRoot}/target/Byte_OS/debug/kernel.bin",
             "cwd": "${workspaceFolder}",
             "miDebuggerPath": "rust-gdb",
             "miDebuggerServerAddress": "localhost:1234",

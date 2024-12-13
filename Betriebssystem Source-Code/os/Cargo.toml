@@ -1,8 +1,11 @@
 [package]
 edition = "2018"
-name = "hhu_tosr"
-version = "0.1.0"
-authors = ["Michael Schöttner <michael.schoettner@hhu.de>"]
+name = "ByteOS_kernel"
+version = "0.1.1"
+authors = [
+    "Michael Schöttner <michael.schoettner@hhu.de>",
+    "Carsten Krollmann <cakro105@hhu.de>",
+]
 
 [lib]
 crate-type = ["staticlib"]
@@ -20,3 +23,9 @@ x86 = "0.52.0"
 [dependencies.lazy_static]
 version = "1.0"
 features = ["spin_no_std"]
+
+[profile.development]
+panic = "abort"
+
+[profile.production]
+panic = "abort"

@@ -10,6 +10,7 @@
 
 use core::sync::atomic::AtomicUsize;
 
+use crate::boot::appregion::AppRegion;
 use crate::boot::multiboot;
 use crate::boot::multiboot::MultibootFramebuffer;
 use crate::boot::multiboot::MultibootInfo;
@@ -278,4 +279,12 @@ pub fn pg_init_user_tables() -> PhysAddr {
 // Setze das CR3 Register
 pub fn pg_set_cr3(pml4_addr: PhysAddr) {
     PageTable::set_cr3(pml4_addr);
+}
+
+// Diese Funktion richtet ein Mapping fuer ein App-Image ein
+pub fn pg_mmap_user_app(pml4_addr: PhysAddr, app: AppRegion) {
+
+    /*
+     * Hier muss Code eingefuegt werden
+     */
 }

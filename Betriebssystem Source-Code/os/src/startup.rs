@@ -24,7 +24,7 @@ use core::{panic::PanicInfo, ptr};
 
 use crate::boot::multiboot::PhysRegion;
 use alloc::{string::ToString, vec};
-use boot::multiboot;
+use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
 use kernel::{
@@ -278,16 +278,21 @@ pub extern "C" fn kmain(mbi: u64) {
     // Andere Threads ausprobieren
     animation_test_thread::init();
 
+    // separate compilierte App suchen
+    let app_region = appregion::get_app(mbi);
+    kprintln!("kmain, app: {:?}", app_region);
+
+    // Thread fuer eine App erzeugen & im Scheduler registrieren
+
+    /*
+     * Hier muss Code eingefuegt werden
+     */
+
     vprintln!("\n\n\n-------------------------------------------------------\nNach der Thread Initialisierung");
     vprintln!("\n\n= = = Kernal Frames = = =");
     dump_kernal_frames();
     vprintln!("\n\n= = = User Frames = = =");
     dump_user_frames();
-
-    // Andere Threads testen
-    //get_last_key_thread::init();
-    //get_thread_id::init();
-    //write_in_buffer_thead::init();
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();
