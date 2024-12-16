@@ -1,1 +1,0 @@
-# Notizen für das Betriebssystem
