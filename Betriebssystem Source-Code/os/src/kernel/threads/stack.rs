@@ -36,11 +36,12 @@ impl Stack {
             cpu::halt();
         }
 
+        /*
         kprintln!(
             "Stack::new, memory block = [0x{:x}; 0x{:x}]",
             start as usize,
             (data as usize + consts::STACK_ENTRY_SIZE)
-        );
+        );*/
 
         Box::new(Stack { data, size })
     }
@@ -63,11 +64,12 @@ impl Stack {
             cpu::halt();
         }
 
+        /*
         kprintln!(
             "Stack::new_mapped_stack, memory block = [0x{:x}; 0x{:x}]",
             start_pointer as usize,
             (data as usize + consts::STACK_ENTRY_SIZE)
-        );
+        );*/
 
         return Box::new(Stack { data, size });
         //return Stack::new(size);

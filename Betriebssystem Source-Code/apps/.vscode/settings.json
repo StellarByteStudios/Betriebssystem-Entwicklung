@@ -1,0 +1,24 @@
+{ /*
+    "rust-analyzer.cargo.target": "Byte_OS",
+    "rust-analyzer.check.allTargets": false,
+    "rust-analyzer.check.extraArgs": [
+        "--target",
+        "Byte_OS",
+    ],
+    "rust-analyzer.check.overrideCommand": [
+        "cargo",
+        "make",
+        "check",
+    ],
+    "rust-analyzer.cargo.buildScripts.overrideCommand": [
+        "cargo",
+        "make",
+        "compile" // leave out if "iso" target works on your machine
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml"
+    ],
+    "files.associations": {
+        "bitmapconverter.h": "c"
+    }*/}

@@ -23,11 +23,23 @@ pub extern "C" fn hello_world_thread_entry() {
 }
 
 pub fn init() {
-    let idle_thread: Box<Thread> = thread::Thread::new_name(
+    let hello_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         hello_world_thread_entry,
         false,
         "user-hello-Thread".to_string(),
     );
-    scheduler::Scheduler::ready(idle_thread);
+    scheduler::Scheduler::ready(hello_thread);
+}
+
+
+pub fn init_return() -> Box<Thread> {
+    let hello_thread: Box<Thread> = thread::Thread::new_name(
+        scheduler::next_thread_id(),
+        hello_world_thread_entry,
+        false,
+        "user-hello-Thread".to_string(),
+    );
+    // Nur kurz zum Testen
+    return hello_thread;
 }

@@ -17,7 +17,10 @@ use crate::kernel::cpu;
 use crate::kernel::interrupts::isr;
 use alloc::{boxed::Box, vec::Vec};
 use core::sync::atomic::{AtomicUsize, Ordering};
-use x86_64::registers::control::Cr2;
+use x86_64::registers::control::{Cr2, Cr3};
+use crate::consts;
+use crate::kernel::paging::pages;
+use crate::kernel::paging::physical_addres::PhysAddr;
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;
@@ -208,5 +211,24 @@ pub extern "C" fn int_gpf(error_code: u64, cs: u16, rip: u64) {
         rip,
         Cr2::read()
     );
+    loop {}
+}
+
+#[no_mangle]
+pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
+    // force unlock, just to be sure
+    // anyway we do not return
+    unsafe {
+        kprint::WRITER.force_unlock();
+    }
+    kprintln!(
+        "PageFault: error_code = {:#b}, cs-Register = {:#b}, rip-Register = {:#x}, CR2 = {:#x}",
+        error_code,
+        cs,
+        rip,
+        Cr2::read()
+    );  
+    let page_table_addres = PhysAddr::new(Cr3::read().0.start_address().as_u64());
+    pages::where_physical_address(page_table_addres, consts::USER_CODE_VM_START);
     loop {}
 }

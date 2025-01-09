@@ -1,5 +1,7 @@
 use core::fmt;
 
+use super::multiboot::MultibootInfo;
+
 // Beschreibt eine App, die separat vom Kernel compiliert wurde
 pub struct AppRegion {
     pub start: u64,
@@ -32,9 +34,18 @@ impl fmt::Debug for ModEntry {
 
 // Sucht ein Boot-Modul -> ist bei uns eine App
 pub fn get_app(mbi_ptr: u64) -> Option<AppRegion> {
-    /*
-     * Hier muss Code eingefuegt werden
-     */
+    // Erstmal Multiboot auslesen
+    let multiboot_info: &MultibootInfo = unsafe { MultibootInfo::read(mbi_ptr) };
 
-    return None;
+    // Infos holen
+    let app_count: u32 = multiboot_info.mods_count;
+    let app_mod_entry: ModEntry =
+        unsafe { *((multiboot_info.mods_addr as *const usize) as *const ModEntry) };
+    let app_start: u64 = app_mod_entry.start as u64;
+    let app_end: u64 = app_mod_entry.end as u64;
+
+    return Some(AppRegion {
+        start: app_start,
+        end: app_end,
+    });
 }

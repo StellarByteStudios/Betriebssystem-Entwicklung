@@ -72,7 +72,7 @@ condition = { files_modified = { input = [
 
 
 [tasks.link]
-command = "objcopy"
+command = "${OBJCOPY}"
 args = [
     "-O",
     "binary",

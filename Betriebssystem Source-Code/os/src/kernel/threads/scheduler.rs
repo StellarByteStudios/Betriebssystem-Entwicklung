@@ -160,9 +160,6 @@ impl Scheduler {
                `tokill_tid` id of the thread to be killed. Calling thread cannot kill itself.
     */
     pub fn kill(tokill_tid: usize) -> bool {
-        //kprintln!("Killing Thread: {}", tokill_tid);
-        //kprintln!("Die Queue zum des Kills {}", SCHEDULER.lock().ready_queue);
-
         // Threadmaske erzeugen um remove gut zu benutzten
         let dummy_thread: Box<thread::Thread> =
             thread::Thread::new(tokill_tid, Self::dummy_thread_function, true);

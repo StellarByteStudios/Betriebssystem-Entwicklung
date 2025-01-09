@@ -6,12 +6,6 @@
    ║ Autor:  Michael Schoettner, 11.06.2024                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use alloc::boxed::Box;
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::fmt;
-use core::mem::transmute;
-
 use crate::boot::appregion::AppRegion;
 use crate::consts;
 use crate::consts::USER_CODE_VM_START;
@@ -19,10 +13,17 @@ use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::paging::frames::pf_alloc;
 use crate::kernel::paging::pages;
+use crate::kernel::paging::pages::PageTable;
 use crate::kernel::paging::physical_addres::PhysAddr;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::stack;
 use crate::mylib::queue::Link;
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::fmt;
+use core::mem::transmute;
+use x86_64::registers::control::Cr3;
 
 // Diese Funktionen sind in 'thread.asm'
 extern "C" {
@@ -57,6 +58,14 @@ pub struct Thread {
 }
 
 impl Thread {
+    // Getter für die PageTable
+    pub fn get_pml4_address(&self) -> PhysAddr {
+        let return_page_address = self.pml4_addr.raw();
+
+        let return_page_phys_add = PhysAddr::new(return_page_address);
+        return return_page_phys_add;
+    }
+
     // Interne Funktion die die Threads wirklich erstellt
     fn internal_new(
         myentry: extern "C" fn(),
@@ -67,19 +76,13 @@ impl Thread {
         // Neue ID erstellen
         let new_tid = scheduler::next_thread_id();
 
-        // Oberste Page-Table anlegen
-        //let new_pml4_addr = pf_alloc(1, true);
         // Oberste Page-Table anlegen (mit Kernel initialisiert)
         let new_pml4_addr = pages::pg_init_user_tables();
-
-        vprintln!("======= Neuen Thread angelegt.");
-        vprintln!("     Die pml4 liegt bei 0x{:x}", new_pml4_addr.0);
 
         let my_kernel_stack =
             stack::Stack::new_mapped_stack(consts::STACK_SIZE, true, new_pml4_addr);
         let my_user_stack =
             stack::Stack::new_mapped_stack(consts::STACK_SIZE, false, new_pml4_addr);
-        // Es hilft nicht, den Userstack einfach nur als Kernelstack anzulegen. Gibt trotzdem ProtFault.
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -139,24 +142,19 @@ impl Thread {
         let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
 
         let app_thread =
-            Self::internal_new(thread_entry, false, String::from("Nameless"), Vec::new());
+            Self::internal_new(thread_entry, false, String::from("App-Thread"), Vec::new());
 
         // App-Image mappen
         pages::pg_mmap_user_app(app_thread.pml4_addr, app);
 
-        app_thread
+        return app_thread;
     }
 
     // Starten des 1. Kernel-Threads (rsp0 zeigt auf den praeparierten Stack)
     // Wird vom Scheduler gerufen, wenn dieser gestartet wird.
     // Alle anderen Threads werden mit 'switch' angestossen
     pub fn start(now: *mut Thread) {
-        kprintln!("======= In Kernal Start wird ausgeführt.");
         unsafe {
-            kprintln!(
-                "     Die pml4 liegt bei 0x{:x}",
-                now.as_ref().unwrap().pml4_addr.0
-            );
             pages::pg_set_cr3(now.as_ref().unwrap().pml4_addr); // Adressraum setzen
             _thread_kernel_start((*now).old_rsp0);
         }
@@ -177,7 +175,7 @@ impl Thread {
                 &mut (*now).old_rsp0,
                 (*then).old_rsp0,
                 (*then).kernel_stack.stack_end() as u64,
-                (*now).pml4_addr.0,
+                (*then).pml4_addr.0,
             );
         }
     }
@@ -284,12 +282,9 @@ impl Thread {
     // Die Interrupt werden durch den 'iretq' aktiviert.
     //
     fn switch_to_usermode(&mut self) {
-        //kprintln!("Switch to usermode wird ausgeführt");
 
         // Interrupt-Stackframe bauen
         self.prepare_user_stack();
-
-        //kprintln!("Ich bin durch prepare_user_stack durchgekommen");
 
         // In den Ring 3 schalten -> Aufruf von '_thread_user_start'
         unsafe {
@@ -331,11 +326,12 @@ impl fmt::Display for Thread {
 pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
     unsafe {
         kprintln!(
-            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}",
+            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}",
             (*object).tid,
             (*object).old_rsp0,
             (*object).is_kernel_thread,
             (*object).pml4_addr.0,
+            (*object).name,
         );
     }
 

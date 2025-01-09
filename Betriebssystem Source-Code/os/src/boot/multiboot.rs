@@ -159,9 +159,6 @@ pub fn get_free_memory(
         panic!("Multiboot did not provide mmap informations!");
     }
 
-    //   kprintln!("   free: {:?}", free);
-    //   kprintln!("   reserved: {:?}", reserved);
-
     // 0 - 1 MB ignorieren wir (hier Sachen vom BIOS sowie ACPI)
     let region_below_1mib = PhysRegion {
         start: 0,
@@ -191,10 +188,10 @@ pub fn get_free_memory(
             break;
         }
         free = check_for_overlapping(free, reserved_region.unwrap());
-        kprintln!("   free: {:?}", free);
+        //kprintln!("   free: {:?}", free);
     }
 
-    kprintln!("   final free: {:?}", free);
+    //kprintln!("   final free: {:?}", free);
 
     free
 }

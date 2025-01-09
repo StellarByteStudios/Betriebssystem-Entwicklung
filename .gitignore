@@ -1,3 +1,10 @@
 # # # Targetordner # # #
 # Es soll nicht jedesmal das ganze Kompilat mit gepusht werden
 Betriebssystem\ Source-Code/target/
+
+# Ordner der IDE
+Betriebssystem Source-Code/.idea/
+
+# Binärdateien
+Betriebssystem Source-Code/loader/isofiles/
+!Betriebssystem Source-Code/loader/isofiles/boot/grub/

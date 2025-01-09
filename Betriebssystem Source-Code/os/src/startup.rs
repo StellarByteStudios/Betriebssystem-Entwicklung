@@ -23,7 +23,9 @@
 use core::{panic::PanicInfo, ptr};
 
 use crate::boot::multiboot::PhysRegion;
-use alloc::{string::ToString, vec};
+use crate::kernel::paging::physical_addres::PhysAddr;
+use crate::mylib::delay::delay;
+use alloc::{boxed::Box, string::ToString, vec};
 use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
 use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
@@ -35,7 +37,7 @@ use kernel::{
         pages,
     },
     syscall,
-    threads::{self, scheduler::Scheduler, sec_idle_thread},
+    threads::{self, scheduler::Scheduler, sec_idle_thread, thread::Thread},
 };
 use mylib::picturepainting::animate;
 use user::{
@@ -47,7 +49,7 @@ use user::{
 };
 
 extern crate alloc;
-extern crate spin; // we need a mutex in devices::cga_print
+//extern crate spin; // we need a mutex in devices::cga_print
 
 // insert other modules
 #[macro_use] // import macros, too
@@ -56,7 +58,7 @@ mod devices;
 mod mylib;
 
 #[macro_use]
-extern crate bitflags;
+//extern crate bitflags;
 
 mod consts;
 mod kernel;
@@ -74,18 +76,18 @@ fn init_all(mbi: u64) {
     kprintln!("OS initializing...");
 
     let kernel_region = get_kernel_image_region();
-    kprintln!("   kernel_region: {:?}", kernel_region);
+    //kprintln!("   kernel_region: {:?}", kernel_region);
 
     // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
     let heap_region = create_temp_heap(kernel_region.end as usize);
-    kprintln!("kmain, heap: {:?}", heap_region);
+    //kprintln!("kmain, heap: {:?}", heap_region);
 
     // Multiboot-Infos für Grafik auslesen, falls vorhanden
     check_graphics_mode(mbi);
 
     // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
     let phys_mem = multiboot::get_free_memory(mbi, kernel_region, heap_region);
-    kprintln!("kmain, free physical memory: {:?}", phys_mem);
+    //kprintln!("kmain, free physical memory: {:?}", phys_mem);
 
     // Multiboot-Infos ausgeben
     //multiboot::dump(mbi);
@@ -241,15 +243,20 @@ fn ph_allocator_testing() {
 
     vprintln!("\n= = = Jetzt sollte wieder der User-Space sein wie vorher = = =");
     dump_user_frames();
+}
 
-    /*
-    // Test für nullpointer exception
-    let nullpointer: *mut u64 = 0xFF0 as *mut u64;
-    kprintln!("Der Pointer: {:?}", nullpointer);
-    // Zugreifen
-    unsafe {
-        let var = *nullpointer;
-    } */
+fn print_frames_with_headline(headline: &str){
+    vprintln!(
+        "\n-------------------------------------------------------\n{}", headline
+    );
+    vprintln!("\n\n= = = Kernal Frames = = =");
+    dump_kernal_frames();
+    vprintln!("\n\n= = = User Frames = = =");
+    dump_user_frames();
+
+    vprintln!(
+        "\n-------------------------------------------------------\n"
+    );
 }
 
 #[no_mangle]
@@ -260,14 +267,7 @@ pub extern "C" fn kmain(mbi: u64) {
     init_all(mbi);
 
     //ph_allocator_testing();
-
-    vprintln!(
-        "\n-------------------------------------------------------\nVor der Thread Initialisierung"
-    );
-    vprintln!("\n\n= = = Kernal Frames = = =");
-    dump_kernal_frames();
-    vprintln!("\n\n= = = User Frames = = =");
-    dump_user_frames();
+    //print_frames_with_headline("Speicher vor der Threadinitialisierung");
 
     // Idle-Thread eintragen
     sec_idle_thread::init();
@@ -281,18 +281,24 @@ pub extern "C" fn kmain(mbi: u64) {
     // separate compilierte App suchen
     let app_region = appregion::get_app(mbi);
     kprintln!("kmain, app: {:?}", app_region);
-
+    
+    let mut app_thread_page_address: PhysAddr = PhysAddr::new(0);
     // Thread fuer eine App erzeugen & im Scheduler registrieren
+    if app_region.is_some() {
+        // Sobalt das einkommentiert wird stützts ab wegen page fault
+        let app_thread = Thread::new_app_thread(app_region.unwrap());
 
-    /*
-     * Hier muss Code eingefuegt werden
-     */
+        app_thread_page_address = app_thread.get_pml4_address();
+        Scheduler::ready(app_thread);
+    }
 
-    vprintln!("\n\n\n-------------------------------------------------------\nNach der Thread Initialisierung");
-    vprintln!("\n\n= = = Kernal Frames = = =");
-    dump_kernal_frames();
-    vprintln!("\n\n= = = User Frames = = =");
-    dump_user_frames();
+    //print_frames_with_headline("Nach der Thread Initialisierung");
+
+    kprintln!(
+        "\n\n-------------------------------------------------------\nTesten des Memory-Crawl"
+    );
+    kprintln!("Crawl Hello World Stack:");
+    pages::where_physical_address(app_thread_page_address, consts::USER_CODE_VM_START);
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();

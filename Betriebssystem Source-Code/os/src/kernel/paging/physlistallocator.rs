@@ -141,16 +141,7 @@ impl PfListAllocator {
 
         // Adresse alignen
         let aligned_address = align_up(addr, PAGE_FRAME_SIZE);
-
-        // Neue beschnittene Größe
-        /*
-        kprintln!(
-            "Size = {},     Alte-Adresse = {},    Aligned_adress = {},    dif = {}",
-            size,
-            addr,
-            aligned_address,
-            (aligned_address as i64) - (addr as i64)
-        ); */
+        
         let cuted_size_unaligned: usize = size - (aligned_address - addr);
         let cuted_size: usize = align_down(cuted_size_unaligned, PAGE_FRAME_SIZE);
 
@@ -201,11 +192,7 @@ impl PfListAllocator {
 
         // Pointer auf 'addr' of Type ListNode
         let node_ptr = aligned_address as *mut ListNode;
-
-        // Neuen Block mit 0en initialisieren (langsam)
-        //let slice = unsafe { core::slice::from_raw_parts_mut(node_ptr as *mut u64, size) };
-        //slice.fill(0);
-
+        
         // copy content of new ListeNode to 'addr'
         node_ptr.write(node);
 

@@ -15,6 +15,7 @@
 
 [EXTERN int_disp]             ; im Rust function
 [EXTERN int_gpf]              ; Funktion in Rust, welche GPF behandelt
+[EXTERN int_pagefault]              ; Funktion in Rust, welche PageFault behandelt
 
 [SECTION .text]
 [BITS 64]
@@ -65,6 +66,12 @@ _wrapper_%1:
 		mov    rdx, [rsp+128] ; rip
 		mov    rsi, [rsp+136] ; cs
 		call    int_gpf
+	; do we have a page fault?
+	%elif %1 == 14
+	    mov    rdi, [rsp+120] ; error code
+        mov    rdx, [rsp+128] ; rip
+        mov    rsi, [rsp+136] ; cs
+        call    int_pagefault
 	%else
 		; pass the vector as parameter 
 		xor rax, rax
