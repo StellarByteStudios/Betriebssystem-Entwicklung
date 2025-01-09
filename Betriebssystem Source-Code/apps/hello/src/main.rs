@@ -8,7 +8,7 @@ use core::panic::PanicInfo;
 pub fn main() {
     //let temp: u64 = 0xc0ffee;
     let temp: u64 = 0x6F6C6C6168;
-    
+
 
     loop {
         user_api::usr_hello_world_print(133713371337);
@@ -18,7 +18,7 @@ pub fn main() {
             let value = 7;
             let conclusion = temp + value + i;
         }
-    
+
     }
 }
 

@@ -273,10 +273,10 @@ pub extern "C" fn kmain(mbi: u64) {
     sec_idle_thread::init();
 
     // HelloWorld-Thread eintragen
-    hello_world_thread::init();
+    //hello_world_thread::init();
 
     // Andere Threads ausprobieren
-    animation_test_thread::init();
+    //animation_test_thread::init();
 
     // separate compilierte App suchen
     let app_region = appregion::get_app(mbi);
@@ -294,11 +294,13 @@ pub extern "C" fn kmain(mbi: u64) {
 
     //print_frames_with_headline("Nach der Thread Initialisierung");
 
+    /*
     kprintln!(
         "\n\n-------------------------------------------------------\nTesten des Memory-Crawl"
     );
     kprintln!("Crawl Hello World Stack:");
     pages::where_physical_address(app_thread_page_address, consts::USER_CODE_VM_START);
+    */
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();

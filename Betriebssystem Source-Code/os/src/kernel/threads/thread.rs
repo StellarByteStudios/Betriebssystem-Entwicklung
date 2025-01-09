@@ -236,8 +236,6 @@ impl Thread {
     }
 
     fn prepare_user_stack(&mut self) {
-        //kprintln!("Ich bin in prepare user stack angekommen");
-        let kickoff_user_addr = kickoff_user_thread as *const ();
         let object: *const Thread = self;
 
         // sp0 zeigt ans Ende des Speicherblocks, passt somit
@@ -247,18 +245,15 @@ impl Thread {
         unsafe {
             *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
 
-            //*sp0.offset(-1) = kickoff_kernel_addr as u64; // Adresse von 'kickoff_kernel_thread'
-
             // Nun sichern wir noch alle Register auf dem Stack
             *sp0.offset(-1) = 0b0000_0000_0010_1011; // SS Register (Segment Selector)
                                                      //15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-            *sp0.offset(-2) = sp3 as u64; // ESP                            ===== Ka ob das so richtig ist
-            *sp0.offset(-3) = 512 + 2; // EFLAGS                                  ===== Ka wo ich die hernehmen soll
-            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS                  ===== Selbe wie SS nur mit Code?
+            *sp0.offset(-2) = sp3 as u64; // ESP                        ===== Ka ob das so richtig ist
+            *sp0.offset(-3) = 512 + 2; // EFLAGS                        ===== Ka wo ich die hernehmen soll
+            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS              ===== Selbe wie SS nur mit Code?
                                                      //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-            *sp0.offset(-5) = kickoff_user_addr as u64; // EIP              ===== Adresse für funktion?
-                                                        //*sp0.offset(-6) = 0; // ERROR Code                              ===== KA deswegen mal alles auf 0
-                                                        //15-3 Bit Index in GDT? | 1Bit TI | 1Bit IDT | 1Bit EXT
+                                                     //*sp0.offset(-5) = kickoff_user_addr as u64; // EIP              ===== Adresse für funktion?
+            *sp0.offset(-5) = consts::USER_CODE_VM_START as u64;
 
             // = = = Wo muss ich object as u64 als parameter für kickoff_kernel_ad
             *sp0.offset(-6) = object as u64; // rdi -> 1. Param. fuer 'kickoff_kernel_thread' ?
@@ -282,7 +277,6 @@ impl Thread {
     // Die Interrupt werden durch den 'iretq' aktiviert.
     //
     fn switch_to_usermode(&mut self) {
-
         // Interrupt-Stackframe bauen
         self.prepare_user_stack();
 
@@ -351,22 +345,6 @@ pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
             cpu::enable_int();
             ((*object).entry)();
         }
-    }
-    loop {}
-}
-
-//
-// Dies ist die  Rust-Funktion, die aufgerufen wird, wenn ein
-// Kernel-Thread (Ring 0) in den Ring 3 versetzt wird
-//
-#[no_mangle]
-pub extern "C" fn kickoff_user_thread(object: *mut Thread) {
-    // Einstiegsfunktion des Threads aufrufen
-
-    // Setzen von rsp0 im TSS
-    unsafe {
-        //_tss_set_rsp0((*object).kernel_stack.stack_end() as u64);
-        ((*object).entry)();
     }
     loop {}
 }

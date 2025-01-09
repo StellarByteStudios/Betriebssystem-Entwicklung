@@ -229,6 +229,6 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
         Cr2::read()
     );  
     let page_table_addres = PhysAddr::new(Cr3::read().0.start_address().as_u64());
-    pages::where_physical_address(page_table_addres, consts::USER_CODE_VM_START);
+    pages::where_physical_address(page_table_addres, Cr2::read().as_u64() as usize);
     loop {}
 }

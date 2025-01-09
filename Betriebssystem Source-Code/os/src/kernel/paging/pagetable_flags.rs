@@ -16,14 +16,11 @@ bitflags::bitflags! {
 
 impl PTEflags {
     pub fn flags_for_kernel_pages() -> Self {
-        // Kernel_flags später ohne Userbit gesetzt
-        //let kernel_flags = PTEflags {
-        //    bits: 0b0000_0001_1000_0011,
-        //};
         let kernel_flags = PTEflags {
-            bits: 0b0000_0000_0000_0111,
+            bits: 0b0000_0000_0000_0011,
         };
         return kernel_flags;
+        //return Self::flags_for_user_pages();
     }
 
     pub fn flags_for_user_pages() -> Self {
