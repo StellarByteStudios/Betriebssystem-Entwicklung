@@ -8,3 +8,6 @@ Betriebssystem Source-Code/.idea/
 # Binärdateien
 Betriebssystem Source-Code/loader/isofiles/
 !Betriebssystem Source-Code/loader/isofiles/boot/grub/
+
+# Mac-Dateien
+*.DS_Store
