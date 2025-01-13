@@ -1,6 +1,6 @@
 #![no_std]
-mod kernel;
-use crate::kernel::syscall::user_api;
+use usrlib;
+use usrlib::kernel::syscall::user_api;
 use core::panic::PanicInfo;
 
 #[link_section = ".main"]

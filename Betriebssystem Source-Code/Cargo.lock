@@ -5,6 +5,9 @@ version = 4
 [[package]]
 name = "ByteOS_hello"
 version = "0.1.1"
+dependencies = [
+ "usrlib",
+]
 
 [[package]]
 name = "ByteOS_kernel"
@@ -12,7 +15,10 @@ version = "0.1.1"
 dependencies = [
  "bitflags 1.3.2",
  "lazy_static",
+ "log",
  "spin 0.9.8",
+ "tar-no-std",
+ "usrlib",
  "x86",
  "x86_64",
 ]
@@ -61,6 +67,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "log"
+version = "0.4.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
+
+[[package]]
+name = "memchr"
+version = "2.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "raw-cpuid"
 version = "10.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -95,6 +122,21 @@ checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 dependencies = [
  "lock_api",
 ]
+
+[[package]]
+name = "tar-no-std"
+version = "0.2.0"
+source = "git+https://github.com/schnoberts1/tar-no-std?branch=add-support-for-non-null-terminated-strings-and-256-length-filenames#5502c42df809079044d78a4808c91a1db1ccd130"
+dependencies = [
+ "bitflags 2.6.0",
+ "log",
+ "memchr",
+ "num-traits",
+]
+
+[[package]]
+name = "usrlib"
+version = "0.1.0"
 
 [[package]]
 name = "volatile"
