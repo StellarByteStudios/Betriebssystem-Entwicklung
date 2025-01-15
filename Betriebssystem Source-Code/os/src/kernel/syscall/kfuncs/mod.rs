@@ -5,3 +5,5 @@ pub mod sys_hello_world;
 pub mod sys_hello_world_print;
 pub mod sys_read;
 pub mod sys_write;
+pub mod sys_get_systime;
+pub mod sys_graphical_print;

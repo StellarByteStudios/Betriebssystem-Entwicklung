@@ -10,7 +10,7 @@
 */
 #![allow(dead_code)]
 
-use crate::devices::fonts::font_8x8;
+use crate::devices::graphical::fonts::font_8x8;
 
 // Global VGA struct
 static mut VGA: Option<VGA> = None;

@@ -15,7 +15,6 @@
 
 pub mod kfuncs;
 pub mod syscall_dispatcher;
-pub mod user_api;
 
 // Buffer für die Syscalls
 pub mod kernal_test_buffer;

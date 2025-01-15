@@ -16,10 +16,6 @@
 
 use core::arch::asm;
 
-// Anzahl an Systemaufrufen
-// Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 6;
-
 // Funktionsnummern aller Systemaufrufe
 pub const SYSNO_HELLO_WORLD: usize = 0;
 pub const SYSNO_HELLO_WORLD_PRINT: usize = 1;
@@ -27,6 +23,9 @@ pub const SYSNO_GET_LAST_KEY: usize = 2;
 pub const SYSNO_GET_THREAD_ID: usize = 3;
 pub const SYSNO_WRITE: usize = 4;
 pub const SYSNO_READ: usize = 5;
+pub const SYSNO_GET_SYSTIME: usize = 6;
+
+pub const SYSNO_GRAPHICAL_PRINT: usize = 7;
 /*
  * Hier muss Code eingefuegt werden
  */
@@ -53,6 +52,14 @@ pub fn usr_write(buff: *const u8, len: u64) -> u64 {
 
 pub fn usr_read(buff: *mut u8, len: u64) -> u64 {
     return syscall2(SYSNO_READ as u64, buff as u64, len);
+}
+
+pub fn usr_get_systime() -> u64 {
+    return syscall0(SYSNO_GET_SYSTIME as u64);
+}
+
+pub fn usr_graphical_print(buff: *const u8, len: u64){
+    syscall2(SYSNO_GRAPHICAL_PRINT as u64, buff as u64, len);
 }
 
 /*

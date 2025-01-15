@@ -1,9 +1,9 @@
 use crate::devices::serial;
 use crate::kernel::cpu;
-use crate::user::applications;
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
+use crate::devices::graphical::graphic_console_printer;
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'
@@ -17,7 +17,7 @@ pub struct Writer {}
 // Requires only one function 'write_str'
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        applications::graphic_console::graphic_console_printer::print_string(s);
+        graphic_console_printer::print_string(s);
         return Ok(());
     }
 }
@@ -27,7 +27,7 @@ impl fmt::Write for Writer {
 // from outside the 'std' crate.
 macro_rules! vprint {
     ($($arg:tt)*) => ({
-        $crate::mylib::vprint::vprint(format_args!($($arg)*));
+        $crate::devices::graphical::vprint::vprint(format_args!($($arg)*));
     });
 }
 

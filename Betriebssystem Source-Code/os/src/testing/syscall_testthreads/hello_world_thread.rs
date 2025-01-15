@@ -1,11 +1,10 @@
 use alloc::boxed::Box;
 use alloc::string::ToString;
-
+use usrlib::kernel::syscall::user_api::{usr_hello_world, usr_hello_world_print};
 use crate::kernel::cpu;
-use crate::kernel::syscall::user_api::{usr_hello_world, usr_hello_world_print};
 use crate::kernel::threads::thread::Thread;
 use crate::kernel::threads::{scheduler, thread};
-use crate::mylib::delay;
+use crate::utility::delay;
 
 pub extern "C" fn hello_world_thread_entry() {
     let mut i: u64 = 1;

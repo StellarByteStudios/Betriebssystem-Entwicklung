@@ -14,8 +14,8 @@ use spin::Mutex;
 
 use crate::devices::cga;
 use crate::kernel::cpu;
+use crate::kernel::threads::queue::Queue;
 use crate::kernel::threads::thread;
-use crate::mylib::queue;
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
@@ -56,7 +56,7 @@ pub fn set_initialized() {
 
 pub struct Scheduler {
     active: *mut thread::Thread,
-    ready_queue: queue::Queue<Box<thread::Thread>>, // auf die CPU wartende Threads
+    ready_queue: Queue<Box<thread::Thread>>, // auf die CPU wartende Threads
     next_thread_id: u64,
     initialized: bool,
 }
@@ -70,7 +70,7 @@ impl Scheduler {
         Scheduler {
             active: ptr::null_mut(),
             next_thread_id: 0,
-            ready_queue: queue::Queue::new(),
+            ready_queue: Queue::new(),
             initialized: false,
         }
     }

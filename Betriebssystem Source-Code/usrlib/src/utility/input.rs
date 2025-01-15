@@ -1,5 +1,7 @@
-use crate::devices::keyboard;
+//use crate::devices::keyboard;
 
+//  = = = = = Muss über Syscalls passieren
+/*
 const KEY_LF: u8 = 10;
 const KEY_CR: u8 = 13;
 
@@ -22,7 +24,7 @@ pub fn wait_for_return() {
         }
     }
 }
-
+*/
 /* Alte Variante. Funktioniert nicht mit neuen Threads
 
 use crate::{devices::keyboard, user::applications::keyboard_handler};

@@ -1,4 +1,4 @@
-use crate::{kernel::threads::scheduler, mylib};
+use crate::{kernel::threads::scheduler};
 
 #[no_mangle]
 pub extern "C" fn sys_gettid() -> u64 {

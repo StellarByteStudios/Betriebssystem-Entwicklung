@@ -1,19 +1,9 @@
-use crate::{
-    devices::vga,
-    mylib::{
-        delay::delay,
-        picturepainting::pictures::{
-            charmander::{charmander0, charmander1, charmander2, charmander3, charmander4},
-            ghost::{
-                ghost00, ghost01, ghost02, ghost03, ghost04, ghost05, ghost06, ghost07, ghost08,
-                ghost09,
-            },
-        },
-    },
-};
-
 use super::pictures::blinking::{blinking0, blinking1, blinking2, blinking3, blinking4};
 use alloc::vec::Vec;
+use crate::graphix::picturepainting::paint::draw_picture;
+use crate::graphix::picturepainting::pictures::charmander::{charmander0, charmander1, charmander2, charmander3, charmander4};
+use crate::graphix::picturepainting::pictures::ghost::{ghost00, ghost01, ghost02, ghost03, ghost04, ghost05, ghost06, ghost07, ghost08, ghost09};
+use crate::utility::delay::delay;
 
 pub struct Frame {
     pub(crate) width: u32,
@@ -58,10 +48,10 @@ pub fn animate_blink(x: u32, y: u32) {
     ];
 
     // Frames nacheinander zeichnen
-    vprintln!("animating Blinking");
+    gprintln!("animating Blinking");
     loop {
         for i in 0..frames.len() {
-            vga::draw_bitmap(
+            draw_picture(
                 x,
                 y,
                 frames[i].width,
@@ -111,10 +101,10 @@ pub fn animate_charmander(x: u32, y: u32) {
     ];
 
     // Frames nacheinander zeichnen
-    vprintln!("animating Charmander");
+    gprintln!("animating Charmander");
     loop {
         for i in 0..frames.len() {
-            vga::draw_bitmap(
+            draw_picture(
                 x,
                 y,
                 frames[i].width,
@@ -194,10 +184,10 @@ pub fn animate_ghost(x: u32, y: u32) {
     ];
 
     // Frames nacheinander zeichnen
-    vprintln!("animating Gillbert the Ghost");
+    gprintln!("animating Gillbert the Ghost");
     loop {
         for i in 0..frames.len() {
-            vga::draw_bitmap(
+            draw_picture(
                 x,
                 y,
                 frames[i].width,

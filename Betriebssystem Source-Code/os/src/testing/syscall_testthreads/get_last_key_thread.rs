@@ -1,7 +1,6 @@
 use alloc::boxed::Box;
 use alloc::string::ToString;
-
-use crate::kernel::syscall::user_api::usr_getlastkey;
+use usrlib::kernel::syscall::user_api::usr_getlastkey;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::thread::Thread;
 

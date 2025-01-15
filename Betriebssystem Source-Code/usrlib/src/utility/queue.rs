@@ -1,6 +1,5 @@
 use alloc::rc::Rc;
 use core::cell::RefCell;
-use core::fmt;
 use core::fmt::Display;
 
 // Definition eines generischen Listenelements

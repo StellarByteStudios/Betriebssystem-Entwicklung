@@ -17,7 +17,6 @@ use crate::kernel::paging::pages::PageTable;
 use crate::kernel::paging::physical_addres::PhysAddr;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::stack;
-use crate::mylib::queue::Link;
 use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;

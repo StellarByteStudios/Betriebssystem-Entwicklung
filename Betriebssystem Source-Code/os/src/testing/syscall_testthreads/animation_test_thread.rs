@@ -1,14 +1,11 @@
 use alloc::boxed::Box;
 use alloc::string::ToString;
-
+//use usrlib::graphix::picturepainting::animate;
 use crate::kernel::cpu;
-use crate::kernel::syscall::user_api::{usr_hello_world, usr_hello_world_print};
 use crate::kernel::threads::scheduler::Scheduler;
 use crate::kernel::threads::thread::Thread;
 use crate::kernel::threads::{scheduler, thread};
-use crate::mylib::delay;
-use crate::mylib::picturepainting::animate;
-use crate::user::applications::graphic_console::graphic_console_printer;
+use crate::devices::graphical::graphic_console_printer;
 
 pub extern "C" fn animation_test_thread_entry() {
     // Irgendwann noch variabel?
@@ -21,12 +18,13 @@ pub extern "C" fn animation_test_thread_entry() {
     graphic_console_printer::print_string("\n");
 
     // Raussuchen welche Animation gemeint wird
+    /* !!!!!! Funktioniert grade noch nicht in externer library
     match animation {
         "blink" | "blinking" => animate::animate_blink(500, 20),
         "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate::animate_charmander(500, 20),
         "ghost" | "gilbert" | "Gilbert" => animate::animate_ghost(500, 20),
         _ => vprintln!("Animation not avaiable... :("), // nicht registriert
-    }
+    }*/
 
     Scheduler::exit();
 }

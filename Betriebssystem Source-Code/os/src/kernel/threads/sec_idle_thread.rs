@@ -2,9 +2,10 @@ use crate::kernel::cpu;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::thread;
 use crate::kernel::threads::thread::Thread;
-use crate::mylib::delay;
+
 use alloc::boxed::Box;
 use alloc::string::ToString;
+use usrlib::utility::delay;
 
 pub extern "C" fn idle_thread_entry() {
     scheduler::set_initialized();

@@ -1,7 +1,6 @@
 #![allow(dead_code)] // avoid warnings
 
-use crate::devices::{cga, vga};
-
+use crate::devices::cga;
 // Speicher pro Stack = 64 KB
 pub const STACK_SIZE: usize = 0x1_0000;
 pub const STACK_ALIGNMENT: usize = 8;

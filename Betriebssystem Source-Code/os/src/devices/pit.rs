@@ -25,7 +25,7 @@ use crate::kernel::threads::scheduler::Scheduler;
 use crate::kernel::threads::scheduler::SCHEDULER;
 use crate::kernel::threads::thread;
 use crate::kernel::threads::thread::Thread;
-use crate::user::applications::graphic_console::graphic_console_printer;
+use crate::devices::graphical::graphic_console_printer;
 
 use super::cga_print;
 

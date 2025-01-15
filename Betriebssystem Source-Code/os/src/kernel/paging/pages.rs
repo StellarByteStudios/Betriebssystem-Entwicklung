@@ -9,7 +9,7 @@
  *****************************************************************************/
 
 use core::sync::atomic::AtomicUsize;
-
+use usrlib::utility::mathadditions::math::pow_usize;
 use crate::boot::appregion::AppRegion;
 use crate::boot::multiboot;
 use crate::boot::multiboot::MultibootFramebuffer;
@@ -23,7 +23,6 @@ use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::pagetable_flags::PTEflags;
-use crate::mylib::mathadditions::math::pow_usize;
 
 use super::frames::pf_alloc;
 use super::pagetable_entry::PageTableEntry;

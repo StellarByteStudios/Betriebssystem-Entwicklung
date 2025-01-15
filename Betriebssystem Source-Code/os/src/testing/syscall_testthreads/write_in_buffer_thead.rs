@@ -1,10 +1,7 @@
 use alloc::boxed::Box;
 use alloc::string::ToString;
-
+use usrlib::kernel::syscall::user_api::{usr_read, usr_write};
 use crate::kernel::syscall::kernal_test_buffer::BUFFER;
-use crate::kernel::syscall::user_api::{
-    usr_getlastkey, usr_hello_world_print, usr_read, usr_write,
-};
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::thread::Thread;
 

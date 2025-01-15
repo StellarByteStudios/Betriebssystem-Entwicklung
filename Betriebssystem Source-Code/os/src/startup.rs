@@ -24,11 +24,12 @@ use core::{panic::PanicInfo, ptr};
 
 use crate::boot::multiboot::PhysRegion;
 use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::mylib::delay::delay;
 use alloc::{boxed::Box, string::ToString, vec};
 use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
-use devices::{cga, fonts::font_8x8, keyboard::Keyboard, pit, vga};
+use devices::{cga, keyboard::Keyboard, pit};
+use devices::graphical::fonts::font_8x8;
+use devices::graphical::{graphic_console_printer, vga};
 use kernel::{
     allocator::{self},
     cpu, interrupts,
@@ -39,32 +40,21 @@ use kernel::{
     syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread, thread::Thread},
 };
-use mylib::picturepainting::animate;
-use user::{
-    applications::{self, graphic_console::graphic_console_printer, keyboard_handler},
-    syscall_testthreads::{
-        animation_test_thread, get_last_key_thread, get_thread_id, hello_world_thread,
-        write_in_buffer_thead,
-    },
-};
 
 extern crate alloc;
-//extern crate spin; // we need a mutex in devices::cga_print
+
 
 // insert other modules
 #[macro_use] // import macros, too
 mod devices;
-#[macro_use] // import macros, too
-mod mylib;
-
-#[macro_use]
-//extern crate bitflags;
 
 mod consts;
 mod kernel;
 
 mod boot;
-mod user;
+//mod user;
+mod testing;
+mod utility;
 
 // Konstanten im Linker-Skript
 extern "C" {
