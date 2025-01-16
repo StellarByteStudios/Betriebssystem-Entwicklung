@@ -8,3 +8,4 @@ pub mod sys_write;
 pub mod sys_get_systime;
 pub mod sys_graphical_print;
 pub mod sys_graphical_print_pos;
+pub mod sys_get_screen_width;

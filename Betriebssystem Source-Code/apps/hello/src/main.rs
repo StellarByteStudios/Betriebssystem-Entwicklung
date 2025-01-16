@@ -22,13 +22,13 @@ pub fn main() {
 
     let mut i: u64 = 0;
     loop {
-        user_api::usr_hello_world_print(133713371337);
+        //user_api::usr_hello_world_print(133713371337);
 
         //gprint!("Hello, world! Nr: {} bla\n", i);
    
 
         // Wenn ich da i rein schreibe läufts nicht
-        print_setpos!(30, 30, "Printen mit fester Position mit var: {}", i);
+        print_setpos!(100, 30, "Printen mit fester Position mit var: {}", i);
 
 
         print_setpos!(30, 50, "Printen mit fester Position mit var: {}", i*2);

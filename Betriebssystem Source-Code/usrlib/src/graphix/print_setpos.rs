@@ -1,7 +1,7 @@
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
-use crate::kernel::syscall::user_api::{usr_graphical_print_pos};
+use crate::kernel::syscall::user_api::{usr_get_screen_width, usr_graphical_print_pos, usr_hello_world_print};
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'
@@ -28,7 +28,7 @@ impl Writer {
     pub fn update_pos(&mut self, len: u64) {
         
         // Linewrap
-        let max_witdh: u64 = 1280 / 10;
+        let max_witdh: u64 = usr_get_screen_width()/10;
         
         if self.cursor_x + len > max_witdh {
             self.cursor_y = self.cursor_y + 1;

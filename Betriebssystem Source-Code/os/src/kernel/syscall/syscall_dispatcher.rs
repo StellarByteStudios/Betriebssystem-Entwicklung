@@ -22,10 +22,11 @@ use crate::kernel::syscall::kfuncs::sys_hello_world::sys_hello_world;
 use crate::kernel::syscall::kfuncs::sys_hello_world_print::sys_hello_world_print;
 use crate::kernel::syscall::kfuncs::sys_read::sys_read;
 use crate::kernel::syscall::kfuncs::sys_write::sys_write;
+use crate::kernel::syscall::kfuncs::sys_get_screen_width::sys_get_screen_witdh;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 9;
+pub const NO_SYSCALLS: usize = 10;
 
 extern "C" {
     fn _init_syscalls();
@@ -60,6 +61,7 @@ impl SyscallFuncTable {
                 sys_get_systime as *const _,
                 sys_graphical_print as *const _,
                 sys_graphical_print_pos as *const _,
+                sys_get_screen_witdh as *const _,
             ],
         }
     }

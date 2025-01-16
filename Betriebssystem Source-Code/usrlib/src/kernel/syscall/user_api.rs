@@ -28,6 +28,8 @@ pub const SYSNO_GET_SYSTIME: usize = 6;
 pub const SYSNO_GRAPHICAL_PRINT: usize = 7;
 
 pub const SYSNO_GRAPHICAL_PRINT_WITH_POS: usize = 8;
+
+pub const SYSNO_GET_SCREEN_WIDTH: usize = 9;
 /*
  * Hier muss Code eingefuegt werden
  */
@@ -66,6 +68,10 @@ pub fn usr_graphical_print(buff: *const u8, len: u64){
 
 pub fn usr_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64){
     syscall4(SYSNO_GRAPHICAL_PRINT_WITH_POS as u64, x, y, buff as u64, len);
+}
+
+pub fn usr_get_screen_width() -> u64 {
+    return syscall0(SYSNO_GET_SCREEN_WIDTH as u64);
 }
 
 /*
