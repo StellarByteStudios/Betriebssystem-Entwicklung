@@ -13,16 +13,18 @@
 use core::arch::{asm, naked_asm};
 
 use crate::kernel::syscall;
-use crate::kernel::syscall::kfuncs::sys_get_systime::sys_get_systime;
-use crate::kernel::syscall::kfuncs::sys_getlastkey::sys_getlastkey;
-use crate::kernel::syscall::kfuncs::sys_gettid::sys_gettid;
-use crate::kernel::syscall::kfuncs::sys_graphical_print::sys_graphical_print;
-use crate::kernel::syscall::kfuncs::sys_graphical_print_pos::sys_graphical_print_pos;
-use crate::kernel::syscall::kfuncs::sys_hello_world::sys_hello_world;
-use crate::kernel::syscall::kfuncs::sys_hello_world_print::sys_hello_world_print;
-use crate::kernel::syscall::kfuncs::sys_read::sys_read;
-use crate::kernel::syscall::kfuncs::sys_write::sys_write;
-use crate::kernel::syscall::kfuncs::sys_get_screen_width::sys_get_screen_witdh;
+use crate::kernel::syscall::kfuncs::{
+    sys_get_systime::sys_get_systime,
+    sys_getlastkey::sys_getlastkey,
+    sys_gettid::sys_gettid,
+    sys_graphical_print::sys_graphical_print,
+    sys_graphical_print_pos::sys_graphical_print_pos,
+    sys_hello_world::sys_hello_world,
+    sys_hello_world_print::sys_hello_world_print,
+    sys_read::sys_read,
+    sys_write::sys_write,
+    sys_get_screen_width::sys_get_screen_witdh,
+};
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
