@@ -26,6 +26,8 @@ pub const SYSNO_READ: usize = 5;
 pub const SYSNO_GET_SYSTIME: usize = 6;
 
 pub const SYSNO_GRAPHICAL_PRINT: usize = 7;
+
+pub const SYSNO_GRAPHICAL_PRINT_WITH_POS: usize = 8;
 /*
  * Hier muss Code eingefuegt werden
  */
@@ -60,6 +62,10 @@ pub fn usr_get_systime() -> u64 {
 
 pub fn usr_graphical_print(buff: *const u8, len: u64){
     syscall2(SYSNO_GRAPHICAL_PRINT as u64, buff as u64, len);
+}
+
+pub fn usr_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64){
+    syscall4(SYSNO_GRAPHICAL_PRINT_WITH_POS as u64, x, y, buff as u64, len);
 }
 
 /*
@@ -120,6 +126,42 @@ pub fn syscall2(arg0: u64, arg1: u64, arg2: u64) -> u64 {
             in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
             lateout("rax") ret,   // Store return value from syscall in ret
             options(preserves_flags, nostack)
+        );
+    }
+    ret
+}
+#[inline(always)]
+#[allow(unused_mut)]
+pub fn syscall3(arg0: u64, arg1: u64, arg2: u64, arg3: u64) -> u64 {
+    let mut ret: u64;
+    unsafe {
+        asm!(
+        "int 0x80",           // Software interrupt for syscalls on x86_64 Linux
+        in("rax") arg0,       // Load arg0 into rax (typically the syscall number)
+        in("rdi") arg1,       // Load arg1 into rdi (first syscall parameter)
+        in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
+        in("rdx") arg3,       // Load arg3 into rdc (third syscall parameter)
+        lateout("rax") ret,   // Store return value from syscall in ret
+        options(preserves_flags, nostack)
+        );
+    }
+    ret
+}
+
+#[inline(always)]
+#[allow(unused_mut)]
+pub fn syscall4(arg0: u64, arg1: u64, arg2: u64, arg3: u64, arg4: u64) -> u64 {
+    let mut ret: u64;
+    unsafe {
+        asm!(
+        "int 0x80",           // Software interrupt for syscalls on x86_64 Linux
+        in("rax") arg0,       // Load arg0 into rax (typically the syscall number)
+        in("rdi") arg1,       // Load arg1 into rdi (first syscall parameter)
+        in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
+        in("rdx") arg3,       // Load arg3 into rdc (third syscall parameter)
+        in("rcx") arg4,       // Load arg4 into rdc (forth syscall parameter)
+        lateout("rax") ret,   // Store return value from syscall in ret
+        options(preserves_flags, nostack)
         );
     }
     ret

@@ -17,6 +17,7 @@ use crate::kernel::syscall::kfuncs::sys_get_systime::sys_get_systime;
 use crate::kernel::syscall::kfuncs::sys_getlastkey::sys_getlastkey;
 use crate::kernel::syscall::kfuncs::sys_gettid::sys_gettid;
 use crate::kernel::syscall::kfuncs::sys_graphical_print::sys_graphical_print;
+use crate::kernel::syscall::kfuncs::sys_graphical_print_pos::sys_graphical_print_pos;
 use crate::kernel::syscall::kfuncs::sys_hello_world::sys_hello_world;
 use crate::kernel::syscall::kfuncs::sys_hello_world_print::sys_hello_world_print;
 use crate::kernel::syscall::kfuncs::sys_read::sys_read;
@@ -24,7 +25,7 @@ use crate::kernel::syscall::kfuncs::sys_write::sys_write;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 8;
+pub const NO_SYSCALLS: usize = 9;
 
 extern "C" {
     fn _init_syscalls();
@@ -58,6 +59,7 @@ impl SyscallFuncTable {
                 sys_read as *const _,
                 sys_get_systime as *const _,
                 sys_graphical_print as *const _,
+                sys_graphical_print_pos as *const _,
             ],
         }
     }

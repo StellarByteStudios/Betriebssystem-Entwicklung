@@ -2,7 +2,6 @@
 #![allow(dead_code)] // avoid warnings
 #![allow(unused_variables)] // avoid warnings
 
-//extern crate alloc;
 
 pub mod kernel;
 //pub mod applications;
@@ -12,7 +11,7 @@ pub mod utility;
 pub mod graphix;
 
 fn main() {
-    gprintln!("Hello, world!");
+    //gprintln!("Hello, world!");
 }
 
 

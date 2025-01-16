@@ -120,6 +120,23 @@ pub fn print_string(string: &str) {
     }
 }
 
+pub fn print_string_on_position(x: u64, y: u64, string: &str) {
+    // Aktuelle Position sichern
+    let old_pos = get_pos();
+
+    // Neue Position überschreiben
+    set_pos(x as u32, y as u32);
+
+    // String ausgeben
+    for c in string.chars() {
+        //kprintln!("===");
+        print_char(c);
+    }
+
+    // Alte Position wieder herstellen
+    set_pos(old_pos.0, old_pos.1);
+}
+
 // Bildschirm Clearen
 pub fn clear_screen() {
     // Kompletten Bildschirm mit Hintergrundfarbe füllen

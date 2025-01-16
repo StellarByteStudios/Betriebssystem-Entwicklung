@@ -1,7 +1,7 @@
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
-use crate::kernel::syscall::user_api::{usr_graphical_print, usr_hello_world_print};
+use crate::kernel::syscall::user_api::{usr_graphical_print};
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'
@@ -32,8 +32,12 @@ macro_rules! gprint {
 
 #[macro_export]
 macro_rules! gprintln {
-    ($fmt:expr) => (gprint!(concat!($fmt, "\n")));
-    ($fmt:expr, $($arg:tt)*) => (gprint!(concat!($fmt, "\n"), $($arg)*));
+    ($fmt:expr) => {
+        $crate::graphix::gprint::gprint(format_args!(concat!($fmt, "\n")));
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        $crate::graphix::gprint::gprint(format_args!(concat!($fmt, "\n"), $($arg)*));
+    };
 }
 
 // Helper function of print macros (must be public)
