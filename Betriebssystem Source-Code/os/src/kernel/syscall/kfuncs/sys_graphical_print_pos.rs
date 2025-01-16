@@ -1,5 +1,6 @@
 use core::{ptr, slice, str};
 use crate::devices::graphical::graphic_console_printer::{print_string, print_string_on_position};
+use crate::kernel::cpu;
 
 #[no_mangle]
 pub extern "C" fn sys_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64) -> i64 {
@@ -15,7 +16,9 @@ pub extern "C" fn sys_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: 
         // Slice zu &str convertieren
         let string = str::from_utf8(byte_slice).unwrap();
 
+        let e = cpu::disable_int_nested();
         print_string_on_position(x, y, string);
+        cpu::enable_int_nested(e);
     }
 
     return 0;

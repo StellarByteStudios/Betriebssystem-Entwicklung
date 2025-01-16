@@ -19,11 +19,11 @@ pub struct Writer {
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         usr_graphical_print_pos(self.cursor_x, self.cursor_y, s.as_ptr(), s.len() as u64);
-        //self.update_pos(s.len() as u64);
+        self.update_pos(s.len() as u64);
         return Ok(());
     }
 }
-/*
+
 impl Writer {
     pub fn update_pos(&mut self, len: u64) {
         
@@ -35,7 +35,7 @@ impl Writer {
         }
         self.cursor_x = (self.cursor_x + len) % max_witdh;
     }
-}*/ 
+}
 
 // Provide macros like in the 'io' module of Rust
 // The $crate variable ensures that the macro also works
