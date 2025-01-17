@@ -18,8 +18,8 @@ RUST_TARGET_PATH = "${CARGO_MAKE_WORKING_DIRECTORY}"
 SOURCE_DIRECTORY = "${CARGO_MAKE_WORKING_DIRECTORY}/src"
 LINKER_FILE = "${CARGO_MAKE_WORKING_DIRECTORY}/linker.x86_64-elf-ld"
 RUST_OBJECT = "${BUILD_DIRECTORY}/lib${CARGO_MAKE_PROJECT_NAME}.a"
-APP_ELF = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/hello.elf"
-APP_BIN = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/hello.bin"
+APP_ELF = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/extra.elf"
+APP_BIN = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/extra.bin"
 
 
 ######################################
