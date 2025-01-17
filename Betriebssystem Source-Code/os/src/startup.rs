@@ -23,13 +23,14 @@
 use core::{panic::PanicInfo, ptr};
 
 use crate::boot::multiboot::PhysRegion;
+use crate::kernel::logger;
 use crate::kernel::paging::physical_addres::PhysAddr;
 use alloc::{boxed::Box, string::ToString, vec};
 use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
-use devices::{cga, keyboard::Keyboard, pit};
 use devices::graphical::fonts::font_8x8;
 use devices::graphical::{graphic_console_printer, vga};
+use devices::{cga, keyboard::Keyboard, pit};
 use kernel::{
     allocator::{self},
     cpu, interrupts,
@@ -40,9 +41,9 @@ use kernel::{
     syscall,
     threads::{self, scheduler::Scheduler, sec_idle_thread, thread::Thread},
 };
+use log::info;
 
 extern crate alloc;
-
 
 // insert other modules
 #[macro_use] // import macros, too
@@ -81,6 +82,10 @@ fn init_all(mbi: u64) {
 
     // Multiboot-Infos ausgeben
     //multiboot::dump(mbi);
+
+    // initialize the logger
+    logger::init();
+    info!("Logger active");
 
     // Page-Frame-Management einrichten
     frames::pf_init(phys_mem);
@@ -235,18 +240,17 @@ fn ph_allocator_testing() {
     dump_user_frames();
 }
 
-fn print_frames_with_headline(headline: &str){
+fn print_frames_with_headline(headline: &str) {
     vprintln!(
-        "\n-------------------------------------------------------\n{}", headline
+        "\n-------------------------------------------------------\n{}",
+        headline
     );
     vprintln!("\n\n= = = Kernal Frames = = =");
     dump_kernal_frames();
     vprintln!("\n\n= = = User Frames = = =");
     dump_user_frames();
 
-    vprintln!(
-        "\n-------------------------------------------------------\n"
-    );
+    vprintln!("\n-------------------------------------------------------\n");
 }
 
 #[no_mangle]
@@ -256,22 +260,11 @@ pub extern "C" fn kmain(mbi: u64) {
     // Alles Wichtige Initialisieren
     init_all(mbi);
 
-    //ph_allocator_testing();
-    //print_frames_with_headline("Speicher vor der Threadinitialisierung");
-
-    // Idle-Thread eintragen
-    sec_idle_thread::init();
-
-    // HelloWorld-Thread eintragen
-    //hello_world_thread::init();
-
-    // Andere Threads ausprobieren
-    //animation_test_thread::init();
-
+    /*
     // separate compilierte App suchen
     let app_region = appregion::get_app(mbi);
     kprintln!("kmain, app: {:?}", app_region);
-    
+
     let mut app_thread_page_address: PhysAddr = PhysAddr::new(0);
     // Thread fuer eine App erzeugen & im Scheduler registrieren
     if app_region.is_some() {
@@ -280,17 +273,29 @@ pub extern "C" fn kmain(mbi: u64) {
 
         app_thread_page_address = app_thread.get_pml4_address();
         Scheduler::ready(app_thread);
+    }*/
+
+    // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
+    Scheduler::spawn_kernel();
+
+    // Apps aus initrd.tar extrahieren
+    let opt_apps = appregion::get_apps_from_tar(mbi);
+
+    // Prozesse mit je einem Thread fuer alle Apps erzeugen & im Scheduler registrieren
+    match opt_apps {
+        None => kprintln!("No apps found."),
+        Some(mut apps) => {
+            kprintln!("Found following apps in 'initrd': {:?}", apps);
+            // Prozesse fuer alle Apps erzeugen
+            loop {
+                let app = apps.pop();
+                if app.is_none() {
+                    break;
+                }
+                Scheduler::spawn(app.unwrap());
+            }
+        }
     }
-
-    //print_frames_with_headline("Nach der Thread Initialisierung");
-
-    /*
-    kprintln!(
-        "\n\n-------------------------------------------------------\nTesten des Memory-Crawl"
-    );
-    kprintln!("Crawl Hello World Stack:");
-    pages::where_physical_address(app_thread_page_address, consts::USER_CODE_VM_START);
-    */
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();

@@ -13,24 +13,17 @@ pub extern "C" fn idle_thread_entry() {
         vprint!("I ");
         kprintln!("Idling...");
 
-        /*
-        let mut x: u64 = 0;
-        loop {
-            x = x + 1;
-            if x > 100000000 {
-                break;
-            }
-        }*/
         delay::delay(100);
     }
 }
 
 pub fn init() {
+    /*
     let idle_thread: Box<Thread> = thread::Thread::new_name(
         scheduler::next_thread_id(),
         idle_thread_entry,
         true,
         "sec_Idle-Thread".to_string(),
-    );
-    scheduler::Scheduler::ready(idle_thread);
+    );*/
+    //scheduler::Scheduler::ready(idle_thread);
 }

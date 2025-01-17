@@ -81,7 +81,7 @@ args = [ "-c", "-f", "${RAW_TAR_IMAGE}", "/loader/isofiles/boot/apps"]
 
 [tasks.create-appfolder]
 command = "mkdir"
-args = ["${APPS_BIN_FOLDER}"]
+args = ["-p", "${APPS_BIN_FOLDER}"]
 
 
 

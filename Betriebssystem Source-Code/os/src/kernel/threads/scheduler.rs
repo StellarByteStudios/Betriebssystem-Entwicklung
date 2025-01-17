@@ -11,11 +11,13 @@ use alloc::boxed::Box;
 use core::ptr;
 use core::sync::atomic::AtomicUsize;
 use spin::Mutex;
-
+use crate::boot::appregion::AppRegion;
 use crate::devices::cga;
 use crate::kernel::cpu;
+use crate::kernel::paging::physical_addres::PhysAddr;
 use crate::kernel::threads::queue::Queue;
 use crate::kernel::threads::thread;
+use crate::kernel::threads::thread::Thread;
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
@@ -29,7 +31,14 @@ pub static SCHEDULER: Mutex<Scheduler> = Mutex::new(Scheduler::new());
  Description: Return callers thread ID
 */
 pub fn get_active_tid() -> usize {
-    thread::Thread::get_tid(SCHEDULER.lock().active)
+    //thread::Thread::get_tid(SCHEDULER.lock().active)
+    return get_active().tid;
+}
+
+pub fn get_active_pid() -> usize {
+        // Das funktioniert nicht wie in der Vorlage. KA was der SCHEDULER da ist
+        //pid = Thread::get_pid(SCHEDULER.as_mut().unwrap().get_active());
+        return get_active().pid;
 }
 
 /**
@@ -162,7 +171,7 @@ impl Scheduler {
     pub fn kill(tokill_tid: usize) -> bool {
         // Threadmaske erzeugen um remove gut zu benutzten
         let dummy_thread: Box<thread::Thread> =
-            thread::Thread::new(tokill_tid, Self::dummy_thread_function, true);
+            thread::Thread::new(tokill_tid, PhysAddr::new(0), Self::dummy_thread_function, false);
 
         // Thread löschen
         let success: bool = SCHEDULER.lock().ready_queue.remove(dummy_thread);
@@ -215,4 +224,35 @@ impl Scheduler {
         // Interrupts werden in Thread_switch in thread.asm wieder zugelassen
         //
     }
+
+    /*****************************************************************************
+     * Funktion:        spawn_kernel                                             *
+     *---------------------------------------------------------------------------*
+     * Beschreibung:    Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler *
+     *                  registrieren.                                            *
+     *****************************************************************************/
+    pub fn spawn_kernel() {
+
+        /*
+         * Hier muss Code eingefuegt werden
+         */
+
+    }
+
+    /*****************************************************************************
+     * Funktion:        spawn                                                    *
+     *---------------------------------------------------------------------------*
+     * Beschreibung:    Einen neuen Prozess mit dem Haupt-Thread erzeugen und    *
+     *                  im Scheduler registrieren.                               *
+     *                                                                           *
+     * Parameter:       app    Code-Image fuer den neuen Prozess                 *
+     *****************************************************************************/
+    pub fn spawn(app: AppRegion) {
+
+        /*
+         * Hier muss Code eingefuegt werden
+         */
+
+    }
+
 }

@@ -7,3 +7,7 @@ pub mod threads;
 pub mod syscall;
 
 pub mod paging;
+
+pub mod logger;
+
+pub mod processes;

@@ -1,16 +1,23 @@
 use core::fmt;
 
+use alloc::string::String;
+use alloc::vec::Vec;
 use super::multiboot::MultibootInfo;
 
 // Beschreibt eine App, die separat vom Kernel compiliert wurde
 pub struct AppRegion {
     pub start: u64,
     pub end: u64,
+    pub file_name: String,
 }
 
 impl fmt::Debug for AppRegion {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "AppRegion [0x{:x}, 0x{:x}]", self.start, self.end)
+        write!(
+            f,
+            "AppRegion [0x{:x}, 0x{:x}, file_name = {:?}]",
+            self.start, self.end, self.file_name
+        )
     }
 }
 
@@ -47,5 +54,16 @@ pub fn get_app(mbi_ptr: u64) -> Option<AppRegion> {
     return Some(AppRegion {
         start: app_start,
         end: app_end,
+        file_name: String::new(),
     });
+}
+
+// Hier extrahieren wir alle Apps aus initrd.tar
+// Achtung: der Heap muss bereits initialisert sein!
+pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
+    /*
+     *  Hier muss Code eingefuegt werden
+     */
+
+    None
 }
