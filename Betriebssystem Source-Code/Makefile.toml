@@ -77,7 +77,7 @@ run_task = { name = "link", fork = true }
 # Creating .tar arcive of apps
 [tasks.tar]
 command = "tar"
-args = [ "-c", "-f", "${RAW_TAR_IMAGE}", "/loader/isofiles/boot/apps"]
+args = [ "-c", "-f", "${RAW_TAR_IMAGE}", "${APPS_BIN_FOLDER}"]
 
 [tasks.create-appfolder]
 command = "mkdir"
