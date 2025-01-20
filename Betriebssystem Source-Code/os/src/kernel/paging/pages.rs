@@ -7,7 +7,7 @@
  *                                                                           *
  * Autor:           Michael Schoettner, 13.9.2023                            *
  *****************************************************************************/
-
+use core::{ptr, slice};
 use core::sync::atomic::AtomicUsize;
 use usrlib::utility::mathadditions::math::pow_usize;
 use crate::boot::appregion::AppRegion;
@@ -247,7 +247,6 @@ pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
 
 // Diese Funktion richtet ein Mapping fuer den User-Mode Stack ein
 pub fn pg_mmap_user_stack(pml4_addr: PhysAddr) -> *mut u8 {
-    // Erstmal Kernelmapping kopieren
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
@@ -310,6 +309,19 @@ pub fn pg_mmap_user_app(pml4_addr: PhysAddr, app: AppRegion) {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+    
+    // Größe der App berechnen
+    let app_lenght: usize = (app.end - app.start) as usize;
+    let app_pages = (app_lenght / PAGE_SIZE) + 1;
+
+    // Physische Speicherzellen anfordern
+    let app_phys_start_address = pf_alloc(app_pages, false);
+    
+    // App kopieren
+    unsafe {
+        let app_data: &[u8] =  slice::from_raw_parts(app.start as *const u8, app_lenght);
+        ptr::copy_nonoverlapping(app_data.as_ptr(), app_phys_start_address.as_mut_ptr(), app_lenght); 
+    }
 
     // Einmappen der Anwendung (Code)
     pml4_thread_table.mmap_general(
@@ -318,7 +330,7 @@ pub fn pg_mmap_user_app(pml4_addr: PhysAddr, app: AppRegion) {
         false,
         false,
         true,
-        app.start as usize,
+        app_phys_start_address.raw() as usize,
     );
 }
 

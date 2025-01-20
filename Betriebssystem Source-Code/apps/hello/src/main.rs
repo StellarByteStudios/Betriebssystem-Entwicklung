@@ -29,7 +29,7 @@ pub fn main() {
         print_setpos!(30, 30, "Printen mit fester Position mit var: {}", i);  
 
 
-        print_setpos!(30, 50, "Printen mit fester Position mit var: {}", i*2);
+        //print_setpos!(30, 50, "Printen mit fester Position mit var: {}", i*2);
  
         i = i + 1; 
 
