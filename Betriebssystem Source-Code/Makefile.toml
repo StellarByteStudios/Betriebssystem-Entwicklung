@@ -14,7 +14,9 @@ KERNEL = "${BOOTLOADER_DIRECTORY}/isofiles/boot/${KERNEL_IMAGE}"
 RAW_TAR_IMAGE = "${BOOTLOADER_DIRECTORY}/isofiles/boot/initrd.tar"
 #APP_ELF = "${BOOTLOADER_DIRECTORY}/isofiles/hello.elf"
 #APP_BIN = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/${APP_IMAGE}"
-APPS_BIN_FOLDER = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/"
+APPS_ELF_FOLDER = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps"
+APPS_BIN_FOLDER = "${APPS_ELF_FOLDER}/bin"
+
 
 
 ######################################
@@ -77,7 +79,8 @@ run_task = { name = "link", fork = true }
 # Creating .tar arcive of apps
 [tasks.tar]
 command = "tar"
-args = [ "-c", "-f", "${RAW_TAR_IMAGE}", "${APPS_BIN_FOLDER}"]
+cwd = "${APPS_BIN_FOLDER}"
+args = ["-c", "-f", "${RAW_TAR_IMAGE}", "."]
 
 [tasks.create-appfolder]
 command = "mkdir"
@@ -96,7 +99,7 @@ dependencies = ["create-appfolder", "link", "tar"]
 condition = { files_modified = { input = [
     # The input file of tasks.iso are the kernel and application images
     "${KERNEL}",
-    "${APP_BIN}",
+    "${RAW_TAR_IMAGE}",
     "${BOOTLOADER_DIRECTORY}/isofiles/boot/grub/grub.cfg",
 ], output = [
     # ISO output file
@@ -111,19 +114,26 @@ condition = { files_modified = { input = [
 [tasks.clean]
 command = "cargo"
 args = ["clean"]
-dependencies = ["remove-images", "remove-bins"]
+dependencies = ["remove-images", "remove-bins", "remove-elfs"]
 
 [tasks.remove-images]
 command = "rm"
 args = [
     "-f",
-    "${KERNAL}",
+    "${KERNEL}",
     "${RAW_TAR_IMAGE}",
 ]
 
 [tasks.remove-bins]
 command = "rm"
 args = [
-    "-r",
+    "-rf",
     "${APPS_BIN_FOLDER}",
+]
+
+[tasks.remove-elfs]
+command = "rm"
+args = [
+    "-rf",
+    "${APPS_ELF_FOLDER}",
 ]
