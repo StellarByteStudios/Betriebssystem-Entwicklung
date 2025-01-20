@@ -8,6 +8,7 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 use alloc::boxed::Box;
+use alloc::string::ToString;
 use core::ptr;
 use core::sync::atomic::AtomicUsize;
 use spin::Mutex;
@@ -15,8 +16,9 @@ use crate::boot::appregion::AppRegion;
 use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::paging::physical_addres::PhysAddr;
+use crate::kernel::processes::process::create_fresh_process;
 use crate::kernel::threads::queue::Queue;
-use crate::kernel::threads::thread;
+use crate::kernel::threads::{scheduler, sec_idle_thread, thread};
 use crate::kernel::threads::thread::Thread;
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -54,6 +56,45 @@ pub fn get_active() -> Box<thread::Thread> {
     }
     cpu::enable_int_nested(irq);
     act
+}
+
+/*****************************************************************************
+     * Funktion:        spawn_kernel                                             *
+     *---------------------------------------------------------------------------*
+     * Beschreibung:    Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler *
+     *                  registrieren.                                            *
+     *****************************************************************************/
+pub fn spawn_kernel() {
+
+    // Neuen Prozess anlegen
+    let idle_pid =  create_fresh_process("Idle-Prozess") as usize;
+
+    // Idle-Thread mit Pid anleggen
+    let idle_thread = sec_idle_thread::init(idle_pid);
+
+    // Thread dem Scheduler geben
+    Scheduler::ready(idle_thread);
+
+}
+
+/*****************************************************************************
+ * Funktion:        spawn                                                    *
+ *---------------------------------------------------------------------------*
+ * Beschreibung:    Einen neuen Prozess mit dem Haupt-Thread erzeugen und    *
+ *                  im Scheduler registrieren.                               *
+ *                                                                           *
+ * Parameter:       app    Code-Image fuer den neuen Prozess                 *
+ *****************************************************************************/
+pub fn spawn(app: AppRegion) {
+    
+    // Neuen Prozess anlegen
+    let new_pid =  create_fresh_process(app.file_name.as_str()) as usize;
+
+    // Idle-Thread mit Pid anleggen
+    let new_app_thread = Thread::new_app_thread(app, new_pid);
+
+    // Thread dem Scheduler geben
+    Scheduler::ready(new_app_thread);
 }
 
 /**
@@ -223,36 +264,6 @@ impl Scheduler {
 
         // Interrupts werden in Thread_switch in thread.asm wieder zugelassen
         //
-    }
-
-    /*****************************************************************************
-     * Funktion:        spawn_kernel                                             *
-     *---------------------------------------------------------------------------*
-     * Beschreibung:    Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler *
-     *                  registrieren.                                            *
-     *****************************************************************************/
-    pub fn spawn_kernel() {
-
-        /*
-         * Hier muss Code eingefuegt werden
-         */
-
-    }
-
-    /*****************************************************************************
-     * Funktion:        spawn                                                    *
-     *---------------------------------------------------------------------------*
-     * Beschreibung:    Einen neuen Prozess mit dem Haupt-Thread erzeugen und    *
-     *                  im Scheduler registrieren.                               *
-     *                                                                           *
-     * Parameter:       app    Code-Image fuer den neuen Prozess                 *
-     *****************************************************************************/
-    pub fn spawn(app: AppRegion) {
-
-        /*
-         * Hier muss Code eingefuegt werden
-         */
-
     }
 
 }

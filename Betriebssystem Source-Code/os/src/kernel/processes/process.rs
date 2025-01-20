@@ -1,7 +1,7 @@
 use alloc::boxed::Box;
 use alloc::collections::btree_map;
 use crate::kernel::threads::thread;
-use alloc::string::String; 
+use alloc::string::{String, ToString}; 
 use core::sync::atomic::{Ordering, AtomicU64};
 
 
@@ -23,20 +23,36 @@ pub fn add_process(new_proc: Box<Process>) {
     }
 
     // Prozess registrieren
-    /* 
-     * Hier  muss Code eingefuegt werden
-     */
-    
+    let pid = new_proc.pid;
+    unsafe {
+        PROCESSES.as_mut().unwrap().insert(pid, new_proc);
+    }
 }
 
 // App-Name abfragen
 pub fn get_app_name(pid: u64) -> Option<String> {
 
-    /* 
-     * Hier  muss Code eingefuegt werden
-     */
+    unsafe {
+        if PROCESSES.is_none() {
+            return None;
+        }
+    }
     
-    return None
+    return unsafe{ Some(PROCESSES.as_ref().unwrap().get(&pid).unwrap().file_name.clone()) };
+}
+
+
+// Neuen Prozess erstellen und gleichzeitig einfügen
+pub fn create_fresh_process(file_name: &str) -> u64 {
+    // Neuen Prozess erstellen
+    let new_process = Process::new(file_name.to_string());
+    let process_pid = new_process.pid;
+    
+    // Prozess anmelden
+    add_process(new_process);
+    
+    // Prozess ID zurückgeben
+    return process_pid;
 }
 
 

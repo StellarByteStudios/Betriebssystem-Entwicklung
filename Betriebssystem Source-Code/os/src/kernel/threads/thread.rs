@@ -71,7 +71,6 @@ impl Thread {
         myentry: extern "C" fn(),
         kernel_thread: bool,
         process_id: usize,
-        process_pml4: PhysAddr,
         thread_name: String,
         my_args: Vec<String>,
     ) -> Box<Thread> {
@@ -79,19 +78,20 @@ impl Thread {
         let new_tid = scheduler::next_thread_id();
 
         // Oberste Page-Table anlegen (mit Kernel initialisiert)
-        //let new_pml4_addr = pages::pg_init_user_tables(); kommt jetzt von Prozess
+        let new_pml4_addr = pages::pg_init_user_tables();
+        // Später vielleicht Page-Table in den Prozess verschieben
 
         let my_kernel_stack =
-            stack::Stack::new_mapped_stack(consts::STACK_SIZE, true, process_pml4);
+            stack::Stack::new_mapped_stack(consts::STACK_SIZE, true, new_pml4_addr);
         let my_user_stack =
-            stack::Stack::new_mapped_stack(consts::STACK_SIZE, false, process_pml4);
+            stack::Stack::new_mapped_stack(consts::STACK_SIZE, false, new_pml4_addr);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
             pid: process_id,
             tid: new_tid,
             is_kernel_thread: kernel_thread,
-            pml4_addr: process_pml4,
+            pml4_addr: new_pml4_addr,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,
@@ -107,7 +107,7 @@ impl Thread {
 
     // Neuen Thread anlegen
     pub fn new(my_pid: usize, process_pml4: PhysAddr,  myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, process_pml4, String::from("Nameless"), Vec::new());
+        return Thread::internal_new(myentry, kernel_thread, my_pid, String::from("Nameless"), Vec::new());
     }
 
     /*
@@ -117,41 +117,38 @@ impl Thread {
        Description: Create new Thread (Mit Args!)
     */
     pub fn new_with_args(
-        my_pid: usize, 
-        process_pml4: PhysAddr,
+        my_pid: usize,
         myentry: extern "C" fn(),
         kernel_thread: bool,
         thread_name: String,
         my_args: Vec<String>,
     ) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, process_pml4, thread_name, my_args);
+        return Thread::internal_new(myentry, kernel_thread, my_pid, thread_name, my_args);
     }
 
     /**
        Description: Create new Thread (mit Name)
     */
     pub fn new_name(
-        my_pid: usize, 
-        process_pml4: PhysAddr,
+        my_pid: usize,
         myentry: extern "C" fn(),
         kernel_thread: bool,
         thread_name: String,
     ) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, process_pml4, thread_name, Vec::new());
+        return Thread::internal_new(myentry, kernel_thread, my_pid, thread_name, Vec::new());
     }
 
     // Thread fuer eine App anlegen
     // Hier wird der Code & BSS eingemappt & ein Thread mit eigenem Adressraum erzeugt
-    pub fn new_app_thread(app: AppRegion) -> Box<Thread> {
+    pub fn new_app_thread(app: AppRegion, pid: usize) -> Box<Thread> {
         // Entry-Thread konvertieren
         let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
         
-        // Prozess ID holen
-        let process_id = 0;
-        let process_pml4 = PhysAddr::new(0);
+        // Prozess ID holen (später)
+        //let process_pml4 = PhysAddr::new(0);
 
         let app_thread =
-            Self::internal_new(thread_entry, false, process_id, process_pml4, app.file_name.clone(), Vec::new());
+            Self::internal_new(thread_entry, false, pid, app.file_name.clone(), Vec::new());
 
         // App-Image mappen
         pages::pg_mmap_user_app(app_thread.pml4_addr, app);

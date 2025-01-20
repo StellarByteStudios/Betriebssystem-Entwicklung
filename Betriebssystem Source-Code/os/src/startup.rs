@@ -42,6 +42,7 @@ use kernel::{
     threads::{self, scheduler::Scheduler, sec_idle_thread, thread::Thread},
 };
 use log::info;
+use crate::kernel::threads::scheduler;
 
 extern crate alloc;
 
@@ -276,7 +277,7 @@ pub extern "C" fn kmain(mbi: u64) {
     }*/
 
     // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
-    Scheduler::spawn_kernel();
+    scheduler::spawn_kernel();
 
     // Apps aus initrd.tar extrahieren
     let opt_apps = appregion::get_apps_from_tar(mbi);
@@ -292,7 +293,7 @@ pub extern "C" fn kmain(mbi: u64) {
                 if app.is_none() {
                     break;
                 }
-                Scheduler::spawn(app.unwrap());
+                scheduler::spawn(app.unwrap());
             }
         }
     }

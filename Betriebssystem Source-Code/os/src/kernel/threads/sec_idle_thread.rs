@@ -17,13 +17,13 @@ pub extern "C" fn idle_thread_entry() {
     }
 }
 
-pub fn init() {
-    /*
-    let idle_thread: Box<Thread> = thread::Thread::new_name(
-        scheduler::next_thread_id(),
+pub fn init(pid: usize) -> Box<Thread> {
+    let idle_thread: Box<Thread> = thread::Thread::new_name(pid,
         idle_thread_entry,
         true,
-        "sec_Idle-Thread".to_string(),
-    );*/
+        "Idle-Thread".to_string(),
+    );
+    
+    return idle_thread;
     //scheduler::Scheduler::ready(idle_thread);
 }
