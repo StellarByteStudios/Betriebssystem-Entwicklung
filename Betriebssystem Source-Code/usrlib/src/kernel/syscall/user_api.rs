@@ -24,15 +24,11 @@ pub const SYSNO_GET_THREAD_ID: usize = 3;
 pub const SYSNO_WRITE: usize = 4;
 pub const SYSNO_READ: usize = 5;
 pub const SYSNO_GET_SYSTIME: usize = 6;
-
 pub const SYSNO_GRAPHICAL_PRINT: usize = 7;
-
 pub const SYSNO_GRAPHICAL_PRINT_WITH_POS: usize = 8;
-
 pub const SYSNO_GET_SCREEN_WIDTH: usize = 9;
-/*
- * Hier muss Code eingefuegt werden
- */
+pub const SYSNO_GET_PROCESS_ID: usize = 10;
+pub const SYSNO_GET_PROCESS_NAME: usize = 11;
 
 pub fn usr_hello_world() {
     syscall0(SYSNO_HELLO_WORLD as u64);
@@ -74,9 +70,15 @@ pub fn usr_get_screen_width() -> u64 {
     return syscall0(SYSNO_GET_SCREEN_WIDTH as u64);
 }
 
-/*
- * Hier muss Code eingefuegt werden
- */
+pub fn usr_get_pid() -> u64 {
+    return syscall0(SYSNO_GET_PROCESS_ID as u64);
+}
+
+// Returned die Länge des gelesenen Namens
+pub fn usr_read_process_name(buff: *mut u8, len: u64) -> u64 {
+    return syscall2(SYSNO_GET_PROCESS_NAME as u64, buff as u64, len);
+}
+
 
 #[inline(always)]
 #[allow(unused_mut)]

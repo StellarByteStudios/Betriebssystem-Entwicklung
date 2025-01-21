@@ -10,7 +10,7 @@ use usrlib::utility::delay;
 pub extern "C" fn idle_thread_entry() {
     scheduler::set_initialized();
     loop {
-        vprint!("I ");
+        //vprint!("I ");
         kprintln!("Idling...");
 
         delay::delay(100);

@@ -38,9 +38,23 @@ pub fn get_active_tid() -> usize {
 }
 
 pub fn get_active_pid() -> usize {
-        // Das funktioniert nicht wie in der Vorlage. KA was der SCHEDULER da ist
-        //pid = Thread::get_pid(SCHEDULER.as_mut().unwrap().get_active());
-        return get_active().pid;
+    // Das funktioniert nicht wie in der Vorlage. KA was der SCHEDULER da ist
+    //pid = Thread::get_pid(SCHEDULER.as_mut().unwrap().get_active());
+
+    // Sobald ich vom Active die Pid hole gibts einen Protection fault...
+    //let active = get_active().pid;
+    
+    // get_active Methode einfach ersetzt und reinkopiert
+    let active_pid;
+    let irq = cpu::disable_int_nested();
+    unsafe {
+        let active = SCHEDULER.lock().active;
+        active_pid = (*active).pid;
+    }
+    cpu::enable_int_nested(irq);
+    
+    
+    return active_pid;
 }
 
 /**
@@ -48,7 +62,6 @@ pub fn get_active_pid() -> usize {
 */
 pub fn get_active() -> Box<thread::Thread> {
     let act;
-
     let irq = cpu::disable_int_nested();
     unsafe {
         let a = SCHEDULER.lock().active;

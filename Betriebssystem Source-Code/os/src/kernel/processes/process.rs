@@ -2,10 +2,10 @@ use alloc::boxed::Box;
 use alloc::collections::btree_map;
 use crate::kernel::threads::thread;
 use alloc::string::{String, ToString}; 
-use core::sync::atomic::{Ordering, AtomicU64};
+use core::sync::atomic::{Ordering, AtomicUsize};
 
 
-pub static mut PROCESSES: Option<btree_map::BTreeMap<u64, Box<Process>>> = None;
+pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
 
 // Prozessverwaltung anlegen; wird nur 1x aufgerufen
 pub fn init() {
@@ -30,7 +30,7 @@ pub fn add_process(new_proc: Box<Process>) {
 }
 
 // App-Name abfragen
-pub fn get_app_name(pid: u64) -> Option<String> {
+pub fn get_app_name(pid: usize) -> Option<String> {
 
     unsafe {
         if PROCESSES.is_none() {
@@ -43,7 +43,7 @@ pub fn get_app_name(pid: u64) -> Option<String> {
 
 
 // Neuen Prozess erstellen und gleichzeitig einfügen
-pub fn create_fresh_process(file_name: &str) -> u64 {
+pub fn create_fresh_process(file_name: &str) -> usize {
     // Neuen Prozess erstellen
     let new_process = Process::new(file_name.to_string());
     let process_pid = new_process.pid;
@@ -57,13 +57,13 @@ pub fn create_fresh_process(file_name: &str) -> u64 {
 
 
 
-static NEXT_PID:AtomicU64 = AtomicU64::new(0);
+static NEXT_PID:AtomicUsize = AtomicUsize::new(0);
 
 // Verwaltungsstruktur fuer einen Process
 #[repr(C)]
 #[derive(Debug)]
 pub struct Process {
-    pub pid: u64,
+    pub pid: usize,
     pub file_name: String, 
 }
 
