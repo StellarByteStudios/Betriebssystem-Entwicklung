@@ -25,7 +25,6 @@ dependencies = [
  "log",
  "spin 0.9.8",
  "tar-no-std",
- "usrlib",
  "x86",
  "x86_64",
 ]

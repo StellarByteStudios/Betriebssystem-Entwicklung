@@ -5,7 +5,7 @@ use crate::kernel::threads::thread::Thread;
 
 use alloc::boxed::Box;
 use alloc::string::ToString;
-use usrlib::utility::delay;
+use crate::utility::delay;
 
 pub extern "C" fn idle_thread_entry() {
     scheduler::set_initialized();
