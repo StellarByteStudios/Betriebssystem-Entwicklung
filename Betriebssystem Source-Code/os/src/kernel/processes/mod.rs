@@ -1,2 +1,2 @@
 pub mod process;
-mod vma;
+pub mod vma;

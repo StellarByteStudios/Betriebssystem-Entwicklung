@@ -41,7 +41,7 @@ pub fn main() {
         i = i + 1;
 
         // kurz warten
-        delay(10);
+        delay(7);
 
     }
 }

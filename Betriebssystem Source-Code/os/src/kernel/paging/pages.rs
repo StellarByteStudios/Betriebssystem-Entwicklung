@@ -8,6 +8,7 @@
  * Autor:           Michael Schoettner, 13.9.2023                            *
  *****************************************************************************/
 use core::{ptr, slice};
+use core::ptr::null_mut;
 use core::sync::atomic::AtomicUsize;
 use crate::boot::appregion::AppRegion;
 use crate::boot::multiboot;
@@ -22,6 +23,7 @@ use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::pagetable_flags::PTEflags;
+use crate::kernel::processes::{process, vma};
 use crate::utility::mathadditions::math::pow_usize;
 use super::frames::pf_alloc;
 use super::pagetable_entry::PageTableEntry;
@@ -249,6 +251,18 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+    
+    // VMA berechnen und anlegen
+    let new_vma = vma::VMA::new(USER_STACK_VM_START, 
+                                USER_STACK_VM_START + STACK_SIZE, 
+                                vma::VmaType::Stack);
+    
+    // Past diese VMA noch?
+    let success = process::add_vma_to_process(pid, new_vma);
+    
+    if !success {
+        return null_mut();
+    }
 
     // Stack mappen
     pml4_thread_table.mmap_general(
@@ -304,7 +318,8 @@ pub fn pg_set_cr3(pml4_addr: PhysAddr) {
 
 
 // Diese Funktion richtet ein Mapping fuer ein App-Image ein
-pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) {
+// Bei fehler Return false, true sonst
+pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
@@ -322,6 +337,20 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) {
         ptr::copy_nonoverlapping(app_data.as_ptr(), app_phys_start_address.as_mut_ptr(), app_lenght); 
     }
 
+
+    // VMA berechnen und anlegen
+    let vma_end = consts::USER_CODE_VM_START + (((app.end - app.start) as usize / PAGE_SIZE) + 1) * PAGE_SIZE;
+    let new_vma = vma::VMA::new(consts::USER_CODE_VM_START,
+                                vma_end,
+                                vma::VmaType::Code);
+
+    // Past diese VMA noch?
+    let success = process::add_vma_to_process(pid, new_vma);
+
+    if !success {
+        return false;
+    }
+
     // Einmappen der Anwendung (Code)
     pml4_thread_table.mmap_general(
         consts::USER_CODE_VM_START,
@@ -331,6 +360,8 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) {
         true,
         app_phys_start_address.raw() as usize,
     );
+    
+    return true;
 }
 
 /*

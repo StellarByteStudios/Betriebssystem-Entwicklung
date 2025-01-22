@@ -11,3 +11,4 @@ pub mod sys_graphical_print_pos;
 pub mod sys_get_screen_width;
 pub mod sys_getpid;
 pub mod sys_read_process_name;
+pub mod sys_dump_vmas;

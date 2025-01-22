@@ -27,10 +27,11 @@ use crate::kernel::syscall::kfuncs::{
     sys_getpid::sys_getpid,
     sys_read_process_name::sys_read_process_name,
 };
+use crate::kernel::syscall::kfuncs::sys_dump_vmas::sys_dump_vmas;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 12;
+pub const NO_SYSCALLS: usize = 13;
 
 extern "C" {
     fn _init_syscalls();
@@ -68,6 +69,7 @@ impl SyscallFuncTable {
                 sys_get_screen_witdh as *const _,
                 sys_getpid as *const _,
                 sys_read_process_name as *const _,
+                sys_dump_vmas as *const _,
             ],
         }
     }

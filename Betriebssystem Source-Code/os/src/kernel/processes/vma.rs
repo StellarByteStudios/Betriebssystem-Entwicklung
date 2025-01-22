@@ -22,14 +22,14 @@ pub enum VmaType {
 // Verwaltungsstruktur fuer eine VMA
 #[repr(C)]
 pub struct VMA {
-    start: u64,
-    end: u64,
+    start: usize,
+    end: usize,
     typ: VmaType,
 }
 
 impl VMA {
     // Neue VMA anlegen
-    pub fn new(s: u64, e: u64, t: VmaType) -> Box<VMA> {
+    pub fn new(s: usize, e: usize, t: VmaType) -> Box<VMA> {
         Box::new(VMA {
             start: s,
             end: e,
@@ -39,11 +39,13 @@ impl VMA {
 
     // Pruefe ob zwei VMAs ueberlappen
     pub fn does_overlap(&self, other: &VMA) -> bool {
+        // Fall: Eigenes Ende ist noch vor anderem Start
+        if self.end < other.start { return false; }
 
-        /* 
-         * Hier muss Code eingefuegt werden
-         */
-        
+        // Fall: Eigener Start ist schon nach anderem Ende
+        if self.start > other.end { return false; }
+
+        // Wenn beide Bedingungen nicht gegeben sind, dann gibt es Überschneidungen
         return true;
 
     }

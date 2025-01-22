@@ -3,6 +3,7 @@ use alloc::collections::{btree_map, linked_list};
 use crate::kernel::threads::thread;
 use alloc::string::{String, ToString}; 
 use core::sync::atomic::{Ordering, AtomicUsize};
+use crate::kernel::processes::process;
 use crate::kernel::processes::vma::VMA;
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
@@ -41,6 +42,22 @@ pub fn get_app_name(pid: usize) -> Option<String> {
     }
     
     return unsafe{ Some(PROCESSES.as_ref().unwrap().get(&pid).unwrap().file_name.clone()) };
+}
+
+pub fn add_vma_to_process(pid: usize, vma: Box<VMA>) -> bool{
+    // Prozess holen
+    let process = unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
+    
+    // VMA abspeichern
+    let success = process.add_vma(vma);
+    
+    // Erfolg zurückgeben
+    return success;
+}
+
+pub fn dump_vma_of_process(pid: usize){
+    let process = unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
+    process.dump_vmas();
 }
 
 
@@ -87,12 +104,26 @@ impl Process {
     // VMA hinzufuegen
     // Rueckgabewert: true -> Erfolg
     //                false -> Fehler, VMA ueberlappt
-    pub fn add_vma(&mut self, vma: Box<VMA>) -> bool {
-
-        /*
-         * Hier muss Code eingefuegt werden
-         */
+    pub fn add_vma(&mut self, vma_to_safe: Box<VMA>) -> bool {
+        
+        // Für jeden Eintrag in der Liste die Grenzen checken
+        for vma in self.vmas.iter() {
+            if vma.does_overlap(vma_to_safe.as_ref()) { 
+                return false;
+            }
+        }
+        
+        // VMA einspeisen
+        self.vmas.push_back(vma_to_safe);
+        
+        // Erfolg zurückgeben
         return true;
+    }
+    
+    pub fn dump_vmas(&self) {
+        for vma in self.vmas.iter() {
+            kprintln!("{:?}", vma);
+        }
     }
 
 }

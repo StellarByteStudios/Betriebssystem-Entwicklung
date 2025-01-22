@@ -29,6 +29,7 @@ pub const SYSNO_GRAPHICAL_PRINT_WITH_POS: usize = 8;
 pub const SYSNO_GET_SCREEN_WIDTH: usize = 9;
 pub const SYSNO_GET_PROCESS_ID: usize = 10;
 pub const SYSNO_GET_PROCESS_NAME: usize = 11;
+pub const SYSNO_DUMP_ACTIVE_VMAS: usize = 12;
 
 pub fn usr_hello_world() {
     syscall0(SYSNO_HELLO_WORLD as u64);
@@ -77,6 +78,10 @@ pub fn usr_get_pid() -> u64 {
 // Returned die Länge des gelesenen Namens
 pub fn usr_read_process_name(buff: *mut u8, len: u64) -> u64 {
     return syscall2(SYSNO_GET_PROCESS_NAME as u64, buff as u64, len);
+}
+
+pub fn usr_dump_active_vmas() {
+    syscall0(SYSNO_DUMP_ACTIVE_VMAS as u64);
 }
 
 

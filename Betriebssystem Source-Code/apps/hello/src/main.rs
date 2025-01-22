@@ -10,13 +10,16 @@ use core::str::{from_utf8, from_utf8_unchecked};
 use usrlib;
 // Man muss beide Imporieren, da sie sonst nicht richtig aufklappen
 use usrlib::{gprint, gprintln, print_setpos};
-use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_read_process_name};
+use usrlib::kernel::syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_read_process_name};
 use usrlib::utility::delay::delay;
 
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
+    
+    // VMAs Ausgeben
+    usr_dump_active_vmas();
 
     // Counter starten
     let mut i: u64 = 0;

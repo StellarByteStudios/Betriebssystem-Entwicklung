@@ -55,6 +55,10 @@ impl Stack {
         // Ansonsten Methode zum Mappen in pages aufrufen
         // Mapping anlegen
         let start_pointer = pages::pg_mmap_user_stack(pid, pml4_addr);
+        if start_pointer.is_null() { 
+            println!("Panic: failed in 'new_mapped_stack'");
+        }
+        
         // Datapointer schieben (Stack wächst von oben nach unten)
         let data =
             ((start_pointer as usize) + (size as usize) - consts::STACK_ENTRY_SIZE) as *mut u8;
