@@ -245,7 +245,7 @@ pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
 }
 
 // Diese Funktion richtet ein Mapping fuer den User-Mode Stack ein
-pub fn pg_mmap_user_stack(pml4_addr: PhysAddr) -> *mut u8 {
+pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
@@ -304,7 +304,7 @@ pub fn pg_set_cr3(pml4_addr: PhysAddr) {
 
 
 // Diese Funktion richtet ein Mapping fuer ein App-Image ein
-pub fn pg_mmap_user_app(pml4_addr: PhysAddr, app: AppRegion) {
+pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }

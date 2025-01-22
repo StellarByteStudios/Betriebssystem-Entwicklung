@@ -46,7 +46,7 @@ impl Stack {
         Box::new(Stack { data, size })
     }
 
-    pub fn new_mapped_stack(size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
+    pub fn new_mapped_stack(pid: usize, size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
         // Wenn es ein Kernal Stack ist, nix anders machen (Alten Konstruktor)
         if kernel_stack {
             return Stack::new(size);
@@ -54,7 +54,7 @@ impl Stack {
 
         // Ansonsten Methode zum Mappen in pages aufrufen
         // Mapping anlegen
-        let start_pointer = pages::pg_mmap_user_stack(pml4_addr);
+        let start_pointer = pages::pg_mmap_user_stack(pid, pml4_addr);
         // Datapointer schieben (Stack wächst von oben nach unten)
         let data =
             ((start_pointer as usize) + (size as usize) - consts::STACK_ENTRY_SIZE) as *mut u8;

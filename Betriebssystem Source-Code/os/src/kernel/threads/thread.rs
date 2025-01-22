@@ -82,9 +82,9 @@ impl Thread {
         // Später vielleicht Page-Table in den Prozess verschieben
 
         let my_kernel_stack =
-            stack::Stack::new_mapped_stack(consts::STACK_SIZE, true, new_pml4_addr);
+            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, true, new_pml4_addr);
         let my_user_stack =
-            stack::Stack::new_mapped_stack(consts::STACK_SIZE, false, new_pml4_addr);
+            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, false, new_pml4_addr);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
@@ -151,7 +151,7 @@ impl Thread {
             Self::internal_new(thread_entry, false, pid, app.file_name.clone(), Vec::new());
 
         // App-Image mappen
-        pages::pg_mmap_user_app(app_thread.pml4_addr, app);
+        pages::pg_mmap_user_app(pid, app_thread.pml4_addr, app);
 
         return app_thread;
     }

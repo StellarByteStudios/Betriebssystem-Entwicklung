@@ -1,12 +1,14 @@
 use alloc::boxed::Box;
-use alloc::collections::btree_map;
+use alloc::collections::{btree_map, linked_list};
 use crate::kernel::threads::thread;
 use alloc::string::{String, ToString}; 
 use core::sync::atomic::{Ordering, AtomicUsize};
-
+use crate::kernel::processes::vma::VMA;
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
 
+
+/* * * * Statische Prozessverwaltung * * * */
 // Prozessverwaltung anlegen; wird nur 1x aufgerufen
 pub fn init() {
     unsafe {
@@ -57,6 +59,9 @@ pub fn create_fresh_process(file_name: &str) -> usize {
 
 
 
+
+
+/* * * * Prozessobject * * * */
 static NEXT_PID:AtomicUsize = AtomicUsize::new(0);
 
 // Verwaltungsstruktur fuer einen Process
@@ -64,7 +69,8 @@ static NEXT_PID:AtomicUsize = AtomicUsize::new(0);
 #[derive(Debug)]
 pub struct Process {
     pub pid: usize,
-    pub file_name: String, 
+    pub file_name: String,
+    vmas: linked_list::LinkedList<Box<VMA>>, // List von allen auf die CPU wartenden Threads
 }
 
 impl Process {
@@ -74,7 +80,19 @@ impl Process {
         Box::new(Process {
             pid: NEXT_PID.fetch_add(1, Ordering::SeqCst), 
             file_name: fname,
+            vmas: linked_list::LinkedList::new(),
         })
+    }
+
+    // VMA hinzufuegen
+    // Rueckgabewert: true -> Erfolg
+    //                false -> Fehler, VMA ueberlappt
+    pub fn add_vma(&mut self, vma: Box<VMA>) -> bool {
+
+        /*
+         * Hier muss Code eingefuegt werden
+         */
+        return true;
     }
 
 }
