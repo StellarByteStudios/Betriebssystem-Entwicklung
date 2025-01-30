@@ -33,7 +33,7 @@ use crate::boot::multiboot::PhysRegion;
 use crate::consts::KERNEL_PHYS_SIZE;
 use crate::consts::PAGE_FRAME_SIZE;
 use crate::devices::kprint;
-
+use crate::kernel::cpu;
 use super::physical_addres::PhysAddr;
 use super::physlistallocator::PfListAllocator;
 
@@ -133,6 +133,7 @@ pub fn pf_init(free: Vec<PhysRegion>) {
 // Oder User-Space, falls 'in_kernel_space' = false
 pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
     // Fall es ist im Kernel Space
+    let nested = cpu::disable_int_nested();
     if in_kernel_space {
         unsafe {
             let alloc_adress: *mut u64 = FREE_KERNEL_PAGE_FRAMES.alloc(
@@ -140,6 +141,7 @@ pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
             );
             // angeforderten Speicher nullen
             clean_frame(alloc_adress, pf_count * PAGE_FRAME_SIZE);
+            cpu::enable_int_nested(nested);
             return PhysAddr::new(alloc_adress as u64);
         }
     }
@@ -150,6 +152,7 @@ pub fn pf_alloc(pf_count: usize, in_kernel_space: bool) -> PhysAddr {
         );
         // angeforderten Speicher nullen
         clean_frame(alloc_adress, pf_count * PAGE_FRAME_SIZE);
+        cpu::enable_int_nested(nested);
         return PhysAddr::new(alloc_adress as u64);
     }
 }

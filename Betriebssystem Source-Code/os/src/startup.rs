@@ -82,7 +82,7 @@ fn init_all(mbi: u64) {
     //kprintln!("kmain, free physical memory: {:?}", phys_mem);
 
     // Multiboot-Infos ausgeben
-    //multiboot::dump(mbi);
+    multiboot::dump(mbi);
 
     // initialize the logger
     logger::init();

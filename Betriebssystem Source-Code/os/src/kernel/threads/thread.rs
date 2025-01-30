@@ -77,21 +77,20 @@ impl Thread {
         // Neue ID erstellen
         let new_tid = scheduler::next_thread_id();
 
-        // Oberste Page-Table anlegen (mit Kernel initialisiert)
-        let new_pml4_addr = pages::pg_init_user_tables();
-        // Später vielleicht Page-Table in den Prozess verschieben
+        // PML4 aus Prozess laden
+        let process_pml4 = process::get_pml4_address_by_pid(process_id);
 
         let my_kernel_stack =
-            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, true, new_pml4_addr);
+            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, true, process_pml4);
         let my_user_stack =
-            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, false, new_pml4_addr);
+            stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, false, process_pml4);
 
         // Thread-Objekt anlegen
         let mut threadobj = Box::new(Thread {
             pid: process_id,
             tid: new_tid,
             is_kernel_thread: kernel_thread,
-            pml4_addr: new_pml4_addr,
+            pml4_addr: process_pml4,
             old_rsp0: 0,
             kernel_stack: my_kernel_stack,
             user_stack: my_user_stack,

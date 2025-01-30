@@ -11,8 +11,9 @@
  *****************************************************************************/
 use alloc::boxed::Box;
 use core::fmt;
+use crate::consts::PAGE_SIZE;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VmaType {
     Code,
     Heap,
@@ -48,6 +49,35 @@ impl VMA {
         // Wenn beide Bedingungen nicht gegeben sind, dann gibt es Überschneidungen
         return true;
 
+    }
+    
+    pub fn is_address_on_neighbour_page(&self, addr: usize) -> bool {
+        
+        //kprintln!("is_address_on_neighbour_page(addr={:#x})", addr);
+
+        // Adresse ist in VMA schon drin
+        if addr >= self.start && addr <= self.end {
+            return false;
+        }
+        
+        // Eine Page neben dran
+        if addr >= self.start - PAGE_SIZE && addr < self.end + PAGE_SIZE { 
+            return true;
+        }
+        
+        // Wenn außerhalb
+        return false;
+    }
+    
+    // Getter zum Testen
+    pub fn get_start(&self) -> usize {
+        return self.start;
+    }
+    pub fn get_end(&self) -> usize {
+        return self.end;
+    }
+    pub fn get_type(&self) -> VmaType {
+        return self.typ;
     }
 }
 

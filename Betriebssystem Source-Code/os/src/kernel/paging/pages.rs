@@ -7,9 +7,9 @@
  *                                                                           *
  * Autor:           Michael Schoettner, 13.9.2023                            *
  *****************************************************************************/
-use core::{ptr, slice};
-use core::ptr::null_mut;
-use core::sync::atomic::AtomicUsize;
+use super::frames::pf_alloc;
+use super::pagetable_entry::PageTableEntry;
+use super::physical_addres::PhysAddr;
 use crate::boot::appregion::AppRegion;
 use crate::boot::multiboot;
 use crate::boot::multiboot::MultibootFramebuffer;
@@ -21,13 +21,14 @@ use crate::consts::PAGE_SIZE;
 use crate::consts::STACK_SIZE;
 use crate::consts::USER_STACK_VM_END;
 use crate::consts::USER_STACK_VM_START;
+use crate::kernel::interrupts::intdispatcher;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::pagetable_flags::PTEflags;
 use crate::kernel::processes::{process, vma};
 use crate::utility::mathadditions::math::pow_usize;
-use super::frames::pf_alloc;
-use super::pagetable_entry::PageTableEntry;
-use super::physical_addres::PhysAddr;
+use core::ptr::null_mut;
+use core::sync::atomic::AtomicUsize;
+use core::{ptr, slice};
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
@@ -121,7 +122,6 @@ impl PageTable {
                     } else {
                         entry.set_flags(PTEflags::flags_for_user_pages())
                     }
-
 
                     // Sonderfall, die erste Page soll wegen null-pointer auf nicht Present gesetzt werden
                     if vm_addr == 0 {
@@ -240,7 +240,7 @@ pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
     // Speichern, wo und welche Addressen für den Videospeicher brauchen
     VIDEO_START_ADDRESS.store(page_video_adress, core::sync::atomic::Ordering::SeqCst);
     NUMBER_OF_VIDEO_TABLES.store(how_many_pages, core::sync::atomic::Ordering::SeqCst);
-    
+
     pml4_table.mmap_general(page_video_adress, how_many_pages, true, true, false, 0);
 
     return pml4_addr;
@@ -251,15 +251,17 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
-    
+
     // VMA berechnen und anlegen
-    let new_vma = vma::VMA::new(USER_STACK_VM_START, 
-                                USER_STACK_VM_START + STACK_SIZE, 
-                                vma::VmaType::Stack);
-    
-    // Past diese VMA noch?
+    let new_vma = vma::VMA::new(
+        USER_STACK_VM_START,
+        USER_STACK_VM_START + STACK_SIZE,
+        vma::VmaType::Stack,
+    );
+
+    // Passt diese VMA noch?
     let success = process::add_vma_to_process(pid, new_vma);
-    
+
     if !success {
         return null_mut();
     }
@@ -308,14 +310,10 @@ pub fn pg_init_user_tables() -> PhysAddr {
     return pml4_addr;
 }
 
-
-
 // Setze das CR3 Register
 pub fn pg_set_cr3(pml4_addr: PhysAddr) {
     PageTable::set_cr3(pml4_addr);
 }
-
-
 
 // Diese Funktion richtet ein Mapping fuer ein App-Image ein
 // Bei fehler Return false, true sonst
@@ -323,26 +321,28 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
     unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
-    
+
     // Größe der App berechnen
     let app_lenght: usize = (app.end - app.start) as usize;
     let app_pages = (app_lenght / PAGE_SIZE) + 1;
 
     // Physische Speicherzellen anfordern
     let app_phys_start_address = pf_alloc(app_pages, false);
-    
+
     // App kopieren
     unsafe {
-        let app_data: &[u8] =  slice::from_raw_parts(app.start as *const u8, app_lenght);
-        ptr::copy_nonoverlapping(app_data.as_ptr(), app_phys_start_address.as_mut_ptr(), app_lenght); 
+        let app_data: &[u8] = slice::from_raw_parts(app.start as *const u8, app_lenght);
+        ptr::copy_nonoverlapping(
+            app_data.as_ptr(),
+            app_phys_start_address.as_mut_ptr(),
+            app_lenght,
+        );
     }
 
-
     // VMA berechnen und anlegen
-    let vma_end = consts::USER_CODE_VM_START + (((app.end - app.start) as usize / PAGE_SIZE) + 1) * PAGE_SIZE;
-    let new_vma = vma::VMA::new(consts::USER_CODE_VM_START,
-                                vma_end,
-                                vma::VmaType::Code);
+    let vma_end =
+        consts::USER_CODE_VM_START + (((app.end - app.start) as usize / PAGE_SIZE) + 1) * PAGE_SIZE;
+    let new_vma = vma::VMA::new(consts::USER_CODE_VM_START, vma_end, vma::VmaType::Code);
 
     // Past diese VMA noch?
     let success = process::add_vma_to_process(pid, new_vma);
@@ -360,8 +360,37 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool
         true,
         app_phys_start_address.raw() as usize,
     );
-    
+
     return true;
+}
+
+// Diese Funktion richtet ein Mapping fuer den User-Mode Stack ein
+pub fn pg_mmap_user_heap(pid: usize, addr: usize, len: usize) -> u64 {
+    // PageTable holen
+    let pml4_addr = process::get_pml4_address_by_pid(pid);
+
+    // Type-Cast der pml4-Tabllenadresse auf "PageTable"
+    let pml4_thread_table;
+    unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+
+    // VMA berechnen und anlegen
+    let vma_end = addr + ((len / PAGE_SIZE) + 1) * PAGE_SIZE;
+    let new_vma = vma::VMA::new(addr, vma_end, vma::VmaType::Heap);
+
+    // Past diese VMA noch?
+    let success = process::add_vma_to_process(pid, new_vma);
+
+    if !success {
+        return 1;
+    }
+
+    // Einmappen des Speichers
+    pml4_thread_table.mmap_general(addr, (len / PAGE_SIZE) + 1, false, false, false, 0);
+
+    // Ausgabe der Adresse
+    //where_physical_address(pml4_addr, addr);
+
+    return 0;
 }
 
 /*
@@ -439,6 +468,11 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
 
     kprintln!("Erste Einträge der PageTable auf lvl 1:");
     for i in 0..16 {
-        kprintln!("{}: Address=0x{:x}, Flags={:#b}", i, page_table_1.entries[i].get_addr().raw(), page_table_1.entries[i].get_flags().bits());
+        kprintln!(
+            "{}: Address=0x{:x}, Flags={:#b}",
+            i,
+            page_table_1.entries[i].get_addr().raw(),
+            page_table_1.entries[i].get_flags().bits()
+        );
     }
 }

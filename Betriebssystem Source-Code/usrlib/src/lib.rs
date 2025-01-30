@@ -3,6 +3,7 @@
 #![allow(unused_variables)] // avoid warnings
 
 
+extern crate alloc;
 pub mod kernel;
 //pub mod applications;
 pub mod utility;

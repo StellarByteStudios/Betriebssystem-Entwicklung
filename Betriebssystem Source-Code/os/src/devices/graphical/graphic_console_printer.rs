@@ -60,7 +60,7 @@ pub fn print_char(b: char) {
     scroll_with_check();
 
     // Lock zum zeichnen
-    let printlock = PRINTER.lock();
+    //let printlock = PRINTER.lock();
 
     // Possition des Cursers holen
     let cursor: (u32, u32) = get_pos();
@@ -108,7 +108,7 @@ pub fn print_char(b: char) {
     }
 
     // Lock wieder freigeben
-    drop(printlock);
+    //drop(printlock);
 }
 
 // Ganzen String Ausgeben

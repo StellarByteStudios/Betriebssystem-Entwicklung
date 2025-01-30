@@ -48,3 +48,7 @@ pub const USER_CODE_VM_START: usize = 0x100_0000_0000; // 1 TiB
 //
 pub const USER_STACK_VM_START: usize = 0x4000_0000_0000;
 pub const USER_STACK_VM_END: usize = USER_STACK_VM_START + STACK_SIZE - 1;
+
+
+pub const USER_CODE_HEAP_START: usize = 0x7000_0000_0000;
+//pub const USER_CODE_HEAP_LEN: usize = 0x10_0000;

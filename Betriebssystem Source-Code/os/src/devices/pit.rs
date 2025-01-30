@@ -14,6 +14,7 @@ use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 use crate::consts::{CLOCK_POS, GRAPHIC_BYTE_CLOCK_POS, GRAPHIC_CLOCK_POS};
 use crate::devices::cga;
+use crate::devices::graphical::graphic_console_printer;
 use crate::kernel::cpu;
 use crate::kernel::interrupts::intdispatcher;
 use crate::kernel::interrupts::intdispatcher::INT_VEC_TIMER;
@@ -25,7 +26,6 @@ use crate::kernel::threads::scheduler::Scheduler;
 use crate::kernel::threads::scheduler::SCHEDULER;
 use crate::kernel::threads::thread;
 use crate::kernel::threads::thread::Thread;
-use crate::devices::graphical::graphic_console_printer;
 
 use super::cga_print;
 
@@ -139,6 +139,7 @@ impl isr::ISR for PitISR {
             */
 
             /* Grafikmodus  version */
+            /*
             // Interrupts zwischendrin disablen
             let ie: bool = cpu::disable_int_nested();
 
@@ -163,6 +164,7 @@ impl isr::ISR for PitISR {
 
             // Interrupts wieder freischalten
             cpu::enable_int_nested(ie);
+             */
         }
 
         // We try to switch to the next thread

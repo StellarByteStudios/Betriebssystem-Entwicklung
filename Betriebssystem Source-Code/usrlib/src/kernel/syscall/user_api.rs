@@ -30,6 +30,7 @@ pub const SYSNO_GET_SCREEN_WIDTH: usize = 9;
 pub const SYSNO_GET_PROCESS_ID: usize = 10;
 pub const SYSNO_GET_PROCESS_NAME: usize = 11;
 pub const SYSNO_DUMP_ACTIVE_VMAS: usize = 12;
+pub const SYSNO_MMAP_HEAP_SPACE: usize = 13;
 
 pub fn usr_hello_world() {
     syscall0(SYSNO_HELLO_WORLD as u64);
@@ -84,13 +85,18 @@ pub fn usr_dump_active_vmas() {
     syscall0(SYSNO_DUMP_ACTIVE_VMAS as u64);
 }
 
+// Gibt die Startadresse des Heaps zurück
+pub fn usr_mmap_heap_space(pid: usize, size: u64) -> u64 {
+    return syscall2(SYSNO_MMAP_HEAP_SPACE as u64, pid as u64, size);
+}
+
 
 #[inline(always)]
 #[allow(unused_mut)]
 pub fn syscall0(arg0: u64) -> u64 {
     let mut ret: u64;
     unsafe {
-        asm!("int 0x80", // ===== Irgendwie lande ich hier immer in Int 13 (General Prot Fault)
+        asm!("int 0x80",
             inlateout("rax") arg0 => ret,
             options(preserves_flags, nostack)
         );
