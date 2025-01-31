@@ -38,11 +38,6 @@ pub fn init(pid: usize, heap_size: usize) {
     // Erst speicher anfordern
     let heap_start: usize = usr_mmap_heap_space(pid, heap_size as u64) as usize;
     
-    gprintln!("!!!! Heap_space gemappted");
-    
-    
-    gprintln!("    Heap_start = {:#x}", heap_start);
-    
     // Fehlerprüfung
     if heap_start == 0 { 
         return;

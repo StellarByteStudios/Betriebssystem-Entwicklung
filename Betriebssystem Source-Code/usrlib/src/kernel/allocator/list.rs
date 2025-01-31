@@ -76,7 +76,6 @@ impl LinkedListAllocator {
         //gprintln!("!!!!   Init den Alloc heap_start: {:#x}", heap_start);
 
         self.add_free_block(heap_start, heap_size);
-        gprintln!("Nach dem adden");
 
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size - 1;
@@ -102,17 +101,9 @@ impl LinkedListAllocator {
         // create a pointer to 'addr' of Type ListNode
         let node_ptr = addr as *mut ListNode;
 
-        gprintln!("Alloc vor dem Pointer-Schreiben");
-        gprintln!("Daten des Blocks: ");
-        gprintln!("      - startadresse: {:#x}", addr);
-        gprintln!("      - erstellte Node: {:?}", node);
-        gprintln!("      - pointer: {:?}", node_ptr);
-
         // copy content of new ListeNode to 'addr'
         // Ist es möglich, das ptr::write eine Privilage Instruction ist??
         node_ptr.write(node);
-
-        gprintln!("nach dem Pointer-Schreiben");
 
         // update ptr. to 1st block in global variable 'head'
         self.head.next = Some(&mut *node_ptr);

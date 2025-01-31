@@ -27,7 +27,7 @@ pub fn main() {
     let pid: usize = usr_get_pid() as usize;
 
     init(pid, HEAP_SIZE);
-    gprintln!("Allocator was initialized");
+    //gprintln!("Allocator was initialized");
 
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
