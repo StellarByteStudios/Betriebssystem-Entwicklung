@@ -13,3 +13,4 @@ pub mod sys_getpid;
 pub mod sys_read_process_name;
 pub mod sys_dump_vmas;
 pub mod sys_mmap_heap_space;
+pub mod sys_paint_picture_on_pos;

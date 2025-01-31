@@ -61,8 +61,8 @@ pub fn main() {
 
         //usr_dump_active_vmas();
 
-        let add_summand: u64 = 100;
-        //let add_summand: u64 = 0;
+        //let add_summand: u64 = 100;
+        let add_summand: u64 = 0;
 
         // Fibonacci berechnen
         let fibonacci_value = calculate_fibonacci_rec(i + add_summand);

@@ -2,9 +2,9 @@
 
 use crate::devices::cga;
 // Speicher pro Stack = 64 KB
-//pub const STACK_SIZE: usize = 0x1_0000;
+pub const STACK_SIZE: usize = 0x1_0000;
 // nur eine Seite Stack
-pub const STACK_SIZE: usize = PAGE_SIZE*2;// * 0x10;
+//pub const STACK_SIZE: usize = PAGE_SIZE*2;// * 0x10;
 pub const STACK_ALIGNMENT: usize = 8;
 pub const STACK_ENTRY_SIZE: usize = 8;
 pub const HEAP_SIZE: usize = 1024 * 1024 * 64 * 4;
@@ -50,7 +50,6 @@ pub const USER_CODE_VM_START: usize = 0x100_0000_0000; // 1 TiB
 //
 pub const USER_STACK_VM_START: usize = 0x4000_0000_0000;
 pub const USER_STACK_VM_END: usize = USER_STACK_VM_START + STACK_SIZE - 1;
-
 
 pub const USER_CODE_HEAP_START: usize = 0x7000_0000_0000;
 //pub const USER_CODE_HEAP_LEN: usize = 0x10_0000;

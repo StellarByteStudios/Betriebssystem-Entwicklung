@@ -17,8 +17,11 @@
                 {
                     "text": "set disassembly-flavor intel"
                 },
+                //{
+                //    "text": "add-symbol-file \"${workspaceRoot}/loader/isofiles/boot/apps/hello.elf\" 0x10000000000"
+                //},
                 {
-                    "text": "add-symbol-file \"${workspaceRoot}/loader/isofiles/boot/apps/hello.elf\" 0x10000000000"
+                    "text": "add-symbol-file \"${workspaceRoot}/loader/isofiles/boot/apps/animation.elf\" 0x10000000000"
                 }
             ],
             "preLaunchTask": "qemu-gdb"

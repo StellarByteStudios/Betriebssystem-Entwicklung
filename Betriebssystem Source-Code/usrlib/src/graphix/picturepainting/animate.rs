@@ -101,7 +101,7 @@ pub fn animate_charmander(x: u32, y: u32) {
     ];
 
     // Frames nacheinander zeichnen
-    gprintln!("animating Charmander");
+    //gprintln!("animating Charmander");
     loop {
         for i in 0..frames.len() {
             draw_picture(

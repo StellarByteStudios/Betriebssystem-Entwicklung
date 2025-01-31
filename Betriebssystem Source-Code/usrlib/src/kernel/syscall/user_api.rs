@@ -31,6 +31,7 @@ pub const SYSNO_GET_PROCESS_ID: usize = 10;
 pub const SYSNO_GET_PROCESS_NAME: usize = 11;
 pub const SYSNO_DUMP_ACTIVE_VMAS: usize = 12;
 pub const SYSNO_MMAP_HEAP_SPACE: usize = 13;
+pub const SYSNO_PRINT_PICTURE: usize = 14;
 
 pub fn usr_hello_world() {
     syscall0(SYSNO_HELLO_WORLD as u64);
@@ -60,12 +61,18 @@ pub fn usr_get_systime() -> u64 {
     return syscall0(SYSNO_GET_SYSTIME as u64);
 }
 
-pub fn usr_graphical_print(buff: *const u8, len: u64){
+pub fn usr_graphical_print(buff: *const u8, len: u64) {
     syscall2(SYSNO_GRAPHICAL_PRINT as u64, buff as u64, len);
 }
 
-pub fn usr_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64){
-    syscall4(SYSNO_GRAPHICAL_PRINT_WITH_POS as u64, x, y, buff as u64, len);
+pub fn usr_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64) {
+    syscall4(
+        SYSNO_GRAPHICAL_PRINT_WITH_POS as u64,
+        x,
+        y,
+        buff as u64,
+        len,
+    );
 }
 
 pub fn usr_get_screen_width() -> u64 {
@@ -90,6 +97,24 @@ pub fn usr_mmap_heap_space(pid: usize, size: u64) -> u64 {
     return syscall2(SYSNO_MMAP_HEAP_SPACE as u64, pid as u64, size);
 }
 
+pub fn usr_paint_picture_on_pos(
+    x: u64,
+    y: u64,
+    width: u64,
+    height: u64,
+    bbp: u64,
+    bitmapbuff: *const u8,
+) {
+    syscall6(
+        SYSNO_PRINT_PICTURE as u64,
+        x,
+        y,
+        width,
+        height,
+        bbp,
+        bitmapbuff as u64,
+    );
+}
 
 #[inline(always)]
 #[allow(unused_mut)]
@@ -179,6 +204,55 @@ pub fn syscall4(arg0: u64, arg1: u64, arg2: u64, arg3: u64, arg4: u64) -> u64 {
         in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
         in("rdx") arg3,       // Load arg3 into rdc (third syscall parameter)
         in("rcx") arg4,       // Load arg4 into rdc (forth syscall parameter)
+        lateout("rax") ret,   // Store return value from syscall in ret
+        options(preserves_flags, nostack)
+        );
+    }
+    ret
+}
+
+#[inline(always)]
+#[allow(unused_mut)]
+pub fn syscall5(arg0: u64, arg1: u64, arg2: u64, arg3: u64, arg4: u64, arg5: u64) -> u64 {
+    let mut ret: u64;
+    unsafe {
+        asm!(
+        "int 0x80",           // Software interrupt for syscalls on x86_64 Linux
+        in("rax") arg0,       // Load arg0 into rax (typically the syscall number)
+        in("rdi") arg1,       // Load arg1 into rdi (first syscall parameter)
+        in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
+        in("rdx") arg3,       // Load arg3 into rdc (third syscall parameter)
+        in("rcx") arg4,       // Load arg4 into rdc (forth syscall parameter)
+        in("r8")  arg5,
+        lateout("rax") ret,   // Store return value from syscall in ret
+        options(preserves_flags, nostack)
+        );
+    }
+    ret
+}
+
+#[inline(always)]
+#[allow(unused_mut)]
+pub fn syscall6(
+    arg0: u64,
+    arg1: u64,
+    arg2: u64,
+    arg3: u64,
+    arg4: u64,
+    arg5: u64,
+    arg6: u64,
+) -> u64 {
+    let mut ret: u64;
+    unsafe {
+        asm!(
+        "int 0x80",           // Software interrupt for syscalls on x86_64 Linux
+        in("rax") arg0,       // Load arg0 into rax (typically the syscall number)
+        in("rdi") arg1,       // Load arg1 into rdi (first syscall parameter)
+        in("rsi") arg2,       // Load arg2 into rsi (second syscall parameter)
+        in("rdx") arg3,       // Load arg3 into rdc (third syscall parameter)
+        in("rcx") arg4,       // Load arg4 into rdc (forth syscall parameter)
+        in("r8")  arg5,
+        in("r9")  arg6,
         lateout("rax") ret,   // Store return value from syscall in ret
         options(preserves_flags, nostack)
         );
