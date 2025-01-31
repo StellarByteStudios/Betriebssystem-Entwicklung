@@ -280,6 +280,36 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     return USER_STACK_VM_START as *mut u8;
 }
 
+// Returned True wenn alles funktioniert hat; False bei fehler
+pub fn pg_mmap_extend_user_stack(pid: usize, pml4_addr: PhysAddr, address_to_map: usize) -> bool {
+    // Page der Adresse herausfinden
+    let start_address = address_to_map & 0xFFFF_FFFF_FFFF_F000; // Unterste 12 Bit abschneiden
+    let end_address = start_address + PAGE_SIZE - 1;
+
+    // Type-Cast der pml4-Tabllenadresse auf "PageTable"
+    let pml4_thread_table;
+    unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+
+    // VMA berechnen und anlegen
+    let new_vma = vma::VMA::new(start_address, end_address, vma::VmaType::Stack);
+
+    // Passt diese VMA noch?
+    let success = process::add_vma_to_process(pid, new_vma);
+
+    if !success {
+        return false;
+    }
+    let number_of_bytes = end_address - start_address + 1;
+    let number_of_pages = number_of_bytes / PAGE_SIZE;
+
+    // Stack mappen
+    pml4_thread_table.mmap_general(start_address, 1, false, false, false, 0);
+
+    //where_physical_address(pml4_addr, address_to_map);
+
+    return true;
+}
+
 pub fn pg_init_user_tables() -> PhysAddr {
     // Alloziere eine Tabelle fuer Page Map Level 4 (PML4) -> 4 KB
     let pml4_addr = frames::pf_alloc(1, true);
@@ -401,7 +431,7 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
     let pml4_table;
     unsafe { pml4_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
 
-    kprintln!("--------- mapping virtual Address ---------");
+    kprintln!("\n\n= = = = = = = = = mapping of virtual Address = = = = = = = = =");
     kprintln!("Virtual Address: 0x{:x}", virtual_address);
     kprintln!(
         "Index in Page lvl 4: {}",
@@ -465,6 +495,16 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
     );
     let page_table_1: &mut PageTable =
         unsafe { &mut *(page_table_2_entry.get_addr().as_mut_ptr::<PageTable>()) };
+    
+    kprintln!("Eintrag den wir suchen: ");
+    let page_table_1_entry: PageTableEntry =
+        page_table_1.entries[get_index_in_table(virtual_address, 0)];
+
+    kprintln!(
+        "Physical Address: 0x{:x}, Flags: {:#b}",
+        page_table_1_entry.get_addr().raw(),
+        page_table_1_entry.get_flags().bits()
+    );
 
     kprintln!("Erste Einträge der PageTable auf lvl 1:");
     for i in 0..16 {
@@ -475,4 +515,5 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
             page_table_1.entries[i].get_flags().bits()
         );
     }
+    kprintln!("= = = = = = = = = = = = = = = = = = = =\n\n")
 }

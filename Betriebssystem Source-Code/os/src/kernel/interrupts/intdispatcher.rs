@@ -12,15 +12,20 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
+use crate::consts;
 use crate::devices::kprint;
-use crate::kernel::cpu;
 use crate::kernel::interrupts::isr;
+use crate::kernel::paging::pages;
+use crate::kernel::paging::pages::where_physical_address;
+use crate::kernel::paging::physical_addres::PhysAddr;
+use crate::kernel::processes::process;
+use crate::kernel::threads::scheduler;
+use crate::kernel::{cpu, interrupts};
+use crate::utility::delay::delay;
 use alloc::{boxed::Box, vec::Vec};
+use core::arch::asm;
 use core::sync::atomic::{AtomicUsize, Ordering};
 use x86_64::registers::control::{Cr2, Cr3};
-use crate::consts;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::physical_addres::PhysAddr;
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;
@@ -201,17 +206,86 @@ pub extern "C" fn int_gpf(error_code: u64, cs: u16, rip: u64) {
         kprint::WRITER.force_unlock();
     }
     kprintln!(
-        "general protection fault: error_code = 0x{:x}, cs:rip = 0x{:x}:0x{:x}, CR2 = 0x{:x}",
+        "general protection fault: error_code = bx{:b}, cs:rip = 0x{:x}:0x{:x}, CR2 = 0x{:x}",
         error_code,
         cs,
         rip,
-        Cr2::read()
+        Cr2::read_raw()
     );
     loop {}
 }
 
 #[no_mangle]
 pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
+    let nested = cpu::disable_int_nested();
+    //cpu::disable_int();
+    kprintln!("\n\n= = = = = Wir sind im Page fault! = = = = =");
+
+    // * Erstmal testen ob es eine Stacküberschreitung ist * //
+    // Addresse holen, wo der Page Fault stattgefunden hat
+    let fault_address = Cr2::read_raw() as usize;
+
+    kprintln!(
+        "Fault adresse gelesen: {:#x};     cs-Register {:#x}",
+        fault_address,
+        cs
+    );
+
+    // Holen des Aktiven Prozesses
+    let active_pid = scheduler::get_active_pid();
+    //let active_process = process::get_process_by_id(active_pid);
+    let active_process = unsafe {
+        process::PROCESSES
+            .as_mut()
+            .unwrap()
+            .get_mut(&active_pid)
+            .unwrap()
+    };
+
+    // Der Active Prozess gibt hier nur Müll raus
+    kprintln!("Aktiven Prozess geholt: {:?}", active_process);
+    //kprintln!("---- Dump VMAs");
+    //active_process.dump_vmas();
+    //kprintln!("---- ----");
+
+    // Addresse prüfen
+    let is_part_of_stack = active_process.is_address_neighbour_page_of_stack(fault_address);
+
+    kprintln!("Part of stack?: {:#}", is_part_of_stack);
+
+    //delay(10);
+
+    // Falls Stacküberschreitung: den Stack erweitern
+    if is_part_of_stack {
+        // PML4 Adresse holen
+        //let pml4_addr = Cr3::read().0.start_address().as_u64();
+        let pml4_addr = process::get_pml4_address_by_pid(active_pid).raw();
+        //kprintln!("PML4 Adresse geholt: {:#x}", pml4_addr);
+        // Stack erweitern
+        let success =
+            pages::pg_mmap_extend_user_stack(active_pid, PhysAddr::new(pml4_addr), fault_address);
+
+        kprintln!("success?: {:#} ", success);
+
+        // hat es funktioniert?
+        if success {
+            kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
+            where_physical_address(PhysAddr::new(pml4_addr), fault_address);
+            
+            // Aufräumen            
+            cpu::enable_int_nested(nested);
+            kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
+            //cpu::enable_int();
+            // CR3 aktuallisieren für den TLB flush
+            //let cr3 = Cr3::read().0.start_address().as_u64();
+            //crate::kernel::paging::pages::pg_set_cr3(PhysAddr::new(cr3));
+            return;
+        }
+        // Ansonsten normalen Page-Fault weiter machen
+    }
+
+    // * Ansonsten normalen Page Fault * //
+
     // force unlock, just to be sure
     // anyway we do not return
     unsafe {
@@ -222,9 +296,9 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
         error_code,
         cs,
         rip,
-        Cr2::read()
-    );  
+        Cr2::read_raw()
+    );
     let page_table_addres = PhysAddr::new(Cr3::read().0.start_address().as_u64());
-    pages::where_physical_address(page_table_addres, Cr2::read().as_u64() as usize);
+    pages::where_physical_address(page_table_addres, Cr2::read_raw() as usize);
     loop {}
 }

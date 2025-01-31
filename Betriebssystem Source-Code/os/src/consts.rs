@@ -2,7 +2,9 @@
 
 use crate::devices::cga;
 // Speicher pro Stack = 64 KB
-pub const STACK_SIZE: usize = 0x1_0000;
+//pub const STACK_SIZE: usize = 0x1_0000;
+// nur eine Seite Stack
+pub const STACK_SIZE: usize = PAGE_SIZE*2;// * 0x10;
 pub const STACK_ALIGNMENT: usize = 8;
 pub const STACK_ENTRY_SIZE: usize = 8;
 pub const HEAP_SIZE: usize = 1024 * 1024 * 64 * 4;
