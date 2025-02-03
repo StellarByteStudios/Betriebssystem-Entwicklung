@@ -36,13 +36,6 @@ impl Stack {
             cpu::halt();
         }
 
-        /*
-        kprintln!(
-            "Stack::new, memory block = [0x{:x}; 0x{:x}]",
-            start as usize,
-            (data as usize + consts::STACK_ENTRY_SIZE)
-        );*/
-
         Box::new(Stack { data, size })
     }
 
@@ -56,7 +49,7 @@ impl Stack {
         // Mapping anlegen
         let start_pointer = pages::pg_mmap_user_stack(pid, pml4_addr);
         if start_pointer.is_null() { 
-            println!("Panic: failed in 'new_mapped_stack'");
+            kprintln!("Panic: failed in 'new_mapped_stack'");
         }
         
         // Datapointer schieben (Stack wächst von oben nach unten)
@@ -64,19 +57,11 @@ impl Stack {
             ((start_pointer as usize) + (size as usize) - consts::STACK_ENTRY_SIZE) as *mut u8;
 
         if data.is_null() {
-            println!("Panic: failed in 'Stack::new_mapped_stack'");
+            kprintln!("Panic: failed in 'Stack::new_mapped_stack'");
             cpu::halt();
         }
 
-        /*
-        kprintln!(
-            "Stack::new_mapped_stack, memory block = [0x{:x}; 0x{:x}]",
-            start_pointer as usize,
-            (data as usize + consts::STACK_ENTRY_SIZE)
-        );*/
-
         return Box::new(Stack { data, size });
-        //return Stack::new(size);
     }
 
     pub fn stack_end(&self) -> *mut u64 {

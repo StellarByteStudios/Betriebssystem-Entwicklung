@@ -52,8 +52,6 @@ impl VMA {
     }
     
     pub fn is_address_on_neighbour_page(&self, addr: usize) -> bool {
-        
-        //kprintln!("is_address_on_neighbour_page(addr={:#x})", addr);
 
         // Adresse ist in VMA schon drin
         if addr >= self.start && addr <= self.end {

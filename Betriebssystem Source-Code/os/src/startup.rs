@@ -39,7 +39,7 @@ use kernel::{
         pages,
     },
     syscall,
-    threads::{self, scheduler::Scheduler, sec_idle_thread, thread::Thread},
+    threads::{self, scheduler::Scheduler, idle_thread, thread::Thread},
 };
 use log::info;
 use crate::kernel::threads::scheduler;
@@ -54,8 +54,6 @@ mod consts;
 mod kernel;
 
 mod boot;
-//mod user;
-mod testing;
 mod utility;
 
 // Konstanten im Linker-Skript
@@ -68,18 +66,15 @@ fn init_all(mbi: u64) {
     kprintln!("OS initializing...");
 
     let kernel_region = get_kernel_image_region();
-    //kprintln!("   kernel_region: {:?}", kernel_region);
 
     // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
     let heap_region = create_temp_heap(kernel_region.end as usize);
-    //kprintln!("kmain, heap: {:?}", heap_region);
 
     // Multiboot-Infos für Grafik auslesen, falls vorhanden
     check_graphics_mode(mbi);
 
     // Verfuegbaren physikalischen Speicher ermitteln (exklusive Kernel-Image und Heap)
     let phys_mem = multiboot::get_free_memory(mbi, kernel_region, heap_region);
-    //kprintln!("kmain, free physical memory: {:?}", phys_mem);
 
     // Multiboot-Infos ausgeben
     multiboot::dump(mbi);
@@ -96,7 +91,6 @@ fn init_all(mbi: u64) {
     pages::pg_set_cr3(pml4_addr);
 
     // Nochmal richtig Kernal-Heap initialisieren
-    // Nicht sicher ob das noch nach dem Paging so läuft
     ini_kernel_heap();
 
     // Interrupt-Strukturen initialisieren
@@ -260,21 +254,7 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Alles Wichtige Initialisieren
     init_all(mbi);
-
-    /*
-    // separate compilierte App suchen
-    let app_region = appregion::get_app(mbi);
-    kprintln!("kmain, app: {:?}", app_region);
-
-    let mut app_thread_page_address: PhysAddr = PhysAddr::new(0);
-    // Thread fuer eine App erzeugen & im Scheduler registrieren
-    if app_region.is_some() {
-        // Sobalt das einkommentiert wird stützts ab wegen page fault
-        let app_thread = Thread::new_app_thread(app_region.unwrap());
-
-        app_thread_page_address = app_thread.get_pml4_address();
-        Scheduler::ready(app_thread);
-    }*/
+    
 
     // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
     scheduler::spawn_kernel();
@@ -308,6 +288,5 @@ pub extern "C" fn kmain(mbi: u64) {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     kprintln!("Panic: {}", info);
-    //kprintln!("{:?}", Backtrace::new());
     loop {}
 }

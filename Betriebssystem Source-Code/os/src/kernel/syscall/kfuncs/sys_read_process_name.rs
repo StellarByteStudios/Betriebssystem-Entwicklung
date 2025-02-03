@@ -21,13 +21,7 @@ pub extern "C" fn sys_read_process_name(buff: *mut u8, len: u64) -> u64 {
         return 0;
     }
 
-    // Schreiben in den übergebenen Buffer
-    /* gibt irgendwie nur garbage zurück
-    unsafe {
-        let string_data =  process_name.unwrap().clone().as_mut_ptr();
-        ptr::copy_nonoverlapping(string_data, buff, name_length);
-    }*/
-    
+    // Schreiben in den übergebenen Buffer    
     unsafe {
         // Einzeln bytes kopieren
         let process_name_owned = process_name.clone().unwrap(); // Store the owned value

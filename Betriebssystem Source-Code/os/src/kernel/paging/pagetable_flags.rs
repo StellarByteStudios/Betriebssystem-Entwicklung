@@ -20,7 +20,6 @@ impl PTEflags {
             bits: 0b0000_0000_0000_0011,
         };
         return kernel_flags;
-        //return Self::flags_for_user_pages();
     }
 
     pub fn flags_for_user_pages() -> Self {

@@ -196,8 +196,6 @@ impl LinkedListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        // kprint!("   alloc: size={}, align={}", layout.size(), layout.align());
-
         // perform layout adjustments
         let (size, align) = LinkedListAllocator::size_align(layout);
         let ret_ptr: *mut u8;
@@ -213,16 +211,13 @@ impl LinkedListAllocator {
                 self.add_free_block(alloc_end, remaining_block_size);
             }
             ret_ptr = block.start_addr() as *mut u8;
-            //   kprintln!(", returning addr=0x{:x}", block.start_addr());
         } else {
-            // println!(", *** out of memory ***");
             ret_ptr = ptr::null_mut(); // out of memory
         }
         ret_ptr
     }
 
     pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
-        //kprintln!("   dealloc: size={}, align={}; not supported", layout.size(), layout.align());
         let (size, _) = LinkedListAllocator::size_align(layout);
         self.add_free_block(ptr as usize, size)
     }

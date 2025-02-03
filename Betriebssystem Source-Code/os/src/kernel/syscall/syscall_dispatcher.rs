@@ -97,7 +97,6 @@ pub unsafe extern "C" fn syscall_disp() {
 						"call [{syscall_functable}+8*rax]",
 						"ret",
       syscall_functable = sym SYSCALL_FUNCTABLE);
-    //    		options(noreturn));
 }
 
 /*****************************************************************************

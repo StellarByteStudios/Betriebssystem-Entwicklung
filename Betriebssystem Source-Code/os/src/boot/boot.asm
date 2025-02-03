@@ -71,7 +71,6 @@ MULTIBOOT_ARCHITECTURE_I386:      equ 0
 MULTIBOOT_HEADER_TAG_OPTIONAL:    equ 1
 MULTIBOOT_HEADER_TAG_FRAMEBUFFER: equ 5
 MULTIBOOT_HEADER_TAG_END:         equ 0
-;MULTIBOOT_PAGE_ALIGN:             equ 0x1000
 MULTIBOOT_PAGE_ALIGN:             equ 1
 
 MULTIBOOT_MEMORY_INFO	equ	1<<1
@@ -119,42 +118,42 @@ _multiboot_header:
 ;
 ;   Multiboot-Header zum Starten mit GRUB oder QEMU (ohne BIOS)
 ;
-	dd MULTIBOOT_HEADER_MAGIC
-	dd MULTIBOOT_HEADER_FLAGS
-	dd -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-	dd _multiboot_header   
-	dd (___KERNEL_DATA_START__   - KERNEL_START)
-	dd (___KERNEL_DATA_END__     - KERNEL_START)
-	dd (___BSS_END__             - KERNEL_START)
-	dd (kmain                    - KERNEL_START)
-	dd MULTIBOOT_GRAPHICS_MODE
-	dd MULTIBOOT_GRAPHICS_WIDTH
-	dd MULTIBOOT_GRAPHICS_HEIGHT
-	dd MULTIBOOT_GRAPHICS_BPP
+    dd MULTIBOOT_HEADER_MAGIC
+    dd MULTIBOOT_HEADER_FLAGS
+    dd -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+    dd _multiboot_header   
+    dd (___KERNEL_DATA_START__   - KERNEL_START)
+    dd (___KERNEL_DATA_END__     - KERNEL_START)
+    dd (___BSS_END__             - KERNEL_START)
+    dd (kmain                    - KERNEL_START)
+    dd MULTIBOOT_GRAPHICS_MODE
+    dd MULTIBOOT_GRAPHICS_WIDTH
+    dd MULTIBOOT_GRAPHICS_HEIGHT
+    dd MULTIBOOT_GRAPHICS_BPP
 
 ;  GRUB Einsprungspunkt
 _start:
-	  cld               ; GCC-kompilierter Code erwartet das so
-	  cli               ; Interrupts ausschalten
-	  lgdt   [_gdt_80]  ; Neue Segmentdeskriptoren setzen
-
-   ; Globales Datensegment
-	  ;mov    eax, 3 * 0x8
-			mov    eax, 3     ; 3. Eintrag in der GDT
-			shl    eax, 3     ; Index beginnt ab 2. Bit
-	  mov    ds, ax
-	  mov    es, ax
-	  mov    fs, ax
-	  mov    gs, ax
-
-   ; Stack festlegen
-	  mov    ss, ax
-	  mov    esp, _init_stack+STACKSIZE
-   
-   ; EBX = Adresse der Multiboot-Struktur
-	  mov    [_multiboot_addr], ebx
-
-   jmp    _init_longmode
+    cld                     ; GCC-kompilierter Code erwartet das so
+    cli                     ; Interrupts ausschalten
+    lgdt   [_gdt_80]        ; Neue Segmentdeskriptoren setzen
+    
+    ; Globales Datensegment
+    ;mov    eax, 3 * 0x8
+        mov    eax, 3       ; 3. Eintrag in der GDT
+        shl    eax, 3       ; Index beginnt ab 2. Bit
+    mov    ds, ax
+    mov    es, ax
+    mov    fs, ax
+    mov    gs, ax
+    
+    ; Stack festlegen
+    mov    ss, ax
+    mov    esp, _init_stack+STACKSIZE
+    
+    ; EBX = Adresse der Multiboot-Struktur
+    mov    [_multiboot_addr], ebx
+    
+    jmp    _init_longmode
 
 
 ;
@@ -162,27 +161,27 @@ _start:
 ;
 _init_longmode:
 
-	  ; Adresserweiterung (PAE) aktivieren
-	  mov    eax, cr4
-	  or     eax, 1 << 5
-	  mov    cr4, eax
-
-	  ; Seitentabelle anlegen (Ohne geht es nicht)
-	  call   _setup_paging
-
-	  ; Long-Mode (fürs erste noch im Compatibility-Mode) aktivieren
-	  mov    ecx, 0x0C0000080 ; EFER (Extended Feature Enable Register) auswaehlen
-	  rdmsr
-	  or     eax, 1 << 8 ; LME (Long Mode Enable)
-	  wrmsr
-
-	  ; Paging aktivieren
-	  mov    eax, cr0
-	  or     eax, 1 << 31
-	  mov    cr0, eax
-
-	  ; Sprung ins 64 Bit-Codesegment -> Long-Mode wird vollständig aktiviert
-	  jmp    2 * 0x8 : _longmode_start    ; CS = 2. Eintrag in der GDT
+    ; Adresserweiterung (PAE) aktivieren
+    mov    eax, cr4
+    or     eax, 1 << 5
+    mov    cr4, eax
+    
+    ; Seitentabelle anlegen (Ohne geht es nicht)
+    call   _setup_paging
+    
+    ; Long-Mode (fürs erste noch im Compatibility-Mode) aktivieren
+    mov    ecx, 0x0C0000080 ; EFER (Extended Feature Enable Register) auswaehlen
+    rdmsr
+    or     eax, 1 << 8 ; LME (Long Mode Enable)
+    wrmsr
+    
+    ; Paging aktivieren
+    mov    eax, cr0
+    or     eax, 1 << 31
+    mov    cr0, eax
+    
+    ; Sprung ins 64 Bit-Codesegment -> Long-Mode wird vollständig aktiviert
+    jmp    2 * 0x8 : _longmode_start    ; CS = 2. Eintrag in der GDT
 
 
 ;
@@ -192,45 +191,43 @@ _init_longmode:
 ;   vorausgesetzt wird. Mehr Speicher darf das System im Moment nicht haben.
 ;
 _setup_paging:
-   ; PML4 (Page Map Level 4 / 1. Stufe)
-	  mov    eax, _pdp
-	  or     eax, 0xf
-	  mov    dword [_pml4 + 0], eax
-	  mov    dword [_pml4 + 4], 0
-
-	  ; PDPE (Page-Directory-Pointer Entry / 2. Stufe) für aktuell 16GB
-	  mov    eax, _pd
-	  or     eax, 0x7           ; Adresse der ersten Tabelle (3. Stufe) mit Flags.
-	  mov    ecx, 0
+    ; PML4 (Page Map Level 4 / 1. Stufe)
+    mov    eax, _pdp
+    or     eax, 0xf
+    mov    dword [_pml4 + 0], eax
+    mov    dword [_pml4 + 4], 0
+    
+    ; PDPE (Page-Directory-Pointer Entry / 2. Stufe) für aktuell 16GB
+    mov    eax, _pd
+    or     eax, 0x7           ; Adresse der ersten Tabelle (3. Stufe) mit Flags.
+    mov    ecx, 0
 _fill_tables2:
-	  cmp    ecx, MAX_MEM       ; MAX_MEM Tabellen referenzieren
-	  je     _fill_tables2_done
-	  mov    dword [_pdp + 8*ecx + 0], eax
-	  mov    dword [_pdp + 8*ecx + 4], 0
-	  add    eax, 0x1000        ; Die Tabellen sind je 4kB groß
-	  inc    ecx
-	  ja     _fill_tables2
+    cmp    ecx, MAX_MEM       ; MAX_MEM Tabellen referenzieren
+    je     _fill_tables2_done
+    mov    dword [_pdp + 8*ecx + 0], eax
+    mov    dword [_pdp + 8*ecx + 4], 0
+    add    eax, 0x1000        ; Die Tabellen sind je 4kB groß
+    inc    ecx
+    ja     _fill_tables2
 _fill_tables2_done:
-
-	  ; PDE (Page Directory Entry / 3. Stufe)
-	  mov    eax, 0x0 | 0x87    ; Startadressenbyte 0..3 (=0) + Flags
-	  mov    ebx, 0             ; Startadressenbyte 4..7 (=0)
-	  mov    ecx, 0
+    ; PDE (Page Directory Entry / 3. Stufe)
+    mov    eax, 0x0 | 0x87    ; Startadressenbyte 0..3 (=0) + Flags
+    mov    ebx, 0             ; Startadressenbyte 4..7 (=0)
+    mov    ecx, 0
 _fill_tables3:
-	  cmp    ecx, 512*MAX_MEM   ; MAX_MEM Tabellen mit je 512 Einträgen füllen
-	  je     _fill_tables3_done
-	  mov    dword [_pd + 8*ecx + 0], eax ; low bytes
-	  mov    dword [_pd + 8*ecx + 4], ebx ; high bytes
-	  add    eax, 0x200000      ; 2 MB je Seite
-	  adc    ebx, 0             ; Overflow? -> Hohen Adressteil inkrementieren
-	  inc    ecx
-	  ja     _fill_tables3
+    cmp    ecx, 512*MAX_MEM   ; MAX_MEM Tabellen mit je 512 Einträgen füllen
+    je     _fill_tables3_done
+    mov    dword [_pd + 8*ecx + 0], eax ; low bytes
+    mov    dword [_pd + 8*ecx + 4], ebx ; high bytes
+    add    eax, 0x200000      ; 2 MB je Seite
+    adc    ebx, 0             ; Overflow? -> Hohen Adressteil inkrementieren
+    inc    ecx
+    ja     _fill_tables3
 _fill_tables3_done:
-
-   ; Basiszeiger auf PML4 setzen
-	  mov    eax, _pml4
-	  mov    cr3, eax
-	  ret
+    ; Basiszeiger auf PML4 setzen
+    mov    eax, _pml4
+    mov    cr3, eax
+    ret
 
 
 ;
@@ -242,61 +239,54 @@ _fill_tables3_done:
 ;
 [BITS 64]
 _longmode_start:
-    
-	; BSS löschen
-	mov    rdi, ___BSS_START__
+    ; BSS löschen
+    mov    rdi, ___BSS_START__
 _clear_bss:
-	mov    byte [rdi], 0
-	inc    rdi
-	cmp    rdi, ___BSS_END__
-	jne    _clear_bss
-
-	; TSS-Basisadresse im GDT-Eintrag setzen
-	call _tss_set_base_address
-
-
-
-	; Kernel-Stack im TSS setzen -> rsp0 
-	mov rdi, _init_stack.end 
-	call _tss_set_rsp0
+    mov    byte [rdi], 0
+    inc    rdi
+    cmp    rdi, ___BSS_END__
+    jne    _clear_bss
+    
+    ; TSS-Basisadresse im GDT-Eintrag setzen
+    call _tss_set_base_address
+    
+    
+    
+    ; Kernel-Stack im TSS setzen -> rsp0 
+    mov rdi, _init_stack.end 
+    call _tss_set_rsp0
 
 _break_after_tss:
 
 	; Lade TSS-Register mit dem TSS-Deskriptor
-	; ; === Eigener Code === ; ;
 	xor rax, rax
 	mov rax, 0x6 	; Index 6 in das Register schreiben
 	shl rax, 3 		; Schiebe 3 Bits nach Links weil die untersten nicht verwendet werden
-	;mov ax, 6*8
-	ltr ax			; = = = = BEI DIESEM AUFRUF GEHT WAS SCHIEF
-	; ; ===  === ; ;
+	ltr ax
 
 
 
-	; 'kmain' mit Parametern aufrufen    
-	  xor    rax,rax
-	  mov    dword eax, _multiboot_addr
-	  mov    rdi, [rax]                 ; 1. Parameter wird in rdi uebergeben
-	  call   kmain ; kernel starten
-	
-  	cli            ; Hier sollten wir nicht hinkommen
-	  hlt
+    ; 'kmain' mit Parametern aufrufen    
+    xor    rax,rax
+    mov    dword eax, _multiboot_addr
+    mov    rdi, [rax]                 ; 1. Parameter wird in rdi uebergeben
+    call   kmain ; kernel starten
+    
+    cli            ; Hier sollten wir nicht hinkommen
+    hlt
 
 
 ;
 ; TSS Basisadresse in GDT-Eintrag setzen
 ;
 _tss_set_base_address:
-	; ; === Eigener Code === ; ;
-;_break_tss_begin:
 	; Adresse der TSS in ein Register schreiben
 	mov rbx, _tss
 
 	; Adresse des TSS Descriptors in ein anderes Register schreiben
 	mov rax, _tssd_start_adress
-;_break_tss_rbx:
+	
 	; Adresse Byteweise an die richtigen Stellen des Descriptors schreiben
-
 	; erster 2 Byte Abschnit
 	mov [rax+2], bx
 	; shiften
@@ -312,9 +302,7 @@ _tss_set_base_address:
 
 	; letzter 4 Byte Abschnitt
 	mov [rax+8], ebx
-;_break_tss_end:
 	ret
-	; ; ===  === ; ;
 
 
 
@@ -322,15 +310,15 @@ _tss_set_base_address:
 ; Kernel-Stack im TSS = rsp0 setzen
 ; 1. Parameter -> rdi = Zeiger auf den Stack (letzter genutzer Eintrag)
 _tss_set_rsp0:
-   mov rax, _tss
-   mov [rax+4], rdi
-   ret
+    mov rax, _tss
+    mov [rax+4], rdi
+    ret
 
 
 ; Adresse des TSS abfragen
 _get_tss_address:
-   mov rax, _tss
-   ret
+    mov rax, _tss
+    ret
 
 
 
@@ -396,12 +384,6 @@ _tssd_start_adress:
 	; ; ===  === ; ;
 
 _gdt_80:
-	; 4 Eintraege in der GDT
-	; ; === Alter Code === ; ;
-	;dw  4*8 - 1   ; GDT Limit=32, 7 GDT Eintraege - 1
-	;dq  _gdt      ; Adresse der GDT
-
-	; ; === Eigener Code === ; ;
 	dw  6*8 - 1 + 16   ; GDT Limit=32, 15 GDT Eintraege - 1
 	dq  _gdt      ; Adresse der GDT
 
@@ -409,16 +391,16 @@ _gdt_80:
 ; Addresse fuer die Multiboot-Infos wird hier gesichert
 ;
 _multiboot_addr:
-	  dq 0
+    dq 0
 
 ;
 ; Speicher (104 Bytes) fuer ein Task State Segment (TSS) ohne IO-Bitmap
 ; siehe auch: https://stackoverflow.com/questions/54876039/creating-a-proper-task-state-segment-tss-structure-with-and-without-an-io-bitm
 ;
 _tss:
-   times 100 db 0
-   dw 0
-   dw 0x68
+    times 100 db 0
+    dw 0
+    dw 0x68
 
 
 [SECTION .bss]
@@ -428,7 +410,7 @@ _tss:
 ;
 global _init_stack:data (_init_stack.end - _init_stack)
 _init_stack:
-	  resb STACKSIZE
+    resb STACKSIZE
 .end:
 
 

@@ -180,7 +180,7 @@ impl VGA {
                 }
             }
             _ => {
-                //println!("Error: bpp not supported");
+                
             }
         }
     }

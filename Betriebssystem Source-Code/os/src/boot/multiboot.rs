@@ -188,11 +188,7 @@ pub fn get_free_memory(
             break;
         }
         free = check_for_overlapping(free, reserved_region.unwrap());
-        //kprintln!("   free: {:?}", free);
     }
-
-    //kprintln!("   final free: {:?}", free);
-
     free
 }
 
@@ -312,11 +308,5 @@ pub fn dump(mbi_ptr: u64) {
     if flags & 0x1000 != 0 {
         let mb_fb: MultibootFramebuffer = mb_info.framebuffer;
         kprintln!("   framebuffer {:?}", mb_fb);
-        /* vga::init( mb_info.framebuffer.addr,
-          mb_info.framebuffer.pitch,
-          mb_info.framebuffer.width,
-          mb_info.framebuffer.height,
-          mb_info.framebuffer.bpp
-        ); */
     }
 }

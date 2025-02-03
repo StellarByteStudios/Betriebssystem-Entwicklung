@@ -17,23 +17,17 @@
    ║         https://os.phil-opp.com/allocator-designs/                      ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::consts::HEAP_SIZE;
-use crate::kernel::allocator::bump::BumpAllocator;
 use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
 use alloc::string::String;
 
 use super::cpu;
-
-pub mod bump;
 pub mod list;
 
 pub const HEAP_START: usize = 0x500000;
-//pub const HEAP_SIZE: usize = 1024 * 1024; // 1 MB heap size
 
 // defining the Allocator (which implements the 'GlobalAlloc' trait)
 #[global_allocator]
-//static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
 
 /**
@@ -67,35 +61,6 @@ pub fn dealloc(ptr: *mut u8, layout: Layout) {
 */
 pub fn dump_free_list() {
     ALLOCATOR.lock().dump_free_list();
-}
-
-pub fn dump_free_list_graphic() {
-    //Funktioniert nicht mit Vorgegebenem Allokator
-    // ALLOCATOR.lock().dump_free_list_graphic()
-}
-
-// Funktioniert noch nicht wegen konflikte mit der String-Klasse
-pub fn free_list_string() -> String {
-    //kprintln!("Vor dem Alloc lock");
-
-    //let mut lock = ALLOCATOR.lock();
-
-    //kprintln!("Nach dem Alloc lock");
-
-    let ie: bool = cpu::disable_int_nested();
-
-    //kprintln!("Nach dem int disable");
-
-    //Funktioniert nicht mit Vorgegebenem Allokator
-    //let formated_string: String = lock.free_list_string();
-
-    //drop(lock);
-
-    cpu::enable_int_nested(ie);
-
-    //Funktioniert nicht mit Vorgegebenem Allokator
-    //return formated_string;
-    return String::new();
 }
 
 /**

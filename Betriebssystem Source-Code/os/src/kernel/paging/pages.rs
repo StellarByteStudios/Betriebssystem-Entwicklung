@@ -15,8 +15,6 @@ use crate::boot::multiboot;
 use crate::boot::multiboot::MultibootFramebuffer;
 use crate::boot::multiboot::MultibootInfo;
 use crate::consts;
-use crate::consts::KERNEL_VM_SIZE;
-use crate::consts::PAGE_FRAME_SIZE;
 use crate::consts::PAGE_SIZE;
 use crate::consts::STACK_SIZE;
 use crate::consts::USER_STACK_VM_END;
@@ -200,13 +198,10 @@ impl PageTable {
 // Fuer die Page-Tables werden bei Bedarf Page-Frames alloziert
 // CR3 wird am Ende gesetzt
 pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
-    kprintln!("pg_init_kernel_tables");
 
     // Ausrechnen wie viel Seiten "gemappt" werden muessen
     let max_phys_addr: usize = PhysAddr::get_max_phys_addr().raw() as usize;
     let nr_of_pages = (max_phys_addr + 1) / PAGE_SIZE;
-    kprintln!("   nr_of_pages = {}", nr_of_pages);
-    kprintln!("   max_phys_addr = 0x{:x}", max_phys_addr);
 
     // Speichern wie viele Pages für das 1:1 mapping benötigt werden (später für Thread-Pages wichtig)
     TABLES_IN_PHYSICAL_MEMORY.store(nr_of_pages, core::sync::atomic::Ordering::SeqCst);
@@ -235,7 +230,7 @@ pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
     // addr: 4244635648, pitch: 5120, width: 1280, height: 720, bpp: 32 (bisher immer gleich)
     // Auf die Pages runden
     let page_video_adress = video_addr & 0xFFFF_FFFF_FFFF_F000;
-    let how_many_pages = (((video_pitch * video_height) / PAGE_FRAME_SIZE as u32) + 1) as usize;
+    let how_many_pages = (((video_pitch * video_height) / PAGE_SIZE as u32) + 1) as usize;
 
     // Speichern, wo und welche Addressen für den Videospeicher brauchen
     VIDEO_START_ADDRESS.store(page_video_adress, core::sync::atomic::Ordering::SeqCst);
@@ -269,7 +264,7 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     // Stack mappen
     pml4_thread_table.mmap_general(
         USER_STACK_VM_START,
-        STACK_SIZE / PAGE_FRAME_SIZE,
+        STACK_SIZE / PAGE_SIZE,
         false,
         false,
         false,
@@ -304,8 +299,6 @@ pub fn pg_mmap_extend_user_stack(pid: usize, pml4_addr: PhysAddr, address_to_map
 
     // Stack mappen
     pml4_thread_table.mmap_general(start_address, 1, false, false, false, 0);
-
-    //where_physical_address(pml4_addr, address_to_map);
 
     return true;
 }
@@ -416,9 +409,6 @@ pub fn pg_mmap_user_heap(pid: usize, addr: usize, len: usize) -> u64 {
 
     // Einmappen des Speichers
     pml4_thread_table.mmap_general(addr, (len / PAGE_SIZE) + 1, false, false, false, 0);
-
-    // Ausgabe der Adresse
-    //where_physical_address(pml4_addr, addr);
 
     return 0;
 }

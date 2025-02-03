@@ -76,8 +76,6 @@ impl<T: PartialEq> Queue<T> {
         let head_cloned = self.head.clone();
         // Option auspackens
         let head_node = head_cloned.unwrap();
-        // Daten holen
-        //let head_borrowed = head_node.borrow();
 
         if head_node.borrow().data == data {
             // Kopf wurde gefunden. Also muss er überschrieben werden
@@ -131,7 +129,7 @@ impl<T: PartialEq> Queue<T> {
 
 // Ausgabe der Liste
 impl<T: Display> Display for Queue<T> {
-    fn fmt(&self, w: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
+    fn fmt(&self, w: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         write!(w, "[")?;
         let mut node = self.head.clone();
         while let Some(n) = node {

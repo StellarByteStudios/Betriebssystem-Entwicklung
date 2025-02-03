@@ -137,14 +137,11 @@ fn delay(mut d: u32) {
         if pit::get_systime() >= old_systime + (d / 10) as u64 {
             break;
         }
-        // Wenn noch nicht ready cpu abgeben
-        //Scheduler::yield_cpu();
     }
 }
 
 fn programm_counter(freq: f32) {
     // Counter ausrechnen
-    //let freq: f32 = 1.0/(d as f32 / 1000.0);
     let counter: u16 = (1_193_182_f32 / freq) as u16;
 
     // Command zusammenbauen

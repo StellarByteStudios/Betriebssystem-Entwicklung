@@ -24,8 +24,6 @@ use core::{
     ptr::{self, null, null_mut},
 };
 
-//pub const PAGE_FRAME_SIZE: usize = 0x400_000; // 4 KiB
-
 /**
  Description: Metadata of a free memory block in the list allocator
 */
@@ -136,7 +134,6 @@ impl PfListAllocator {
     // Adds the given free memory block 'addr' to the front of the free list.
     unsafe fn add_free_block(&mut self, addr: usize, size: usize) -> usize {
         // ensure that the freed block is capable of holding ListNode
-        //assert_eq!(align_up(addr, PAGE_FRAME_SIZE), addr);
         assert!(size >= PAGE_FRAME_SIZE);
 
         // Adresse alignen
@@ -297,7 +294,6 @@ impl PfListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u64 {
-        //kprintln!("   alloc: size={}, align={}", layout.size(), layout.align());
 
         // perform layout adjustments
         let (size, align) = PfListAllocator::size_align(layout);
@@ -314,16 +310,13 @@ impl PfListAllocator {
                 self.add_free_block(alloc_end, remaining_block_size);
             }
             ret_ptr = block.start_addr() as *mut u64;
-            //   kprintln!(", returning addr=0x{:x}", block.start_addr());
         } else {
-            // println!(", *** out of memory ***");
             ret_ptr = ptr::null_mut(); // out of memory
         }
         ret_ptr
     }
 
     pub unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
-        //kprintln!("   dealloc: size={}, align={}; not supported", layout.size(), layout.align());
         let (size, _) = PfListAllocator::size_align(layout);
         self.add_free_block(ptr as usize, size);
     }

@@ -142,9 +142,6 @@ impl Thread {
     pub fn new_app_thread(app: AppRegion, pid: usize) -> Box<Thread> {
         // Entry-Thread konvertieren
         let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
-        
-        // Prozess ID holen (später)
-        //let process_pml4 = PhysAddr::new(0);
 
         let app_thread =
             Self::internal_new(thread_entry, false, pid, app.file_name.clone(), Vec::new());
@@ -251,22 +248,20 @@ impl Thread {
             *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
 
             // Nun sichern wir noch alle Register auf dem Stack
-            *sp0.offset(-1) = 0b0000_0000_0010_1011; // SS Register (Segment Selector)
-                                                     //15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-            *sp0.offset(-2) = sp3 as u64; // ESP                        ===== Ka ob das so richtig ist
-            *sp0.offset(-3) = 512 + 2; // EFLAGS                        ===== Ka wo ich die hernehmen soll
-            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS              ===== Selbe wie SS nur mit Code?
-                                                     //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-                                                     //*sp0.offset(-5) = kickoff_user_addr as u64; // EIP              ===== Adresse für funktion?
+            *sp0.offset(-1) = 0b0000_0000_0010_1011;    // SS Register (Segment Selector)
+                                                              // 15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-2) = sp3 as u64;               // ESP
+            *sp0.offset(-3) = 512 + 2;                  // EFLAGS 
+            *sp0.offset(-4) = 0b0000_0000_0010_0011;    // CS 
+                                                              //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
             *sp0.offset(-5) = consts::USER_CODE_VM_START as u64;
-
-            // = = = Wo muss ich object as u64 als parameter für kickoff_kernel_ad
-            *sp0.offset(-6) = object as u64; // rdi -> 1. Param. fuer 'kickoff_kernel_thread' ?
+            
+            *sp0.offset(-6) = object as u64;            // RDI
 
             // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
             // Eintrag auf dem Stack in 'rsp0'. Daruber gelangen wir in
             // _thread_kernel_start an die noetigen Register
-            self.old_rsp0 = (sp0 as u64) - (8 * 6); // aktuellen Stack-Zeiger speichern
+            self.old_rsp0 = (sp0 as u64) - (8 * 6);           // aktuellen Stack-Zeiger speichern
         }
     }
 

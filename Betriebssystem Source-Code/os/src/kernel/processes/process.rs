@@ -10,8 +10,6 @@ use alloc::string::{String, ToString};
 use core::sync::atomic::{AtomicUsize, Ordering};
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
-// Probiere mal mit HashMap
-//pub static mut PROCESSES_MAP: Option<HashMap<usize, Box<Process>>>;
 
 /* * * * Statische Prozessverwaltung * * * */
 // Prozessverwaltung anlegen; wird nur 1x aufgerufen
@@ -35,18 +33,17 @@ pub fn add_process(new_proc: Box<Process>) {
         PROCESSES.as_mut().unwrap().insert(pid, new_proc);
     }
 }
-// !!!!!!!!!!!!!!! Die Funktion geht nur schief, wenn im Page-Fault
 pub fn get_process_by_id(pid: usize) -> &'static Process {
     unsafe {
+        /*
         let process1 = PROCESSES.as_mut();
         let process2 = process1.unwrap();
-        let process3 = process2.get_mut(&pid); //TODO: In diesem Schritt wird der Speicher überschrieben
-        let process4 = process3.unwrap(); // Aber nur, wenn man im Page Fault ist
-        return process4;
-        // Alte Variante
-        //let process = unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
-        // = = = = = Sobald ich in slice::get_unchecked reingehe wird mein Prozess überschrieben
+        let process3 = process2.get_mut(&pid);
+        let process4 = process3.unwrap(); 
+        return process4; */
+        
     }
+    return unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
 }
 
 // App-Name abfragen
@@ -82,9 +79,7 @@ pub fn add_vma_to_process(pid: usize, vma: Box<VMA>) -> bool {
 }
 
 pub fn dump_vma_of_process(pid: usize) {
-    //let process = unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
     let process = get_process_by_id(pid);
-    //kprintln!(" |»|»|»|»|»|»| VMAs of Process {:?}:", process);
     process.dump_vmas();
 }
 
@@ -152,7 +147,6 @@ impl Process {
 
         // VMA einspeisen
         self.vmas.push_back(vma_to_safe);
-        // !!!!! Adresse von allen VMAs endet auf 0 oder 8 egal ob Heap oder nicht
 
         // Erfolg zurückgeben
         return true;
@@ -177,7 +171,6 @@ impl Process {
     }
 
     pub fn dump_vmas(&self) {
-        //kprintln!("= = = Dumping vmas of process: {:?}", self);
         for vma in self.vmas.iter() {
             kprintln!("{:?}", vma);
         }

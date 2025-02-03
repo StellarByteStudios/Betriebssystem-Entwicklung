@@ -129,8 +129,7 @@ pub fn setpos(x: u32, y: u32) {
     // Possitionsoffset berechnen
     let cursor_offset: u32 = y * CGA_COLUMNS + x;
     let cursor_bytes: (u8, u8) = get_bytes(cursor_offset as u16);
-
-    //let ie = cpu::disable_int_nested();
+    
     // Low-Byte setzen
     // Richtige Registerstelle auswählen
     cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);
@@ -142,9 +141,6 @@ pub fn setpos(x: u32, y: u32) {
     cpu::outb(CGA_INDEX_PORT, CGA_HIGH_BYTE_CMD);
     // Daten (Possition) rein schreiben
     cpu::outb(CGA_DATA_PORT, cursor_bytes.1);
-    //kprintln!("Set Pos to: ({},{})", x, y); // Man muss in kprint nestet_interupts dafür disablen
-
-    //cpu::enable_int_nested(ie);
 }
 
 /**
@@ -164,9 +160,6 @@ pub fn print_byte(b: u8) {
         scroll_with_check();
         return;
     }
-
-    // Formatierung holen
-    //let attribute: u8 = attribute(Color::Black, Color::Green, false);
 
     // Ansonsten normal Ausgeben
     // unsafe, wegen dem Dynamischen Farb Attribut
@@ -208,7 +201,6 @@ pub fn scrollup() {
         setpos(i, CGA_ROWS - 1);
         print_byte(' ' as u8);
     }
-    //kprintln!("=========================== Finished Scrollup");
 
     // Cursor wieder eine Zeile nach oben setzen
     setpos(0, CGA_ROWS - 1);
@@ -280,7 +272,6 @@ pub fn scroll_with_check() {
     let cursor_pos: (u32, u32) = getpos();
     // Scoll wenn Bildschirm voll
     if cursor_pos.1 >= CGA_ROWS {
-        //kprintln!("WARNING: Scrollup after checker!");
         scrollup();
     }
 }

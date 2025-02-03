@@ -17,9 +17,7 @@ use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::paging::physical_addres::PhysAddr;
 use crate::kernel::processes::process::create_fresh_process;
-use crate::kernel::threads::queue::Queue;
-use crate::kernel::threads::{scheduler, sec_idle_thread, thread};
-use crate::kernel::threads::thread::Thread;
+use crate::kernel::threads::{scheduler, idle_thread, thread, queue::Queue};
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
@@ -33,17 +31,10 @@ pub static SCHEDULER: Mutex<Scheduler> = Mutex::new(Scheduler::new());
  Description: Return callers thread ID
 */
 pub fn get_active_tid() -> usize {
-    //thread::Thread::get_tid(SCHEDULER.lock().active)
     return get_active().tid;
 }
 
 pub fn get_active_pid() -> usize {
-    // Das funktioniert nicht wie in der Vorlage. KA was der SCHEDULER da ist
-    //pid = Thread::get_pid(SCHEDULER.as_mut().unwrap().get_active());
-
-    // Sobald ich vom Active die Pid hole gibts einen Protection fault...
-    //let active = get_active().pid;
-    
     // get_active Methode einfach ersetzt und reinkopiert
     let active_pid;
     let irq = cpu::disable_int_nested();
@@ -52,7 +43,6 @@ pub fn get_active_pid() -> usize {
         active_pid = (*active).pid;
     }
     cpu::enable_int_nested(irq);
-    
     
     return active_pid;
 }
@@ -80,10 +70,10 @@ pub fn get_active() -> Box<thread::Thread> {
 pub fn spawn_kernel() {
 
     // Neuen Prozess anlegen
-    let idle_pid =  create_fresh_process("Idle-Prozess") as usize;
+    let idle_pid =  create_fresh_process("Idle-Prozess");
 
     // Idle-Thread mit Pid anleggen
-    let idle_thread = sec_idle_thread::init(idle_pid);
+    let idle_thread = idle_thread::init(idle_pid);
 
     // Thread dem Scheduler geben
     Scheduler::ready(idle_thread);
@@ -101,10 +91,10 @@ pub fn spawn_kernel() {
 pub fn spawn(app: AppRegion) {
     
     // Neuen Prozess anlegen
-    let new_pid =  create_fresh_process(app.file_name.as_str()) as usize;
+    let new_pid =  create_fresh_process(app.file_name.as_str());
 
     // Idle-Thread mit Pid anleggen
-    let new_app_thread = Thread::new_app_thread(app, new_pid);
+    let new_app_thread = thread::Thread::new_app_thread(app, new_pid);
 
     // Thread dem Scheduler geben
     Scheduler::ready(new_app_thread);

@@ -35,11 +35,6 @@ SYSCALL_TRAPGATE: equ 0x80
 ; Trap-Gate fuer Systemaufrufe einrichten
 ;
 _init_syscalls:
-	
-	; 
-	; Hier muss Code eingefuegt werden
-	;
-_break_syscallinit
 	; an richtige Stelle gehen
 	mov rax, _idt ; Läd startadresse
 	add rax, 16 * SYSCALL_TRAPGATE
@@ -78,9 +73,8 @@ _break_syscallinit
 ; Handler fuer Systemaufrufe 
 ;
 _syscall_handler:
-  ; Alle Register sichern
-
-	;push   rax
+  ; Alle Register sichern außer rax
+  
 	push   rbx
 	push   rcx
 	push   rdx
@@ -123,9 +117,6 @@ _syscall_handler:
 
 	; DS und ES wiederherstellen
   
-	; 
-	; Hier muss Code eingefuegt werden
-	;
 
 	pop bx
 	mov es, bx
@@ -133,7 +124,7 @@ _syscall_handler:
 	mov ds, bx
     
 
-  ; Alle Register wiederherstellen
+  ; Alle Register wiederherstellen außer rax
 
 	pop    r15
 	pop    r14
@@ -149,6 +140,5 @@ _syscall_handler:
 	pop    rdx
 	pop    rcx
 	pop    rbx
-	;pop    rax
 
-  iretq
+    iretq

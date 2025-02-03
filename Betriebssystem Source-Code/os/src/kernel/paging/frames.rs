@@ -69,7 +69,6 @@ pub fn pf_init(free: Vec<PhysRegion>) {
     let mut last_addres: u64 = 0;
 
     // Temporäre Allokatoren basteln
-
     let mut free_user_page_frames: PfListAllocator = PfListAllocator::new();
     let mut free_kernal_page_frames: PfListAllocator = PfListAllocator::new();
 

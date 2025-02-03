@@ -11,11 +11,11 @@
 
 [GLOBAL _init_interrupts]      ; export init function
 
-[Global _idt] ; expotieren des Labels für die Speicheradresse
+[Global _idt]                 ; expotieren des Labels für die Speicheradresse
 
 [EXTERN int_disp]             ; im Rust function
 [EXTERN int_gpf]              ; Funktion in Rust, welche GPF behandelt
-[EXTERN int_pagefault]              ; Funktion in Rust, welche PageFault behandelt
+[EXTERN int_pagefault]        ; Funktion in Rust, welche PageFault behandelt
 
 [SECTION .text]
 [BITS 64]
@@ -26,14 +26,8 @@
 _init_interrupts:
    call setup_idt
    call reprogram_pics
-   call setup_trap_gate
    ret
 
-
-; = = = = = Eingene funktion um Trap-Gate anzulegen = = = = = ;
-setup_trap_gate:
-	; Blatt erklärt nicht, was da rein muss
-	ret
 
 
 

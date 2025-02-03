@@ -37,10 +37,7 @@ pub fn key_hit() -> key::Key {
 
 // called from mylib/input.rs
 pub fn get_lastkey() -> u8 {
-    //let key = LAST_KEY.load(Ordering::SeqCst);
-    //LAST_KEY.store(0, Ordering::SeqCst);
-    //return key
-    return LAST_KEY.swap(0, Ordering::SeqCst) as u8;
+    return LAST_KEY.swap(0, Ordering::SeqCst);
 }
 
 // Global thread-safe access to keyboard
@@ -329,20 +326,6 @@ impl Keyboard {
     fn key_hit(&mut self) -> key::Key {
         let invalid: key::Key = Default::default(); // nicht explizit initialisierte Tasten sind ungueltig
 
-        /*
-        // Endloschleife bis Byte abholbereit
-        loop {
-            // Richtige Registerstelle auswählen
-            let controll_byte: u8 = cpu::inb(KBD_CTRL_PORT);
-
-            let buffer_ready: bool = controll_byte & KBD_OUTB != 0;
-            let is_mouse: bool = controll_byte & KBD_AUXB != 0;
-
-            if buffer_ready && !is_mouse {
-                break;
-            }
-        }*/
-
         // Byte aus Port lesen
         let keyboard_code: u8 = cpu::inb(KBD_DATA_PORT);
         self.code = keyboard_code;
@@ -435,7 +418,6 @@ impl Keyboard {
                     break;
                 }
             }
-            //kprintln!("Nach INPB");
 
             // Sagen, dass wir LED schreiben wollen
             loop {
@@ -449,15 +431,12 @@ impl Keyboard {
                         break;
                     }
                 }
-                //kprintln!("Nach SET_LED");
 
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
                 if status != KBD_REPLY_ACK {
-                    //kprintln!("Noch kein Ack bekommen");
                     continue;
                 }
-                //kprintln!("Nach ACK 1");
                 break;
             }
 
@@ -469,7 +448,6 @@ impl Keyboard {
                     break;
                 }
             }
-            //kprintln!("Nach INPB2");
 
             // Sagen, dass wir LED schreiben wollen
             loop {
@@ -481,7 +459,6 @@ impl Keyboard {
                 } else {
                     self.leds &= !led;
                 }
-                //kprintln!("LEDs gesetzt {:#2x}", self.leds);
 
                 cpu::outb(KBD_DATA_PORT, self.leds);
                 // Warte auf Out Byte
@@ -496,7 +473,6 @@ impl Keyboard {
                 // Prüfe ob das Ack gesetzt wurde
                 let status: u8 = cpu::inb(KBD_DATA_PORT);
                 if status != KBD_REPLY_ACK {
-                    //kprintln!("Noch kein Ack2 bekommen");
                     continue;
                 }
                 break;
@@ -521,36 +497,12 @@ impl isr::ISR for KeyboardISR {
     fn trigger(&self) {
         // Warten bis ein Valid Key da ist
         let mut key: key::Key;
-        //loop {
-        key = self::key_hit();
 
-        //if key.valid() {
-        //    break;
-        //}
-        //}
+        key = key_hit();
 
         // Den eingegebenen Buchstaben Speichern
         LAST_KEY.store(key.get_ascii(), Ordering::SeqCst);
 
-        /* ============= Für Aufgabe 3 =============
-        // Curser-Possition festsetzen Syncronisation testen
-        cga::setpos(10, 10);
-
-        // Ausgabe auf dem Bildschirm
-        cga::print_byte(key.get_ascii() as u8);
-        keyboard_handler::handle_keystroke(key.get_ascii());
-        */
-
-        /* ============= Für Aufgabe Konsole ============= */
-        //kprintln!("Key-Hit");
-        if key.valid() {
-            /*
-            if key.get_ascii() == 0xd {
-                graphic_console_printer::print_char('\n');
-            } else {
-                graphic_console_printer::print_char(key.get_ascii() as char);
-            } */
-            //handle_keystroke(key.get_ascii());
-        }
+        
     }
 }
