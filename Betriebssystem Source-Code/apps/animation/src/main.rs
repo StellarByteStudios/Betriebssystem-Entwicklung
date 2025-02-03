@@ -9,12 +9,9 @@ use core::str::from_utf8_unchecked;
 // allocator found but one is required; link to std or add `#[global_allocator]`
 // to a static item that implements the GlobalAlloc trait"
 use usrlib;
-use usrlib::graphix::picturepainting::animate::{animate_blink, animate_charmander, animate_ghost};
-use usrlib::graphix::picturepainting::pictures::crumpy_cat;
+use usrlib::graphix::picturepainting::animate::animate_charmander;
 use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
-use usrlib::kernel::syscall::user_api::{
-    usr_get_pid, usr_paint_picture_on_pos, usr_read_process_name,
-};
+use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_read_process_name};
 use usrlib::print_setpos;
 
 #[link_section = ".main"]
@@ -46,16 +43,6 @@ pub fn main() {
 
     // Animation
     animate_charmander(500, 400);
-    //animate_ghost(500, 450);
-    /*
-    usr_paint_picture_on_pos(
-        500,
-        450,
-        crumpy_cat::HEIGHT as u64,
-        crumpy_cat::WIDTH as u64,
-        crumpy_cat::BPP as u64,
-        crumpy_cat::DATA.as_ptr(),
-    );*/
 
     loop {}
 }

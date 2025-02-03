@@ -10,9 +10,6 @@ use crate::utility::delay;
 pub extern "C" fn idle_thread_entry() {
     scheduler::set_initialized();
     loop {
-        //vprint!("I ");
-        kprintln!("Idling...");
-
         delay::delay(100);
     }
 }
@@ -25,5 +22,4 @@ pub fn init(pid: usize) -> Box<Thread> {
     );
     
     return idle_thread;
-    //scheduler::Scheduler::ready(idle_thread);
 }

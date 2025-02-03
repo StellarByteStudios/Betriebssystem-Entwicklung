@@ -5,10 +5,10 @@ use core::{
 
 use crate::kernel::cpu;
 
-const CURRENT_YEAR: u32 = 2024; // Change this each year!
+const CURRENT_YEAR: u32 = 2025; // Change this each year!
 
-const TIMEZONE: u8 = 2; // Time Zone (Summertime Berlin)
-static TIMEZONE_ATOMIC: AtomicU8 = AtomicU8::new(2); // Time Zone (Summertime Berlin)
+const TIMEZONE: u8 = 1; // Time Zone (Wintertime Berlin)
+static TIMEZONE_ATOMIC: AtomicU8 = AtomicU8::new(1); // Time Zone (Wintertime Berlin)
 
 static CENTURY_REGISTER: AtomicU8 = AtomicU8::new(0); // Set by ACPI table parsing code if possible
 

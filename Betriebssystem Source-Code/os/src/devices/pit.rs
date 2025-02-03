@@ -9,12 +9,15 @@
 #![allow(dead_code)]
 
 use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::ToString;
 use core::ptr::null_mut;
 use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 use crate::consts::{CLOCK_POS, GRAPHIC_BYTE_CLOCK_POS, GRAPHIC_CLOCK_POS};
 use crate::devices::cga;
 use crate::devices::graphical::graphic_console_printer;
+use crate::devices::rtc::get_time;
 use crate::kernel::cpu;
 use crate::kernel::interrupts::intdispatcher;
 use crate::kernel::interrupts::intdispatcher::INT_VEC_TIMER;
@@ -60,11 +63,7 @@ pub fn interval(tick_lenght: u32) {
     // Command zusammenbauen
     // (00)Channel 0 | (11)Access-Mode: high/low Byte | (011)Timer_mode 3 = (square wave generator) | (0)Conter-Mode: Binary
     let pit_command: u8 = 0b00_11_011_0;
-
-    //kprintln!("tick_length: {}", tick_lenght);
-    //kprintln!("(tick_lenght / 1000: {})", (tick_lenght as f32 / 1000.0));
-    //kprintln!("freq: {}", freq);
-    //kprintln!("Counter: {}", counter);
+    
 
     cpu::outb(PORT_CTRL, pit_command);
     cpu::outb(PORT_DATA0, counter as u8);
@@ -98,57 +97,31 @@ impl isr::ISR for PitISR {
      Description: ISR of the pit.
     */
     fn trigger(&self) {
-        // progress system time by one tick
-
         // Einen Tick speichern
-        let systime: u64 = SYS_TIME.fetch_add(1, core::sync::atomic::Ordering::SeqCst);
-
-        //kprintln!("System Tick interrupt: {}", systime);
+        let systime: u64 = SYS_TIME.fetch_add(1, Ordering::SeqCst);
 
         // Rotate the spinner each 100 ticks. One tick is 10ms, so the spinner
         // rotates 360 degress in about 1s
 
         // Müssen wir die Uhr aktuallisieren?
-
         if systime % 100 == 0 {
-            /* Text Mode version
-            // Interrupts zwischendrin disablen
-            let ie: bool = cpu::disable_int_nested();
-
-            // Position festsetzen vom Bildschirm
-            let clock_cursor_pos: (u32, u32) = CLOCK_POS;
-
-            // Berechnen welches Zeichen überhaupt ausgeben
-            let clock_index: usize =
-                (SYS_TIME_DISPLAY.fetch_add(1, core::sync::atomic::Ordering::SeqCst)) % 4;
-            let clock_char: u8 = CLOCK_SYMBOLS[clock_index];
-
-            // Alte Cursor-Position speicher
-            let old_cursor_pos: (u32, u32) = cga::getpos();
-
-            // Position der Uhr Setzen
-            cga::setpos(clock_cursor_pos.0, clock_cursor_pos.1);
-
-            // Uhr ausgeben
-            cga::print_byte(clock_char);
-            // Cursor wieder an richtige Stelle setzen
-            cga::setpos(old_cursor_pos.0, old_cursor_pos.1);
-
-            // Interrupts wieder freischalten
-            cpu::enable_int_nested(ie);
-            */
-
             /* Grafikmodus  version */
-            /*
             // Interrupts zwischendrin disablen
             let ie: bool = cpu::disable_int_nested();
+            
+            // Lock vom Cursor freigeben
+            unsafe { graphic_console_printer::forceunlock_cursor() }
 
             // Position festsetzen vom Bildschirm
-            let clock_cursor_pos: (u32, u32) = GRAPHIC_BYTE_CLOCK_POS;
+            //let clock_cursor_pos: (u32, u32) = GRAPHIC_BYTE_CLOCK_POS;
+            let clock_cursor_pos: (u32, u32) = GRAPHIC_CLOCK_POS;
+            
+            // Systemzeit holen
+            let timestamp = get_time();
 
             // Berechnen welches Zeichen überhaupt ausgeben
             let clock_index: usize =
-                (SYS_TIME_DISPLAY.fetch_add(1, core::sync::atomic::Ordering::SeqCst)) % 4;
+                (SYS_TIME_DISPLAY.fetch_add(1, Ordering::SeqCst)) % 4;
             let clock_char: u8 = CLOCK_SYMBOLS[clock_index];
 
             // Alte Cursor-Position speicher
@@ -158,16 +131,18 @@ impl isr::ISR for PitISR {
             graphic_console_printer::set_pos(clock_cursor_pos.0, clock_cursor_pos.1);
 
             // Uhr ausgeben
-            graphic_console_printer::print_char(clock_char as char);
+            //graphic_console_printer::print_char(clock_char as char);
+            graphic_console_printer::print_string_on_position(clock_cursor_pos.0 as u64, 
+                                                              clock_cursor_pos.1 as u64, 
+                                                              format!("{:}", timestamp).as_str());
+            
             // Cursor wieder an richtige Stelle setzen
             graphic_console_printer::set_pos(old_cursor_pos.0, old_cursor_pos.1);
 
             // Interrupts wieder freischalten
             cpu::enable_int_nested(ie);
-             */
         }
-
-        // We try to switch to the next thread
+        
         // Prüfen, ob der Scheduler grade frei ist
         let mut scheduler: Option<spin::MutexGuard<Scheduler>> = SCHEDULER.try_lock();
         if scheduler.is_none() {
@@ -182,9 +157,7 @@ impl isr::ISR for PitISR {
 
         // Scheduler wieder freigeben
         drop(scheduler);
-
-        //kprintln!("Zwei Threads aus threads2switch {:?},  {:?};     Zeit: {}", threads2switch.0, threads2switch.1, get_systime());
-        //kprintln!("Zeit: {}", get_systime());
+        
         // kam was bei rum?
         if threads2switch.0.is_null() {
             return;
