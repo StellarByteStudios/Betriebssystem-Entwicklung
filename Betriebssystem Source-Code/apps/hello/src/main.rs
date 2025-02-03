@@ -4,18 +4,15 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use core::mem;
+
 use core::panic::PanicInfo;
-use core::str::{from_utf8, from_utf8_unchecked};
-// Sobald usrlib importiert wird "error: no global memory
-// allocator found but one is required; link to std or add `#[global_allocator]`
-// to a static item that implements the GlobalAlloc trait"
+use core::str::from_utf8_unchecked;
 use usrlib;
 use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
 use usrlib::kernel::syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_read_process_name};
 use usrlib::utility::delay::delay;
 use usrlib::utility::mathadditions::fibonacci::calculate_fibonacci_rec;
-use usrlib::{gprint, gprintln, print_setpos};
+use usrlib::print_setpos;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -31,8 +28,6 @@ pub fn main() {
 
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
-
-    //usr_dump_active_vmas();
 
     // Counter starten
     let mut i: u64 = 0;
@@ -52,14 +47,10 @@ pub fn main() {
                     .unwrap_or(&[]),
             )
         };
-        //usr_dump_active_vmas();
 
         // Ausgabe
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
-        //print_setpos!(10, 30, " pid: {}", pid);
         print_setpos!(10, 31, "Counter {}", i);
-
-        //usr_dump_active_vmas();
 
         //let add_summand: u64 = 100;
         let add_summand: u64 = 0;
@@ -89,7 +80,5 @@ pub fn main() {
 */
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    //kprintln!("Panic: {}", info);
-    //kprintln!("{:?}", Backtrace::new());
     loop {}
 }

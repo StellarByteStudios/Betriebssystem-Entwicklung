@@ -5,9 +5,6 @@ extern crate alloc;
 
 use core::panic::PanicInfo;
 use core::str::from_utf8_unchecked;
-// Sobald usrlib importiert wird "error: no global memory
-// allocator found but one is required; link to std or add `#[global_allocator]`
-// to a static item that implements the GlobalAlloc trait"
 use usrlib;
 use usrlib::graphix::picturepainting::animate::animate_charmander;
 use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
@@ -52,7 +49,5 @@ pub fn main() {
 */
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    //kprintln!("Panic: {}", info);
-    //kprintln!("{:?}", Backtrace::new());
     loop {}
 }

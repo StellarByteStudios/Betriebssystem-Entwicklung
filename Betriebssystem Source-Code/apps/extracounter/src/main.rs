@@ -5,8 +5,7 @@ use core::panic::PanicInfo;
 use core::str::from_utf8_unchecked;
 #[macro_use]
 use usrlib;
-// Man muss beide Imporieren, da sie sonst nicht richtig aufklappen
-use usrlib::{print_setpos};
+use usrlib::print_setpos;
 use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_read_process_name};
 use usrlib::utility::delay::delay;
 
@@ -51,7 +50,5 @@ pub fn main() {
 */
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    //kprintln!("Panic: {}", info);
-    //kprintln!("{:?}", Backtrace::new());
     loop {}
 }
