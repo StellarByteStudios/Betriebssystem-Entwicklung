@@ -33,6 +33,8 @@ pub const SYSNO_DUMP_ACTIVE_VMAS: usize = 12;
 pub const SYSNO_MMAP_HEAP_SPACE: usize = 13;
 pub const SYSNO_PRINT_PICTURE: usize = 14;
 
+pub const SYSNO_PLAY_SONG: usize = 15;
+
 pub fn usr_hello_world() {
     syscall0(SYSNO_HELLO_WORLD as u64);
 }
@@ -116,6 +118,11 @@ pub fn usr_paint_picture_on_pos(
     );
 }
 
+pub fn usr_play_song(songID: u64){
+    syscall1(SYSNO_PLAY_SONG as u64, songID);
+}
+
+
 #[inline(always)]
 #[allow(unused_mut)]
 pub fn syscall0(arg0: u64) -> u64 {
@@ -128,10 +135,6 @@ pub fn syscall0(arg0: u64) -> u64 {
     }
     ret
 }
-
-/*
- * Hier muss Code eingefuegt werden
- */
 
 /*  Parameterreihenfolge
 1. rdi
