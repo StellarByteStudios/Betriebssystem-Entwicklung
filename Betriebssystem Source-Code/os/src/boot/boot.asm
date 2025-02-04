@@ -139,8 +139,8 @@ _start:
     
     ; Globales Datensegment
     ;mov    eax, 3 * 0x8
-        mov    eax, 3       ; 3. Eintrag in der GDT
-        shl    eax, 3       ; Index beginnt ab 2. Bit
+    mov    eax, 3       ; 3. Eintrag in der GDT
+    shl    eax, 3       ; Index beginnt ab 2. Bit
     mov    ds, ax
     mov    es, ax
     mov    fs, ax

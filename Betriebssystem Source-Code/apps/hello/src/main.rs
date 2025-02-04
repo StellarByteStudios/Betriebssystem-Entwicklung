@@ -9,11 +9,13 @@ use core::panic::PanicInfo;
 use core::str::from_utf8_unchecked;
 use usrlib;
 use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
+use usrlib::kernel::syscall::user_api::{
+    usr_dump_active_vmas, usr_get_pid, usr_play_song, usr_read_process_name,
+};
 use usrlib::kernel::syscall::SongID;
-use usrlib::kernel::syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_play_song, usr_read_process_name};
+use usrlib::print_setpos;
 use usrlib::utility::delay::delay;
 use usrlib::utility::mathadditions::fibonacci::calculate_fibonacci_rec;
-use usrlib::print_setpos;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -52,7 +54,7 @@ pub fn main() {
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
         print_setpos!(10, 31, "Counter {}", i);
 
-        //let add_summand: u64 = 100;
+        //let add_summand: u64 = 1000;
         let add_summand: u64 = 0;
 
         // Fibonacci berechnen

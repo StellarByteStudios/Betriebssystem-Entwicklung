@@ -54,17 +54,18 @@ _wrapper_%1:
 	push   r14
 	push   r15
 
+
 	; do we have a general protection fault?
 	%if %1 == 13 
-		mov    rdi, [rsp+120] ; error code
-		mov    rdx, [rsp+128] ; rip
-		mov    rsi, [rsp+136] ; cs
+		mov     rdi, [rsp+120] ; error code
+		mov     rdx, [rsp+128] ; rip
+		mov     rsi, [rsp+136] ; cs
 		call    int_gpf
 	; do we have a page fault?
 	%elif %1 == 14
-	    mov    rdi, [rsp+120] ; error code
-        mov    rdx, [rsp+128] ; rip
-        mov    rsi, [rsp+136] ; cs
+	    mov     rdi, [rsp+120] ; error code
+        mov     rdx, [rsp+128] ; rip
+        mov     rsi, [rsp+136] ; cs
         call    int_pagefault
 	%else
 		; pass the vector as parameter 

@@ -271,14 +271,14 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
         if success {
             kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
             where_physical_address(PhysAddr::new(pml4_addr), fault_address);
-            
-            // Aufräumen            
+
+            // Aufräumen
             cpu::enable_int_nested(nested);
             kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
             //cpu::enable_int();
             // CR3 aktuallisieren für den TLB flush
             //let cr3 = Cr3::read().0.start_address().as_u64();
-            //crate::kernel::paging::pages::pg_set_cr3(PhysAddr::new(cr3));
+            //crate::kernel::paging::pages::pg_set_cr3(PhysAddr::new(pml4_addr));
             return;
         }
         // Ansonsten normalen Page-Fault weiter machen
