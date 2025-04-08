@@ -1,18 +1,11 @@
 # Notizen für das Betriebssystem
 
-## Fragen die ich Stellen möchte
-1) > Was wie wird der Alphakanal durchsichtig?
-2) > Warum stürzt der Scheduler ab, wenn ich die Queue kopiere?
-3) > Was müsste ich bei den Threads ändern für Float-Support?
-4) > Wie reproduzierbar müssen alte Aufgaben sein? (Grafikmodus, Polling Tastatur und Sound)
-5) > Macros um nicht jedes Programm immer überall zu registrieren?
-6) Ist es möglich in UEFI zu booten (no suitable video mode found)
-
-## Inspiration
-1) > Bei falschen Eingaben Fehler-Meldung
-2) > Scrollen indem man die Pixel um 10px hoch schiebt (WIP)
-3) ~~Möglichkeit das System zu beenden~~
-4) > Namen der Threads angeben
-5) > cpu halt im Idle-Thread
-6) Farbenwechsel von Hintergrund und Schrift
-7) (Speicherqueue verbessern)
+- [ ] Bei Stackvergrößern wird nicht der richtige Prozess gefunden (Das Stackvergrößern scheint zu funktionieren, aber dann kommt plötzlich ein Pagefault nahe 0)
+  - Scheint nicht zu funktionieren. Wenn man im Fault den Prozess holt, hat der eine leere Liste und String
+  - Prozess (Speicher) wird überschrieben wenn ich versuche den Prozess zu holen
+  - Der Fehler mit Prozess holen tritt nur auf, wenn im Page Fault
+- [ ] Wenn ich eine VMA vom Typ Heap in die Liste Pushe gibt es einen Alignment error
+  - Die Adresse von allen VMAs endet mit 0 oder 8, egal ob Heap oder nicht
+- [ ] Versuche ich im Alloc-Init eine Node in den gegebenen Speicher zu schreiben bekommen ich einen General Protection Fault
+  - Der Fault titt auf, direkt im Assembler-Befehl, der die Daten in die Speicherstelle schreiben soll
+  - Möglich, das ptr.write ein Priviligierter Befehl ist? Listallokator ist ja im Usermode

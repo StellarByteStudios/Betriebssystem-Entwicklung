@@ -1,4 +1,11 @@
-break startup
+break kmain
+break src/kernel/syscall/user_api.rs:hhu_tosr::kernel::syscall::user_api::usr_hello_world 
+break _break_syscallinit
+#break _thread_user_start
+#break _break_after_tss
+#break _break_tss_begin
+#break _break_tss_rbx
+#break _break_tss_end
 #break src/devices/pit.rs:hhu_tosr::devices::pit::{impl#0}::trigger 
 #break src/kernel/threads/scheduler.rs:hhu_tosr::kernel::threads::scheduler::Scheduler::prepare_preempt 
 #break src/kernel/threads/thread.rs:hhu_tosr::kernel::threads::thread::Thread::switch

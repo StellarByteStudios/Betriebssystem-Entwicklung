@@ -1,29 +1,66 @@
-
 ######################################
 # Environment variables
 ######################################
 
-[env.development]
-CARGO_CFG_TARGET_FAMILY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/hhu_tosr.json"
-BUILD_DIRECTORY = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/hhu_tosr/debug"
-CARGO_BUILD_OPTION = "--lib"
-
-[env.production]
-CARGO_CFG_TARGET_FAMILY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/hhu_tosr.json"
-BUILD_DIRECTORY = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/hhu_tosr/release"
-CARGO_BUILD_OPTION = "--release"
-
 [env]
-LINKER_MAC = "x86_64-elf-ld"
-LINKER_LINUX = "ld"
-SOUND_MAC = "coreaudio,id=snd0"
-SOUND_LINUX = "id=snd0,driver=pa"
-RUST_TARGET_PATH = "${CARGO_MAKE_WORKING_DIRECTORY}"
-SOURCE_DIRECTORY = "${CARGO_MAKE_WORKING_DIRECTORY}/src"
-LINKER_FILE = "${SOURCE_DIRECTORY}/boot/linker.ld"
-RUST_OBJECT = "${BUILD_DIRECTORY}/lib${CARGO_MAKE_PROJECT_NAME}.a"
-KERNEL = "${BUILD_DIRECTORY}/kernel.bin"
-ISO = "${BUILD_DIRECTORY}/${CARGO_MAKE_PROJECT_NAME}.iso"
+#APP_IMAGE = "hello.bin"
+KERNEL_IMAGE = "kernel.elf"
+ISO = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/${CARGO_MAKE_PROJECT_NAME}.iso"
+BOOTLOADER_DIRECTORY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/loader"
+LINKER = { source = "${CARGO_MAKE_RUST_TARGET_OS}", default_value = "ld", mapping = { "macos" = "x86_64-elf-ld" } }
+OBJCOPY = { source = "${CARGO_MAKE_RUST_TARGET_OS}", default_value = "objcopy", mapping = { "macos" = "x86_64-elf-objcopy" } }
+SOUND = { source = "${CARGO_MAKE_RUST_TARGET_OS}", default_value = "id=snd0,driver=pa", mapping = { "macos" = "coreaudio,id=snd0" } }
+KERNEL = "${BOOTLOADER_DIRECTORY}/isofiles/boot/${KERNEL_IMAGE}"
+RAW_TAR_IMAGE = "${BOOTLOADER_DIRECTORY}/isofiles/boot/initrd.tar"
+#APP_ELF = "${BOOTLOADER_DIRECTORY}/isofiles/hello.elf"
+#APP_BIN = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/${APP_IMAGE}"
+APPS_ELF_FOLDER = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps"
+APPS_BIN_FOLDER = "${APPS_ELF_FOLDER}/bin"
+
+
+
+######################################
+# Running & debugging tasks
+######################################
+
+[tasks.qemu]
+command = "qemu-system-x86_64"
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+]
+dependencies = ["iso"]
+
+[tasks.qemu-gdb]
+command = "qemu-system-x86_64"
+args = [
+    "-cdrom",
+    "${ISO}",
+    "-serial",
+    "stdio",
+    "-audiodev",
+    "${SOUND}",
+    "-machine",
+    "pcspk-audiodev=snd0",
+    "-s",
+    "-S",
+]
+dependencies = ["iso", "gdb-echo-for-vscode"]
+
+
+[tasks.gdb-echo-for-vscode]
+command = "echo"
+args = ["Debugging..."]
+
+[tasks.gdb]
+command = "gdb"
+args = ["-x", "gdbcommands", "loader/${KERNEL_IMAGE}"]
 
 
 ######################################
@@ -34,118 +71,69 @@ ISO = "${BUILD_DIRECTORY}/${CARGO_MAKE_PROJECT_NAME}.iso"
 [tasks.default]
 alias = "iso"
 
-# 
-# Compiling Rust sources
-#
-[tasks.compile]
-command = "cargo"
-args = [ "build", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}" ]
+# build & link apps and os
+[tasks.link]
+run_task = { name = "link", fork = true }
 
 
-# Besserer Checker 
-[tasks.check]
-command = "cargo"
-args = [ "check", "-Z", "build-std=core,alloc", "-Z", "build-std-features=compiler-builtins-mem", "--target", "${CARGO_CFG_TARGET_FAMILY}", "${CARGO_BUILD_OPTION}", "--quiet", "--workspace", "--message-format=json"]
+# Creating .tar arcive of apps
+[tasks.tar]
+command = "tar"
+cwd = "${APPS_BIN_FOLDER}"
+args = ["-c", "-f", "${RAW_TAR_IMAGE}", "."]
 
-
-
-# 
-# Compiling ASM sources
-#
-[tasks.build-boot-asm]
-command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/boot.o", "${SOURCE_DIRECTORY}/boot/boot.asm" ]
-
-[tasks.build-interrupt-asm]
-command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/interrupts.o", "${SOURCE_DIRECTORY}/kernel/interrupts/interrupts.asm" ]
-
-[tasks.build-corouts-asm]
-command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/corouts.o", "${SOURCE_DIRECTORY}/kernel/corouts/coroutine.asm" ]
-
-[tasks.build-thread-asm]
-command = "nasm"
-args = [ "-f", "elf64", "-w+error=label-redef-late", "-o", "${BUILD_DIRECTORY}/thread.o", "${SOURCE_DIRECTORY}/kernel/threads/thread.asm" ]
-
-
-# 
-# Linking 
-#
-[tasks.link.mac]
-command = "${LINKER_MAC}"
-args = [ "-n", "-T", "${LINKER_FILE}", "-o", "${KERNEL}", "${BUILD_DIRECTORY}/boot.o", "${BUILD_DIRECTORY}/interrupts.o", "${BUILD_DIRECTORY}/corouts.o", "${BUILD_DIRECTORY}/thread.o", "${RUST_OBJECT}" ]
-dependencies = [ "compile", "build-boot-asm", "build-interrupt-asm", "build-corouts-asm", "build-thread-asm" ]
-
-[tasks.link.linux]
-command = "${LINKER_LINUX}"
-args = [ "-n", "-T", "${LINKER_FILE}", "-o", "${KERNEL}", "${BUILD_DIRECTORY}/boot.o", "${BUILD_DIRECTORY}/interrupts.o", "${BUILD_DIRECTORY}/corouts.o", "${BUILD_DIRECTORY}/thread.o", "${RUST_OBJECT}" ]
-dependencies = [ "compile", "build-boot-asm", "build-interrupt-asm", "build-corouts-asm", "build-thread-asm" ]
-
-#
-# Bootloader tasks
-#
-[tasks.grub-create-directory]
+[tasks.create-appfolder]
 command = "mkdir"
-args = [ "-p", "${BUILD_DIRECTORY}/isofiles/boot/grub" ]
+args = ["-p", "${APPS_BIN_FOLDER}"]
 
-[tasks.grub-copy-kernel]
-command = "cp"
-args = [ "${KERNEL}", "${BUILD_DIRECTORY}/isofiles/boot" ]
-dependencies = [ "link", "grub-create-directory" ]
 
-[tasks.grub-copy-cfg]
-command = "cp"
-args = [ "${SOURCE_DIRECTORY}/boot/grub.cfg", "${BUILD_DIRECTORY}/isofiles/boot/grub" ]
-dependencies = [ "grub-create-directory" ]
+
+######################################
+# Bootloader tasks
+######################################
 
 [tasks.iso]
 command = "grub-mkrescue"
-args = [ "-o", "${ISO}", "${BUILD_DIRECTORY}/isofiles" ]
-dependencies = [ "grub-copy-kernel", "grub-copy-cfg" ]
+args = ["-o", "${ISO}", "${BOOTLOADER_DIRECTORY}/isofiles"]
+dependencies = ["create-appfolder", "link", "tar"]
+condition = { files_modified = { input = [
+    # The input file of tasks.iso are the kernel and application images
+    "${KERNEL}",
+    "${RAW_TAR_IMAGE}",
+    "${BOOTLOADER_DIRECTORY}/isofiles/boot/grub/grub.cfg",
+], output = [
+    # ISO output file
+    "${ISO}",
+] } }
 
 
 ######################################
-# Running & debugging tasks
+# Cleanup tasks
 ######################################
 
-[tasks.qemu.linux]
-command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
-#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
-dependencies = [ "iso" ]
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+dependencies = ["remove-images", "remove-bins", "remove-elfs"]
 
-[tasks.qemu-ubuntu.linux]
-command = "qemu-system-x86_64"
-#args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0" ]
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}"]
-dependencies = [ "iso" ]
+[tasks.remove-images]
+command = "rm"
+args = [
+    "-f",
+    "${KERNEL}",
+    "${RAW_TAR_IMAGE}",
+]
 
-[tasks.qemu.mac]
-command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_MAC}", "-machine", "pcspk-audiodev=snd0" ]
-dependencies = [ "iso" ]
+[tasks.remove-bins]
+command = "rm"
+args = [
+    "-rf",
+    "${APPS_BIN_FOLDER}",
+]
 
-[tasks.qemu-gdb.linux]
-command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_LINUX}", "-machine", "pcspk-audiodev=snd0", "-s", "-S" ]
-dependencies = [ "iso", "gdb-echo-for-vscode" ]
-
-[tasks.qemu-gdb.mac]
-command = "qemu-system-x86_64"
-args = [ "-cdrom", "${ISO}", "-serial", "stdio", "-audiodev", "${SOUND_MAC}", "-machine", "pcspk-audiodev=snd0", "-s", "-S" ]
-dependencies = [ "iso", "gdb-echo-for-vscode" ]
-
-[tasks.gdb-echo-for-vscode]
-command = "echo"
-args = [ "Debugging..." ]
-
-[tasks.gdb]
-command = "gdb"
-args = [ "-x", "gdbcommands", "${KERNEL}" ]
-
-[tasks.gdbt]
-#command = "gdb"
-#args = [ "-x", "gdbcommands", "${KERNEL}", "-tui" ]
-command = "gdbtui"
-args = [ "-x", "gdbcommands", "${KERNEL}"]
+[tasks.remove-elfs]
+command = "rm"
+args = [
+    "-rf",
+    "${APPS_ELF_FOLDER}",
+]

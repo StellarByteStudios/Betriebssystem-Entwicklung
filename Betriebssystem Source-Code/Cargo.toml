@@ -1,18 +1,5 @@
-[package]
-edition = "2018"
-name = "hhu_tosr"
-version = "0.1.0"
-authors = ["Michael Schöttner <michael.schoettner@hhu.de>"]
+[workspace]
+resolver = "2"
 
-[lib]
-crate-type = ["staticlib"]
-path = "src/startup.rs"
-
-[dependencies]
-spin = "0.9.8"
-x86_64 = "0.14.2"
-nolock = { version = "0.4.1", default-features = false, features = ["queues"] }
-
-[dependencies.lazy_static]
-version = "1.0"
-features = ["spin_no_std"]
+#members = ["usrlib", "os", "apps/hello"]
+members = ["os", "apps/hello", "apps/extracounter", "apps/animation", "apps/music"]

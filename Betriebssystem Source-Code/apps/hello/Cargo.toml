@@ -1,0 +1,23 @@
+[package]
+edition = "2018"
+name = "ByteOS_hello"
+version = "0.1.1"
+authors = [
+    "Michael Schöttner <michael.schoettner@hhu.de>",
+    "Carsten Krollmann <cakro105@hhu.de>",
+]
+
+[lib]
+crate-type = ["staticlib"]
+path = "src/main.rs"
+test = false
+
+[dependencies]
+usrlib = { path = "../../usrlib" }
+
+
+[profile.development]
+panic = "abort"
+
+[profile.production]
+panic = "abort"

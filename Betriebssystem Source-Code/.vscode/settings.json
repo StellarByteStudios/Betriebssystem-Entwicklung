@@ -1,14 +1,14 @@
 {
-    "rust-analyzer.cargo.target": "hhu_tosr",
+    "rust-analyzer.cargo.target": "Byte_OS",
     "rust-analyzer.check.allTargets": false,
     "rust-analyzer.check.extraArgs": [
         "--target",
-        "hhu_tosr"
+        "Byte_OS",
     ],
     "rust-analyzer.check.overrideCommand": [
         "cargo",
         "make",
-        "check"
+        "check",
     ],
     "rust-analyzer.cargo.buildScripts.overrideCommand": [
         "cargo",
