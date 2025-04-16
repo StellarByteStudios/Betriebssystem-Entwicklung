@@ -118,10 +118,9 @@ pub fn usr_paint_picture_on_pos(
     );
 }
 
-pub fn usr_play_song(songID: u64){
-    syscall1(SYSNO_PLAY_SONG as u64, songID);
+pub fn usr_play_song(song_id: u64) {
+    syscall1(SYSNO_PLAY_SONG as u64, song_id);
 }
-
 
 #[inline(always)]
 #[allow(unused_mut)]

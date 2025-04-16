@@ -210,7 +210,7 @@ impl LinkedListAllocator {
 }
 
 // Trait required by the Rust runtime for heap allocations
-unsafe impl GlobalAlloc for Locked<LinkedListAllocator> {
+impl GlobalAlloc for Locked<LinkedListAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         self.lock().alloc(layout)
     }
