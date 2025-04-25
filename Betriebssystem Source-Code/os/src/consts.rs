@@ -20,16 +20,11 @@ pub const USER_CODE_HEAP_START: usize = 0x7000_0000_0000;
 // Adresse an der Apps gelinkt werden (muss in den Apps beachtet werden!)
 pub const USER_CODE_VM_START: usize = 0x100_0000_0000; // 1 TiB
 
-
-
-
-
 pub const CLOCK_POS: (u32, u32) = (cga::get_screen_width() - 1, 0);
 
 // Nur für RTC
 pub const GRAPHIC_CLOCK_POS: (u32, u32) = ((1280 / 10) - 20, 0);
 pub const GRAPHIC_BYTE_CLOCK_POS: (u32, u32) = ((1280 / 10) - 1, 0);
-
 
 // Kachelgroesse = 4 KB
 pub const PAGE_FRAME_SIZE: usize = 0x1000;
@@ -42,15 +37,8 @@ pub const PAGE_SIZE: usize = PAGE_FRAME_SIZE;
 //
 pub const KERNEL_PHYS_SIZE: usize = 0x400_0000; // 64 MiB DRAM fuer den Kernel
 
-
-
 // (1 MB) 64 KB Heap für das Einrichten des Systems (siehe 'kmain')
 pub const TEMP_HEAP_SIZE: usize = 0x10_0000;
 
 // 1 MB Heap für das Einrichten des Systems (siehe 'kmain')
 pub const KERNEL_HEAP_SIZE: usize = 0x10_0000;
-
-
-
-
-

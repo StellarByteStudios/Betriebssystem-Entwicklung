@@ -54,8 +54,8 @@ pub fn main() {
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
         print_setpos!(10, 31, "Counter {}", i);
 
-        //let add_summand: u64 = 1000;
-        let add_summand: u64 = 0;
+        let add_summand: u64 = 1000;
+        //let add_summand: u64 = 0;
 
         // Fibonacci berechnen
         let fibonacci_value = calculate_fibonacci_rec(i + add_summand);

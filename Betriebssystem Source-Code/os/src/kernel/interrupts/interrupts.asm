@@ -66,6 +66,11 @@ _wrapper_%1:
 	    mov     rdi, [rsp+120] ; error code
         mov     rdx, [rsp+128] ; rip
         mov     rsi, [rsp+136] ; cs
+		;; Testing und so
+		;xor 	rax, rax
+		;mov 	al, %1
+		;mov 	rcx, rax
+		;;
         call    int_pagefault
 	%else
 		; pass the vector as parameter 
@@ -91,6 +96,13 @@ _wrapper_%1:
 	pop    rcx
 	pop    rbx
 	pop    rax
+
+
+	; Fehlercode Abräumen
+	%if %1 == 13 || %1 == 14
+		add 	rsp, 8
+	%endif
+
 
 	; done!
 	iretq

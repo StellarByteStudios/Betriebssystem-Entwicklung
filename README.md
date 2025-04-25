@@ -16,6 +16,7 @@ Datensammlung für alles was zu Betriebssystementwicklung gehört
     - Stringoperationen fürs Befehlsmatching
 - Nachträgliches Starten von Prozessen
 - Beenden von Prozessen
+- Ohne Änderung des Betriebsystems weitere Programme hinzufügen
 
 #### Programm Ideen
 - Musik
