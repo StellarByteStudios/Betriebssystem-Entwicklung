@@ -6,6 +6,7 @@ use tar_no_std::TarArchiveRef;
 use super::multiboot::MultibootInfo;
 
 // Beschreibt eine App, die separat vom Kernel compiliert wurde
+#[derive(Clone)]
 pub struct AppRegion {
     pub start: u64,
     pub end: u64,

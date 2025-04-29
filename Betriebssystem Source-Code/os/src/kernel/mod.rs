@@ -11,3 +11,4 @@ pub mod paging;
 pub mod logger;
 
 pub mod processes;
+pub mod shell;
