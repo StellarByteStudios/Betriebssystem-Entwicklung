@@ -14,17 +14,17 @@ use core::arch::{asm, naked_asm};
 
 use crate::kernel::syscall;
 use crate::kernel::syscall::kfuncs::{
-    sys_get_systime::sys_get_systime,
+    sys_simple_getter::{sys_get_screen_witdh,
+                        sys_get_systime,
+                        sys_getpid,
+                        sys_gettid},
     sys_getlastkey::sys_getlastkey,
-    sys_gettid::sys_gettid,
     sys_graphical_print::sys_graphical_print,
     sys_graphical_print_pos::sys_graphical_print_pos,
     sys_hello_world::sys_hello_world,
     sys_hello_world_print::sys_hello_world_print,
     sys_read::sys_read,
     sys_write::sys_write,
-    sys_get_screen_width::sys_get_screen_witdh,
-    sys_getpid::sys_getpid,
     sys_read_process_name::sys_read_process_name,
     sys_mmap_heap_space::sys_mmap_heap_space,
     sys_paint_picture_on_pos::sys_paint_picture_on_pos,

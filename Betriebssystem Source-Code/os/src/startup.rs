@@ -274,11 +274,11 @@ pub extern "C" fn kmain(mbi: u64) {
     }
 
     // Schellprogramm starten
-    shell_process::spawn_shell_process(opt_apps.unwrap());
+    shell_process::spawn_shell_process(opt_apps.clone().unwrap());
 
     // Prozesse mit je einem Thread fuer alle Apps erzeugen & im Scheduler registrieren
 
-    /* Lade später die Apps, aber starte sie nicht direkt
+     //Lade später die Apps, aber starte sie nicht direkt
     match opt_apps {
         None => kprintln!("No apps found."),
         Some(mut apps) => {
@@ -292,7 +292,7 @@ pub extern "C" fn kmain(mbi: u64) {
                 scheduler::spawn(app.unwrap());
             }
         }
-    }*/
+    }
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();
