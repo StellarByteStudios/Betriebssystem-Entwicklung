@@ -5,7 +5,19 @@
 - [ ] Wo gebe ich an, welche Funktion die Startfunktion der App/ des Kernels ist
 - [ ] --profile production geht bei mir nicht. Findet main nicht richtig
 
+## Ideen für die Shell
+- [ ] Erstmal Apps starten können
+- [ ] auto complete
+- [ ] serielle Übertragung
+- [ ] kill-switch
+- [ ] Shell-Syntax
+  - [ ] Environment Variablen
+  - [ ] Pipes (Interprozesskommunikation)
+
 ## Alte Probleme
 - [ ] Wenn ich eine VMA vom Typ Heap in die Liste Pushe gibt es einen Alignment error
   - Die Adresse von allen VMAs endet mit 0 oder 8, egal ob Heap oder nicht
  
+## Vortrags-Notizen
+- Reden über Shell Geschichte
+  - KI Shell 
