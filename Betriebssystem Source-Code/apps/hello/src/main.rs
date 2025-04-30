@@ -10,9 +10,8 @@ use core::str::from_utf8_unchecked;
 use usrlib;
 use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
 use usrlib::kernel::syscall::user_api::{
-    usr_dump_active_vmas, usr_get_pid, usr_play_song, usr_read_process_name,
+    usr_dump_active_vmas, usr_get_pid, usr_read_process_name,
 };
-use usrlib::kernel::syscall::SongID;
 use usrlib::print_setpos;
 use usrlib::utility::delay::delay;
 use usrlib::utility::mathadditions::fibonacci::calculate_fibonacci_rec;

@@ -8,10 +8,10 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use super::super::allocator::{align_up, Locked};
+use crate::kernel::systemallocator::allocator::{align_up, Locked, align_down};
 use crate::{
     consts::PAGE_FRAME_SIZE,
-    kernel::{allocator::align_down, cpu},
+    kernel::cpu,
 };
 use alloc::{
     alloc::{GlobalAlloc, Layout},

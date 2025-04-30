@@ -1,4 +1,4 @@
-pub mod allocator;
+pub mod systemallocator;
 pub mod cpu;
 pub mod interrupts;
 

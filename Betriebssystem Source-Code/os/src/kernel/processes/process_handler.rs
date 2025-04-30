@@ -35,15 +35,6 @@ pub fn add_process(new_proc: Box<Process>) {
     }
 }
 pub fn get_process_by_id(pid: usize) -> &'static Process {
-    unsafe {
-        /*
-        let process1 = PROCESSES.as_mut();
-        let process2 = process1.unwrap();
-        let process3 = process2.get_mut(&pid);
-        let process4 = process3.unwrap(); 
-        return process4; */
-        
-    }
     return unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
 }
 

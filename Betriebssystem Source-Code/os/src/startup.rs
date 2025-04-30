@@ -33,7 +33,7 @@ use devices::graphical::fonts::font_8x8;
 use devices::graphical::{graphic_console_printer, vga};
 use devices::{cga, keyboard::Keyboard, pit};
 use kernel::{
-    allocator::{self},
+    systemallocator::allocator,
     cpu, interrupts,
     paging::{
         frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
