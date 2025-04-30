@@ -22,7 +22,7 @@ use crate::consts::USER_STACK_VM_START;
 use crate::kernel::interrupts::intdispatcher;
 use crate::kernel::paging::frames;
 use crate::kernel::paging::pagetable_flags::PTEflags;
-use crate::kernel::processes::{process, vma};
+use crate::kernel::processes::{process_handler, vma};
 use crate::utility::mathadditions::math::pow_usize;
 use core::ptr::null_mut;
 use core::sync::atomic::AtomicUsize;
@@ -255,7 +255,7 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
     );
 
     // Passt diese VMA noch?
-    let success = process::add_vma_to_process(pid, new_vma);
+    let success = process_handler::add_vma_to_process(pid, new_vma);
 
     if !success {
         return null_mut();
@@ -289,7 +289,7 @@ pub fn pg_mmap_extend_user_stack(pid: usize, pml4_addr: PhysAddr, address_to_map
     let new_vma = vma::VMA::new(start_address, end_address, vma::VmaType::Stack);
 
     // Passt diese VMA noch?
-    let success = process::add_vma_to_process(pid, new_vma);
+    let success = process_handler::add_vma_to_process(pid, new_vma);
 
     if !success {
         return false;
@@ -368,7 +368,7 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool
     let new_vma = vma::VMA::new(consts::USER_CODE_VM_START, vma_end, vma::VmaType::Code);
 
     // Past diese VMA noch?
-    let success = process::add_vma_to_process(pid, new_vma);
+    let success = process_handler::add_vma_to_process(pid, new_vma);
 
     if !success {
         return false;
@@ -390,7 +390,7 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool
 // Diese Funktion richtet ein Mapping fuer den User-Mode Stack ein
 pub fn pg_mmap_user_heap(pid: usize, addr: usize, len: usize) -> u64 {
     // PageTable holen
-    let pml4_addr = process::get_pml4_address_by_pid(pid);
+    let pml4_addr = process_handler::get_pml4_address_by_pid(pid);
 
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
     let pml4_thread_table;
@@ -401,7 +401,7 @@ pub fn pg_mmap_user_heap(pid: usize, addr: usize, len: usize) -> u64 {
     let new_vma = vma::VMA::new(addr, vma_end, vma::VmaType::Heap);
 
     // Past diese VMA noch?
-    let success = process::add_vma_to_process(pid, new_vma);
+    let success = process_handler::add_vma_to_process(pid, new_vma);
 
     if !success {
         return 1;

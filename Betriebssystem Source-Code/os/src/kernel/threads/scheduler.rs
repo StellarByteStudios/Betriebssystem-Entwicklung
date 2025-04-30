@@ -16,7 +16,7 @@ use crate::boot::appregion::AppRegion;
 use crate::devices::cga;
 use crate::kernel::cpu;
 use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process::create_fresh_process;
+use crate::kernel::processes::process_handler::create_fresh_process;
 use crate::kernel::threads::{scheduler, idle_thread, thread, queue::Queue};
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);

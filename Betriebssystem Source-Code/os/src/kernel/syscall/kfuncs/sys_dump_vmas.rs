@@ -1,4 +1,4 @@
-use crate::kernel::processes::process;
+use crate::kernel::processes::process_handler;
 use crate::kernel::threads::scheduler::get_active_pid;
 
 #[no_mangle]
@@ -8,6 +8,6 @@ pub extern "C" fn sys_dump_vmas() {
     let pid = get_active_pid();
     kprintln!("VMAs von Prozess {:} werden gedumpt", pid );
     
-    process::dump_vma_of_process(pid);
+    process_handler::dump_vma_of_process(pid);
     
 }

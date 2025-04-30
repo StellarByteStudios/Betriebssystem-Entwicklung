@@ -18,7 +18,7 @@ use crate::kernel::interrupts::isr;
 use crate::kernel::paging::pages;
 use crate::kernel::paging::pages::where_physical_address;
 use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process;
+use crate::kernel::processes::process_handler;
 use crate::kernel::threads::scheduler;
 use crate::kernel::{cpu, interrupts};
 use crate::utility::delay::delay;
@@ -235,7 +235,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     let active_pid = scheduler::get_active_pid();
     //let active_process = process::get_process_by_id(active_pid);
     let active_process = unsafe {
-        process::PROCESSES
+        process_handler::PROCESSES
             .as_mut()
             .unwrap()
             .get_mut(&active_pid)
@@ -259,7 +259,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     if is_part_of_stack {
         // PML4 Adresse holen
         //let pml4_addr = Cr3::read().0.start_address().as_u64();
-        let pml4_addr = process::get_pml4_address_by_pid(active_pid).raw();
+        let pml4_addr = process_handler::get_pml4_address_by_pid(active_pid).raw();
         //kprintln!("PML4 Adresse geholt: {:#x}", pml4_addr);
         // Stack erweitern
         let success =

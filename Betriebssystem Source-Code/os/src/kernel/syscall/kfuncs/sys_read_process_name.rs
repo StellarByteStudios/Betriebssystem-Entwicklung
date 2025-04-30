@@ -1,12 +1,12 @@
 use core::{ptr, slice};
-use crate::kernel::processes::process;
+use crate::kernel::processes::process_handler;
 use crate::kernel::threads::scheduler;
 
 #[no_mangle]
 pub extern "C" fn sys_read_process_name(buff: *mut u8, len: u64) -> u64 {
     // Name laden
     let active_pid = scheduler::get_active_pid();
-    let process_name = process::get_app_name(active_pid);
+    let process_name = process_handler::get_app_name(active_pid);
     
     
     

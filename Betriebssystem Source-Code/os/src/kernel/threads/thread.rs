@@ -15,7 +15,7 @@ use crate::kernel::paging::frames::pf_alloc;
 use crate::kernel::paging::pages;
 use crate::kernel::paging::pages::PageTable;
 use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process;
+use crate::kernel::processes::process_handler;
 use crate::kernel::threads::scheduler;
 use crate::kernel::threads::stack;
 use alloc::boxed::Box;
@@ -78,7 +78,7 @@ impl Thread {
         let new_tid = scheduler::next_thread_id();
 
         // PML4 aus Prozess laden
-        let process_pml4 = process::get_pml4_address_by_pid(process_id);
+        let process_pml4 = process_handler::get_pml4_address_by_pid(process_id);
 
         let my_kernel_stack =
             stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, true, process_pml4);
