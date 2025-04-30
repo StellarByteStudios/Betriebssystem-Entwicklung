@@ -36,13 +36,6 @@ pub fn handle_keystroke(code: u8) -> bool {
             shell_printing::print_backspace();
             backspace_command()
         }
-        //0x0 => print!("    "),                           // Tab
-
-        // Pfeiltasten funktionieren nicht. Daher erstmal nummernblock zum ausprobieren
-        //0x38 => move_cursor(Direction::Up),
-        //0x32 => move_cursor(Direction::Down),
-        //0x34 => move_cursor(Direction::Left),
-        //0x36 => move_cursor(Direction::Right),
         _ => {
             // normale Zeichen
             shell_printing::print_char(code as char);
