@@ -7,26 +7,24 @@
  *                                                                           *
  * Autor:           Michael Schoettner, 13.9.2023                            *
  *****************************************************************************/
-use super::frames::pf_alloc;
-use super::pagetable_entry::PageTableEntry;
-use super::physical_addres::PhysAddr;
-use crate::boot::appregion::AppRegion;
-use crate::boot::multiboot;
-use crate::boot::multiboot::MultibootFramebuffer;
-use crate::boot::multiboot::MultibootInfo;
-use crate::consts;
-use crate::consts::PAGE_SIZE;
-use crate::consts::STACK_SIZE;
-use crate::consts::USER_STACK_VM_END;
-use crate::consts::USER_STACK_VM_START;
-use crate::kernel::interrupts::intdispatcher;
-use crate::kernel::paging::frames;
-use crate::kernel::paging::pagetable_flags::PTEflags;
-use crate::kernel::processes::{process_handler, vma};
-use crate::utility::mathadditions::math::pow_usize;
-use core::ptr::null_mut;
-use core::sync::atomic::AtomicUsize;
-use core::{ptr, slice};
+use core::{ptr, ptr::null_mut, slice, sync::atomic::AtomicUsize};
+
+use super::{frames::pf_alloc, pagetable_entry::PageTableEntry, physical_addres::PhysAddr};
+use crate::{
+    boot::{
+        appregion::AppRegion,
+        multiboot,
+        multiboot::{MultibootFramebuffer, MultibootInfo},
+    },
+    consts,
+    consts::{PAGE_SIZE, STACK_SIZE, USER_STACK_VM_END, USER_STACK_VM_START},
+    kernel::{
+        interrupts::intdispatcher,
+        paging::{frames, pagetable_flags::PTEflags},
+        processes::{process_handler, vma},
+    },
+    utility::mathadditions::math::pow_usize,
+};
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
@@ -198,7 +196,6 @@ impl PageTable {
 // Fuer die Page-Tables werden bei Bedarf Page-Frames alloziert
 // CR3 wird am Ende gesetzt
 pub fn pg_init_kernel_tables(mbi_ptr: u64) -> PhysAddr {
-
     // Ausrechnen wie viel Seiten "gemappt" werden muessen
     let max_phys_addr: usize = PhysAddr::get_max_phys_addr().raw() as usize;
     let nr_of_pages = (max_phys_addr + 1) / PAGE_SIZE;
@@ -485,7 +482,7 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
     );
     let page_table_1: &mut PageTable =
         unsafe { &mut *(page_table_2_entry.get_addr().as_mut_ptr::<PageTable>()) };
-    
+
     kprintln!("Eintrag den wir suchen: ");
     let page_table_1_entry: PageTableEntry =
         page_table_1.entries[get_index_in_table(virtual_address, 0)];

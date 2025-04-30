@@ -1,6 +1,9 @@
 use core::{ptr, slice, str};
-use crate::devices::graphical::graphic_console_printer::{print_string, print_string_on_position};
-use crate::kernel::cpu;
+
+use crate::{
+    devices::graphical::graphic_console_printer::{print_string, print_string_on_position},
+    kernel::cpu,
+};
 
 #[no_mangle]
 pub extern "C" fn sys_graphical_print_pos(x: u64, y: u64, buff: *const u8, len: u64) -> i64 {

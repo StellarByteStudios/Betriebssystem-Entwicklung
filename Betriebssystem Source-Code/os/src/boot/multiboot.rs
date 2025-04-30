@@ -13,10 +13,10 @@
    ║ Author: Michael Schoetter, HHU Duesseldorf, 13.11.2023                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::devices::kprint; // used to import code needed by kprintln!
 use alloc::vec::Vec;
-use core::fmt;
-use core::mem::size_of;
+use core::{fmt, mem::size_of};
+
+use crate::devices::kprint; // used to import code needed by kprintln!
 
 // Beschreibt eine Region im physikalischen Adressraum
 pub struct PhysRegion {

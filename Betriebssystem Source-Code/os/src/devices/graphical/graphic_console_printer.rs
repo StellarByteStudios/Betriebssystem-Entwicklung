@@ -16,9 +16,8 @@ const BG_MAIN_COLOR: u32 = vga::rgb_24(30, 30, 30);
 static FONT_COLOR: AtomicU32 = AtomicU32::new(MAIN_COLOR);
 static BG_COLOR: AtomicU32 = AtomicU32::new(BG_MAIN_COLOR);
 
-
 // Notfreigabe des Cursors für die Uhr
-pub unsafe fn forceunlock_cursor(){
+pub unsafe fn forceunlock_cursor() {
     if CURSOR.is_locked() {
         kprintln!("[forceunlock_cursor] CURSOR was locked");
     }
@@ -79,8 +78,7 @@ pub fn print_char(b: char) {
         //scroll_with_check();
         return;
     }
-    
-    
+
     // Hintergrund einfärben
     for dx in 0..10 {
         for dy in 0..10 {

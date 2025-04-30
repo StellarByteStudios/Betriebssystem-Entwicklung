@@ -6,16 +6,17 @@
    ║ Autor:  Michael Schoettner, 15.05.2023                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use alloc::alloc::Layout;
-use alloc::boxed::Box;
-use core::fmt;
-use core::ptr::null_mut;
+use alloc::{alloc::Layout, boxed::Box};
+use core::{fmt, ptr::null_mut};
 
-use crate::consts;
-use crate::kernel::systemallocator::allocator;
-use crate::kernel::cpu;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::physical_addres::PhysAddr;
+use crate::{
+    consts,
+    kernel::{
+        cpu,
+        paging::{pages, physical_addres::PhysAddr},
+        systemallocator::allocator,
+    },
+};
 
 #[repr(C)]
 pub struct Stack {
@@ -39,7 +40,12 @@ impl Stack {
         Box::new(Stack { data, size })
     }
 
-    pub fn new_mapped_stack(pid: usize, size: usize, kernel_stack: bool, pml4_addr: PhysAddr) -> Box<Stack> {
+    pub fn new_mapped_stack(
+        pid: usize,
+        size: usize,
+        kernel_stack: bool,
+        pml4_addr: PhysAddr,
+    ) -> Box<Stack> {
         // Wenn es ein Kernal Stack ist, nix anders machen (Alten Konstruktor)
         if kernel_stack {
             return Stack::new(size);
@@ -48,10 +54,10 @@ impl Stack {
         // Ansonsten Methode zum Mappen in pages aufrufen
         // Mapping anlegen
         let start_pointer = pages::pg_mmap_user_stack(pid, pml4_addr);
-        if start_pointer.is_null() { 
+        if start_pointer.is_null() {
             kprintln!("Panic: failed in 'new_mapped_stack'");
         }
-        
+
         // Datapointer schieben (Stack wächst von oben nach unten)
         let data =
             ((start_pointer as usize) + (size as usize) - consts::STACK_ENTRY_SIZE) as *mut u8;

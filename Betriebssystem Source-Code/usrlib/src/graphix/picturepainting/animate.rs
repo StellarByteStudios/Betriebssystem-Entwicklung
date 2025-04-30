@@ -1,9 +1,19 @@
-use super::pictures::blinking::{blinking0, blinking1, blinking2, blinking3, blinking4};
 use alloc::vec::Vec;
-use crate::graphix::picturepainting::paint::draw_picture;
-use crate::graphix::picturepainting::pictures::charmander::{charmander0, charmander1, charmander2, charmander3, charmander4};
-use crate::graphix::picturepainting::pictures::ghost::{ghost00, ghost01, ghost02, ghost03, ghost04, ghost05, ghost06, ghost07, ghost08, ghost09};
-use crate::utility::delay::delay;
+
+use super::pictures::blinking::{blinking0, blinking1, blinking2, blinking3, blinking4};
+use crate::{
+    graphix::picturepainting::{
+        paint::draw_picture,
+        pictures::{
+            charmander::{charmander0, charmander1, charmander2, charmander3, charmander4},
+            ghost::{
+                ghost00, ghost01, ghost02, ghost03, ghost04, ghost05, ghost06, ghost07, ghost08,
+                ghost09,
+            },
+        },
+    },
+    utility::delay::delay,
+};
 
 pub struct Frame {
     pub(crate) width: u32,

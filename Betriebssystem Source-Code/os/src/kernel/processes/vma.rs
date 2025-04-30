@@ -11,6 +11,7 @@
  *****************************************************************************/
 use alloc::boxed::Box;
 use core::fmt;
+
 use crate::consts::PAGE_SIZE;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -41,32 +42,34 @@ impl VMA {
     // Pruefe ob zwei VMAs ueberlappen
     pub fn does_overlap(&self, other: &VMA) -> bool {
         // Fall: Eigenes Ende ist noch vor anderem Start
-        if self.end < other.start { return false; }
+        if self.end < other.start {
+            return false;
+        }
 
         // Fall: Eigener Start ist schon nach anderem Ende
-        if self.start > other.end { return false; }
+        if self.start > other.end {
+            return false;
+        }
 
         // Wenn beide Bedingungen nicht gegeben sind, dann gibt es Überschneidungen
         return true;
-
     }
-    
-    pub fn is_address_on_neighbour_page(&self, addr: usize) -> bool {
 
+    pub fn is_address_on_neighbour_page(&self, addr: usize) -> bool {
         // Adresse ist in VMA schon drin
         if addr >= self.start && addr <= self.end {
             return false;
         }
-        
+
         // Eine Page neben dran
-        if addr >= self.start - PAGE_SIZE && addr < self.end + PAGE_SIZE { 
+        if addr >= self.start - PAGE_SIZE && addr < self.end + PAGE_SIZE {
             return true;
         }
-        
+
         // Wenn außerhalb
         return false;
     }
-    
+
     // Getter zum Testen
     pub fn get_start(&self) -> usize {
         return self.start;

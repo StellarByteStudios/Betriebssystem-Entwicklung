@@ -9,11 +9,11 @@
    ║            https://os.phil-opp.com/vga-text-mode/                       ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::devices::cga;
-use crate::kernel::cpu;
-use core::fmt;
-use core::fmt::Write;
+use core::{fmt, fmt::Write};
+
 use spin::Mutex;
+
+use crate::{devices::cga, kernel::cpu};
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'

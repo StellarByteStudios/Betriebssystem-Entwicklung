@@ -18,24 +18,18 @@
  * Autor:           Michael Schoettner, 21.1.2024                            *
  *****************************************************************************/
 
-use core::borrow::Borrow;
-use core::num;
-use core::ops::Add;
-use core::slice;
-use core::sync::atomic::AtomicUsize;
-use core::{mem, ptr};
+use alloc::{alloc::Layout, vec::Vec};
+use core::{borrow::Borrow, mem, num, ops::Add, ptr, slice, sync::atomic::AtomicUsize};
 
-use alloc::alloc::Layout;
-use alloc::vec::Vec;
 use spin::Mutex;
 
-use crate::boot::multiboot::PhysRegion;
-use crate::consts::KERNEL_PHYS_SIZE;
-use crate::consts::PAGE_FRAME_SIZE;
-use crate::devices::kprint;
-use crate::kernel::cpu;
-use super::physical_addres::PhysAddr;
-use super::physlistallocator::PfListAllocator;
+use super::{physical_addres::PhysAddr, physlistallocator::PfListAllocator};
+use crate::{
+    boot::multiboot::PhysRegion,
+    consts::{KERNEL_PHYS_SIZE, PAGE_FRAME_SIZE},
+    devices::kprint,
+    kernel::cpu,
+};
 
 // Page-Frames > KERNEL_VM_SIZE
 static mut FREE_USER_PAGE_FRAMES: PfListAllocator = PfListAllocator::new();

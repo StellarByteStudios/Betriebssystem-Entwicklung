@@ -1,6 +1,6 @@
-pub mod systemallocator;
 pub mod cpu;
 pub mod interrupts;
+pub mod systemallocator;
 
 pub mod threads;
 

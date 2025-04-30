@@ -1,14 +1,20 @@
-use crate::kernel::paging::pages;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process_handler;
-use crate::kernel::processes::vma::{VmaType, VMA};
-use crate::kernel::threads::thread;
-use alloc::borrow::ToOwned;
-use alloc::boxed::Box;
-use alloc::collections::{btree_map, linked_list};
-use alloc::string::{String, ToString};
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    collections::{btree_map, linked_list},
+    string::{String, ToString},
+};
 use core::sync::atomic::{AtomicUsize, Ordering};
-use crate::kernel::processes::process::Process;
+
+use crate::kernel::{
+    paging::{pages, physical_addres::PhysAddr},
+    processes::{
+        process::Process,
+        process_handler,
+        vma::{VmaType, VMA},
+    },
+    threads::thread,
+};
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
 
@@ -61,7 +67,7 @@ pub fn get_app_name(pid: usize) -> Option<String> {
 
 pub fn add_vma_to_process(pid: usize, vma: Box<VMA>) -> bool {
     // Prozess holen
-    let process =unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
+    let process = unsafe { PROCESSES.as_mut().unwrap().get_mut(&pid).unwrap() };
 
     // VMA abspeichern
     let success = process.add_vma(vma);
@@ -89,6 +95,13 @@ pub fn create_fresh_process(file_name: &str) -> usize {
 }
 
 pub fn get_pml4_address_by_pid(pid: usize) -> PhysAddr {
-    let pml4_adress = unsafe { PROCESSES.as_ref().unwrap().get(&pid).unwrap().get_pml4_addr() };
+    let pml4_adress = unsafe {
+        PROCESSES
+            .as_ref()
+            .unwrap()
+            .get(&pid)
+            .unwrap()
+            .get_pml4_addr()
+    };
     return pml4_adress;
 }

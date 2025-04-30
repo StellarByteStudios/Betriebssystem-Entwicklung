@@ -1,11 +1,10 @@
-
-use alloc::boxed::Box;
-use alloc::collections::linked_list;
-use alloc::string::String;
+use alloc::{boxed::Box, collections::linked_list, string::String};
 use core::sync::atomic::{AtomicUsize, Ordering};
-use crate::kernel::paging::pages;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::vma::{VmaType, VMA};
+
+use crate::kernel::{
+    paging::{pages, physical_addres::PhysAddr},
+    processes::vma::{VmaType, VMA},
+};
 
 static NEXT_PID: AtomicUsize = AtomicUsize::new(0);
 

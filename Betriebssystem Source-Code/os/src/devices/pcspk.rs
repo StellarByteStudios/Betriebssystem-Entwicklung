@@ -9,9 +9,8 @@
 */
 #![allow(dead_code)]
 
-use crate::kernel::{cpu, threads::scheduler::Scheduler};
-
 use super::pit;
+use crate::kernel::{cpu, threads::scheduler::Scheduler};
 
 // Ports
 const PORT_CTRL: u16 = 0x43;

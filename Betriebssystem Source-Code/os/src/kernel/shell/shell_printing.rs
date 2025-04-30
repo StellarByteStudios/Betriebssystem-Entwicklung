@@ -1,6 +1,6 @@
+use alloc::string::{self, String};
 use core::sync::atomic::AtomicU32;
 
-use alloc::string::{self, String};
 use spin::Mutex;
 
 use crate::{

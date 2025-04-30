@@ -3,13 +3,17 @@
 
 extern crate alloc;
 
-use core::panic::PanicInfo;
-use core::str::from_utf8_unchecked;
-use usrlib;
-use usrlib::graphix::picturepainting::animate::animate_charmander;
-use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
-use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_read_process_name};
-use usrlib::print_setpos;
+use core::{panic::PanicInfo, str::from_utf8_unchecked};
+
+use usrlib::{
+    self,
+    graphix::picturepainting::animate::animate_charmander,
+    kernel::{
+        allocator::allocator::{init, HEAP_SIZE},
+        syscall::user_api::{usr_get_pid, usr_read_process_name},
+    },
+    print_setpos,
+};
 
 #[link_section = ".main"]
 #[no_mangle]

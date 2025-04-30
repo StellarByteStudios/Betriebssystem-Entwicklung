@@ -1,4 +1,5 @@
 use core::{ptr, slice, str};
+
 use crate::devices::graphical::graphic_console_printer::print_string;
 
 #[no_mangle]
@@ -14,7 +15,7 @@ pub extern "C" fn sys_graphical_print(buff: *const u8, len: u64) -> i64 {
 
         // Slice zu &str convertieren
         let string = str::from_utf8(byte_slice).unwrap();
-        
+
         print_string(string);
     }
 

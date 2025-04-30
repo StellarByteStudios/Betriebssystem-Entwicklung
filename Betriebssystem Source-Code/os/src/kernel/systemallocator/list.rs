@@ -8,14 +8,19 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use crate::kernel::systemallocator::allocator::{align_up, Locked};
-use crate::kernel::cpu;
-use crate::kernel::systemallocator::listnode::ListNode;
 use alloc::{
     alloc::{GlobalAlloc, Layout},
     string::String,
 };
 use core::{mem, ptr};
+
+use crate::kernel::{
+    cpu,
+    systemallocator::{
+        allocator::{align_up, Locked},
+        listnode::ListNode,
+    },
+};
 
 /**
  Description: Metadata of the list allocator

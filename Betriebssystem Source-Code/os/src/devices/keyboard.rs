@@ -9,22 +9,19 @@
 */
 
 use alloc::boxed::Box;
-use spin::Mutex;
-
-use crate::devices::cga;
-use crate::devices::key;
-use crate::kernel::cpu; // shortcut for key
-
-use crate::kernel::interrupts;
-use crate::kernel::interrupts::intdispatcher;
-use crate::kernel::interrupts::intdispatcher::INT_VEC_KEYBOARD;
-use crate::kernel::interrupts::isr;
-use crate::kernel::interrupts::pic;
-use crate::kernel::interrupts::pic::IRQ_KEYBOARD;
-
-
 // Für Interruptsyncronisierung
 use core::sync::atomic::{AtomicU8, Ordering};
+
+use spin::Mutex;
+
+use crate::kernel::cpu; // shortcut for key
+use crate::{
+    devices::{cga, key},
+    kernel::{
+        interrupts,
+        interrupts::{intdispatcher, intdispatcher::INT_VEC_KEYBOARD, isr, pic, pic::IRQ_KEYBOARD},
+    },
+};
 
 // accessed by ISR, storing last read ASCII code
 // and by get_lastkey, see above
@@ -502,7 +499,5 @@ impl isr::ISR for KeyboardISR {
 
         // Den eingegebenen Buchstaben Speichern
         LAST_KEY.store(key.get_ascii(), Ordering::SeqCst);
-
-        
     }
 }

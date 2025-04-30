@@ -17,11 +17,13 @@
    ║         https://os.phil-opp.com/allocator-designs/                      ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::kernel::allocator::list::LinkedListAllocator;
 use alloc::alloc::Layout;
 use core::ptr;
-use crate::gprintln;
-use crate::kernel::syscall::user_api::usr_mmap_heap_space;
+
+use crate::{
+    gprintln,
+    kernel::{allocator::list::LinkedListAllocator, syscall::user_api::usr_mmap_heap_space},
+};
 
 pub const HEAP_SIZE: usize = 1024 * 1024; // 1 MB heap size
 
@@ -33,18 +35,15 @@ static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator:
 /**
  Description: Initialization of the allocator. Must be called early in 'startup'.
 */
-pub fn init(pid: usize, heap_size: usize) {    
-       
+pub fn init(pid: usize, heap_size: usize) {
     // Erst speicher anfordern
     let heap_start: usize = usr_mmap_heap_space(pid, heap_size as u64) as usize;
-    
+
     // Fehlerprüfung
-    if heap_start == 0 { 
+    if heap_start == 0 {
         return;
     }
 
-    
-    
     // Allokator initialisieren
     unsafe {
         ALLOCATOR.lock().init(heap_start, heap_size);
@@ -66,8 +65,6 @@ pub fn alloc(layout: Layout) -> *mut u8 {
 pub fn dealloc(ptr: *mut u8, layout: Layout) {
     unsafe { ALLOCATOR.lock().dealloc(ptr, layout) }
 }
-
-
 
 /**
  Description: A wrapper around spin::Mutex to permit trait implementations

@@ -6,24 +6,23 @@
    ║ Autor:  Michael Schoettner, 11.06.2024                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::boot::appregion::AppRegion;
-use crate::consts;
-use crate::consts::USER_CODE_VM_START;
-use crate::devices::cga;
-use crate::kernel::cpu;
-use crate::kernel::paging::frames::pf_alloc;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::pages::PageTable;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process_handler;
-use crate::kernel::threads::scheduler;
-use crate::kernel::threads::stack;
-use alloc::boxed::Box;
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::fmt;
-use core::mem::transmute;
+use alloc::{boxed::Box, string::String, vec::Vec};
+use core::{fmt, mem::transmute};
+
 use x86_64::registers::control::Cr3;
+
+use crate::{
+    boot::appregion::AppRegion,
+    consts,
+    consts::USER_CODE_VM_START,
+    devices::cga,
+    kernel::{
+        cpu,
+        paging::{frames::pf_alloc, pages, pages::PageTable, physical_addres::PhysAddr},
+        processes::process_handler,
+        threads::{scheduler, stack},
+    },
+};
 
 // Diese Funktionen sind in 'thread.asm'
 extern "C" {
@@ -42,11 +41,11 @@ extern "C" {
 pub struct Thread {
     pub pid: usize, // Zu welchem Prozess gehört dieser Thread
     pub tid: usize,
-    
+
     is_kernel_thread: bool,
     pml4_addr: PhysAddr, // Einstieg in die Seitentabellen
     old_rsp0: u64,       // letzter genutzter Stackeintrag im Kernel-Stack
-                         // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
+    // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
     user_stack: Box<stack::Stack>,   // Speicher fuer den User-Stack
     kernel_stack: Box<stack::Stack>, // Speicher fuer den Kernel-Stack
 
@@ -105,8 +104,19 @@ impl Thread {
     }
 
     // Neuen Thread anlegen
-    pub fn new(my_pid: usize, process_pml4: PhysAddr,  myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, String::from("Nameless"), Vec::new());
+    pub fn new(
+        my_pid: usize,
+        process_pml4: PhysAddr,
+        myentry: extern "C" fn(),
+        kernel_thread: bool,
+    ) -> Box<Thread> {
+        return Thread::internal_new(
+            myentry,
+            kernel_thread,
+            my_pid,
+            String::from("Nameless"),
+            Vec::new(),
+        );
     }
 
     /*
@@ -248,20 +258,20 @@ impl Thread {
             *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
 
             // Nun sichern wir noch alle Register auf dem Stack
-            *sp0.offset(-1) = 0b0000_0000_0010_1011;    // SS Register (Segment Selector)
-                                                              // 15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-            *sp0.offset(-2) = sp3 as u64;               // ESP
-            *sp0.offset(-3) = 512 + 2;                  // EFLAGS 
-            *sp0.offset(-4) = 0b0000_0000_0010_0011;    // CS 
-                                                              //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-1) = 0b0000_0000_0010_1011; // SS Register (Segment Selector)
+                                                     // 15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-2) = sp3 as u64; // ESP
+            *sp0.offset(-3) = 512 + 2; // EFLAGS
+            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS
+                                                     //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
             *sp0.offset(-5) = consts::USER_CODE_VM_START as u64;
-            
-            *sp0.offset(-6) = object as u64;            // RDI
+
+            *sp0.offset(-6) = object as u64; // RDI
 
             // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
             // Eintrag auf dem Stack in 'rsp0'. Daruber gelangen wir in
             // _thread_kernel_start an die noetigen Register
-            self.old_rsp0 = (sp0 as u64) - (8 * 6);           // aktuellen Stack-Zeiger speichern
+            self.old_rsp0 = (sp0 as u64) - (8 * 6); // aktuellen Stack-Zeiger speichern
         }
     }
 

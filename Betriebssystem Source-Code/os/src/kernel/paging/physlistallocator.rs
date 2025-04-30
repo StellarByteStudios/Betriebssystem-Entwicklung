@@ -8,11 +8,6 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use crate::kernel::systemallocator::allocator::{align_up, Locked, align_down};
-use crate::{
-    consts::PAGE_FRAME_SIZE,
-    kernel::cpu,
-};
 use alloc::{
     alloc::{GlobalAlloc, Layout},
     string::String,
@@ -22,6 +17,14 @@ use core::{
     mem,
     ops::Deref,
     ptr::{self, null, null_mut},
+};
+
+use crate::{
+    consts::PAGE_FRAME_SIZE,
+    kernel::{
+        cpu,
+        systemallocator::allocator::{align_down, align_up, Locked},
+    },
 };
 
 /**
@@ -138,7 +141,7 @@ impl PfListAllocator {
 
         // Adresse alignen
         let aligned_address = align_up(addr, PAGE_FRAME_SIZE);
-        
+
         let cuted_size_unaligned: usize = size - (aligned_address - addr);
         let cuted_size: usize = align_down(cuted_size_unaligned, PAGE_FRAME_SIZE);
 
@@ -189,7 +192,7 @@ impl PfListAllocator {
 
         // Pointer auf 'addr' of Type ListNode
         let node_ptr = aligned_address as *mut ListNode;
-        
+
         // copy content of new ListeNode to 'addr'
         node_ptr.write(node);
 
@@ -294,7 +297,6 @@ impl PfListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u64 {
-
         // perform layout adjustments
         let (size, align) = PfListAllocator::size_align(layout);
         let ret_ptr: *mut u64;

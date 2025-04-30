@@ -1,6 +1,5 @@
 use alloc::rc::Rc;
-use core::cell::RefCell;
-use core::fmt::Display;
+use core::{cell::RefCell, fmt::Display};
 
 // Definition eines generischen Listenelements
 pub struct Node<T> {

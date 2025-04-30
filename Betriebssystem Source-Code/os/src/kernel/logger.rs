@@ -1,8 +1,6 @@
 // based on https://docs.rs/log/latest/log/#implementing-a-logger
 
-use log::{Record, Level, Metadata};
-use log::{SetLoggerError, LevelFilter};
-
+use log::{Level, LevelFilter, Metadata, Record, SetLoggerError};
 
 static LOGGER: SimpleLogger = SimpleLogger;
 
@@ -23,6 +21,5 @@ impl log::Log for SimpleLogger {
 }
 
 pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(LevelFilter::Info))
+    log::set_logger(&LOGGER).map(|()| log::set_max_level(LevelFilter::Info))
 }

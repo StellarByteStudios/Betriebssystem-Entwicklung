@@ -9,9 +9,8 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use crate::kernel::cpu;
-
 use super::{cga_print::print, kprint};
+use crate::kernel::cpu;
 
 // make type comparable, printable and enable copy semantics
 #[allow(dead_code)] // avoid warnings for unused colors
@@ -129,7 +128,7 @@ pub fn setpos(x: u32, y: u32) {
     // Possitionsoffset berechnen
     let cursor_offset: u32 = y * CGA_COLUMNS + x;
     let cursor_bytes: (u8, u8) = get_bytes(cursor_offset as u16);
-    
+
     // Low-Byte setzen
     // Richtige Registerstelle auswählen
     cpu::outb(CGA_INDEX_PORT, CGA_LOW_BYTE_CMD);

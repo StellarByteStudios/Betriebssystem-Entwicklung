@@ -20,32 +20,33 @@
 // Nach Rust Update
 #![allow(static_mut_refs)]
 
+use alloc::{boxed::Box, string::ToString, vec, vec::Vec};
 use core::{panic::PanicInfo, ptr};
 
-use crate::boot::multiboot::PhysRegion;
-use crate::kernel::logger;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use alloc::{boxed::Box, string::ToString, vec};
-use alloc::vec::Vec;
 use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
-use devices::graphical::fonts::font_8x8;
-use devices::graphical::{graphic_console_printer, vga};
-use devices::{cga, keyboard::Keyboard, pit};
+use devices::{
+    cga,
+    graphical::{fonts::font_8x8, graphic_console_printer, vga},
+    keyboard::Keyboard,
+    pit,
+};
 use kernel::{
-    systemallocator::allocator,
     cpu, interrupts,
     paging::{
         frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
         pages,
     },
     syscall,
-    threads::{self, scheduler::Scheduler, idle_thread, thread::Thread},
+    systemallocator::allocator,
+    threads::{self, idle_thread, scheduler::Scheduler, thread::Thread},
 };
 use log::info;
-use crate::boot::appregion::AppRegion;
-use crate::kernel::shell::shell_process;
-use crate::kernel::threads::scheduler;
+
+use crate::{
+    boot::{appregion::AppRegion, multiboot::PhysRegion},
+    kernel::{logger, paging::physical_addres::PhysAddr, shell::shell_process, threads::scheduler},
+};
 
 extern crate alloc;
 
@@ -261,8 +262,6 @@ pub extern "C" fn kmain(mbi: u64) {
     // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
     scheduler::spawn_kernel();
 
-
-
     // Apps aus initrd.tar extrahieren
     let opt_apps: Option<Vec<AppRegion>> = appregion::get_apps_from_tar(mbi);
 
@@ -270,7 +269,7 @@ pub extern "C" fn kmain(mbi: u64) {
     if opt_apps.is_none() {
         kprintln!("!=!=!=!=!=!=!=!=!=!=!=!=!=!=! No apps found !=!=!=!=!=!=!=!=!=!=!=!=!=!=!");
         // Dauerloop
-        loop { }
+        loop {}
     }
 
     // Schellprogramm starten
@@ -278,7 +277,7 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Prozesse mit je einem Thread fuer alle Apps erzeugen & im Scheduler registrieren
 
-     //Lade später die Apps, aber starte sie nicht direkt
+    //Lade später die Apps, aber starte sie nicht direkt
     match opt_apps {
         None => kprintln!("No apps found."),
         Some(mut apps) => {

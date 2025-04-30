@@ -12,20 +12,26 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use crate::consts;
-use crate::devices::kprint;
-use crate::kernel::interrupts::isr;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::pages::where_physical_address;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process_handler;
-use crate::kernel::threads::scheduler;
-use crate::kernel::{cpu, interrupts};
-use crate::utility::delay::delay;
 use alloc::{boxed::Box, vec::Vec};
-use core::arch::asm;
-use core::sync::atomic::{AtomicUsize, Ordering};
+use core::{
+    arch::asm,
+    sync::atomic::{AtomicUsize, Ordering},
+};
+
 use x86_64::registers::control::{Cr2, Cr3};
+
+use crate::{
+    consts,
+    devices::kprint,
+    kernel::{
+        cpu, interrupts,
+        interrupts::isr,
+        paging::{pages, pages::where_physical_address, physical_addres::PhysAddr},
+        processes::process_handler,
+        threads::scheduler,
+    },
+    utility::delay::delay,
+};
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;

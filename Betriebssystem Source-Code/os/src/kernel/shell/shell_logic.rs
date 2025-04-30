@@ -1,15 +1,12 @@
-use core::sync::atomic::AtomicBool;
 use alloc::{
     string::{String, ToString},
     vec::Vec,
 };
-use core::ops::Deref;
-use core::ptr::null;
+use core::{ops::Deref, ptr::null, sync::atomic::AtomicBool};
+
 use spin::Mutex;
 
-use crate::{consts, devices::keyboard};
-use crate::boot::appregion::AppRegion;
-use crate::kernel::shell::shell_printing;
+use crate::{boot::appregion::AppRegion, consts, devices::keyboard, kernel::shell::shell_printing};
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -48,7 +45,6 @@ pub fn handle_keystroke(code: u8) -> bool {
 
 // === Initialisierung
 pub fn init_keyboardhandler(apps: Vec<AppRegion>) {
-
     // Command Buffer initialisieren
     reset_command();
 
@@ -154,7 +150,6 @@ fn return_loaded_apps() -> Vec<String> {
 }
 
 fn handle_enter() -> bool {
-
     // eingelesener Befehl ausgeben
     let command: String = read_command();
     kprintln!("Der eingelesene Befehl: {}", command);

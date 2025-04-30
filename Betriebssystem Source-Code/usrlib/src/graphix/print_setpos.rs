@@ -1,11 +1,17 @@
-use core::fmt;
-use core::fmt::Write;
+use core::{fmt, fmt::Write};
+
 use spin::Mutex;
-use crate::kernel::syscall::user_api::{usr_get_screen_width, usr_graphical_print_pos, usr_hello_world_print};
+
+use crate::kernel::syscall::user_api::{
+    usr_get_screen_width, usr_graphical_print_pos, usr_hello_world_print,
+};
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'
-pub static WRITER: Mutex<Writer> = Mutex::new(Writer {cursor_x: 0, cursor_y: 0});
+pub static WRITER: Mutex<Writer> = Mutex::new(Writer {
+    cursor_x: 0,
+    cursor_y: 0,
+});
 
 // Defining a Writer for writing formatted strings to the CGA screen
 pub struct Writer {
@@ -26,10 +32,9 @@ impl fmt::Write for Writer {
 
 impl Writer {
     pub fn update_pos(&mut self, len: u64) {
-        
         // Linewrap
-        let max_witdh: u64 = usr_get_screen_width()/10;
-        
+        let max_witdh: u64 = usr_get_screen_width() / 10;
+
         if self.cursor_x + len > max_witdh {
             self.cursor_y = self.cursor_y + 1;
         }
@@ -65,7 +70,6 @@ macro_rules! println_setpos {
         $crate::graphix::print_setpos::print_with_pos(format_args!(concat!($fmt, "\n"), $($arg)*));
     };
 }
-    
 
 // Helper function of print macros (must be public)
 pub fn print_with_pos(args: fmt::Arguments) {
@@ -80,8 +84,6 @@ pub fn printer_set_pos(x: u64, y: u64) {
     // Cursor Position setzen
     writer.cursor_x = x;
     writer.cursor_y = y;
-    
+
     drop(writer);
 }
-
-

@@ -179,9 +179,7 @@ impl VGA {
                     *(ptr as *mut u8) = ((col >> 16) & 0xFF) as u8;
                 }
             }
-            _ => {
-                
-            }
+            _ => {}
         }
     }
 

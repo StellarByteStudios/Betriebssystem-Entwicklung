@@ -1,7 +1,8 @@
-use core::fmt;
-use core::fmt::Write;
+use core::{fmt, fmt::Write};
+
 use spin::Mutex;
-use crate::kernel::syscall::user_api::{usr_graphical_print};
+
+use crate::kernel::syscall::user_api::usr_graphical_print;
 
 // The global writer that can used as an interface from other modules
 // It is threadsafe by using 'Mutex'

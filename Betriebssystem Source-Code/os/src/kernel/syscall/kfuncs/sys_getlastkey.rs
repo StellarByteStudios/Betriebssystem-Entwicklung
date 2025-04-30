@@ -1,11 +1,8 @@
-
-
 #[no_mangle]
 pub extern "C" fn sys_getlastkey() -> u64 {
     let key: u8 = getch();
     return key as u64;
 }
-
 
 // Inportiert aus der alten Library
 use crate::devices::keyboard;

@@ -17,11 +17,9 @@
    ║         https://os.phil-opp.com/allocator-designs/                      ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::kernel::systemallocator::list::LinkedListAllocator;
-use alloc::alloc::Layout;
-use alloc::string::String;
+use alloc::{alloc::Layout, string::String};
 
-use crate::cpu;
+use crate::{cpu, kernel::systemallocator::list::LinkedListAllocator};
 
 pub const HEAP_START: usize = 0x500000;
 
