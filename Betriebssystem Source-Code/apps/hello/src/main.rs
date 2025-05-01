@@ -16,6 +16,7 @@ use usrlib::{
     print_setpos,
     utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
 };
+use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -31,15 +32,23 @@ pub fn main() {
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
 
+    usr_hello_world_print(1);
+
     // Counter starten
     let mut i: u64 = 0;
     loop {
         const BUFFERLENGH: usize = 255;
 
+        usr_hello_world_print(2);
+
         // Daten holen
         let pid = usr_get_pid();
+        usr_hello_world_print(3);
+
         let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
         usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
+
+        usr_hello_world_print(4);
         let actual_name: &str = unsafe {
             from_utf8_unchecked(
                 namebuffer
@@ -50,12 +59,16 @@ pub fn main() {
             )
         };
 
+        usr_hello_world_print(5);
+
+        // TODO: !! Hier bekomme ich einen Protection fault sobalt das Makro aufgerufen wird
         // Ausgabe
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
+        usr_hello_world_print(6);
         print_setpos!(10, 31, "Counter {}", i);
 
-        let add_summand: u64 = 1000;
-        //let add_summand: u64 = 0;
+        //let add_summand: u64 = 1000;
+        let add_summand: u64 = 0;
 
         // Fibonacci berechnen
         let fibonacci_value = calculate_fibonacci_rec(i + add_summand);

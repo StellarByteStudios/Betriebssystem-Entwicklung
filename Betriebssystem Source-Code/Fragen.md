@@ -1,9 +1,9 @@
 # Notizen für das Betriebssystem
 
 ## Allgemeine Fragen
-- [ ] Gibt es eine Möglichkeit den Programmen direkt irgendwie (So wie vorher bei den Threads) Argumente zu übergeben?
+- [ ] Gibt es eine Möglichkeit den Programmen (Apps) direkt irgendwie (So wie vorher bei den Threads) Argumente zu übergeben?
 - [ ] Wo gebe ich an, welche Funktion die Startfunktion der App/ des Kernels ist
-- [ ] --profile production geht bei mir nicht. Findet main nicht richtig
+- [ ] --profile production geht bei mir nicht. ~~Findet main nicht richtig~~ Optimierungen führen zu Pointerverlust
 
 ## Probleme mit Production
 ```rust
@@ -57,6 +57,15 @@ Ich habe folgendes herausgefunden:
 - [ ] Shell-Syntax
   - [ ] Environment Variablen
   - [ ] Pipes (Interprozesskommunikation)
+
+## Refactoring:
+- [ ] Syscalls aufräumen
+  - [ ] const Nummern durch [ein Enum](https://github.com/hhu-bsinfo/D3OS/blob/main/os/library/syscall/src/lib.rs) austauschen 
+  - [ ] Nicht benutze Syscalls aufräumen
+    - [ ] sys_read
+    - [ ] sys_write
+    - [ ] hello (ohne Print)
+  - [ ] evtl. nur noch eine `syscall`-Methode mit variabler Eingabemenge `pub fn syscall(call: SystemCall, args: &[usize]) -> SyscallResult {`
 
 ## Alte Probleme
 - [ ] Wenn ich eine VMA vom Typ Heap in die Liste Pushe gibt es einen Alignment error

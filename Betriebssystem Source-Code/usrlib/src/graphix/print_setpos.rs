@@ -73,11 +73,15 @@ macro_rules! println_setpos {
 
 // Helper function of print macros (must be public)
 pub fn print_with_pos(args: fmt::Arguments) {
+    usr_hello_world_print(52);
     // String ausgeben
+    // TODO: !! Bei diesem Aufruf gibt es einen Page-Fault
     WRITER.lock().write_fmt(args).unwrap();
+    usr_hello_world_print(53);
 }
 
 pub fn printer_set_pos(x: u64, y: u64) {
+    usr_hello_world_print(51);
     // Writer nimmt nicht mehrere Argumente, deswegen umständlich
     let mut writer = WRITER.lock();
 
