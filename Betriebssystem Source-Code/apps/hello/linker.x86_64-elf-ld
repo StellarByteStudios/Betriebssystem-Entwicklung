@@ -3,13 +3,6 @@ ENTRY(main)
 SECTIONS {
     . = 0x10000000000;   /* load at address 1TB */
 
-    ___KERNEL_DATA_START__ = .;
-
-  .boot :
-    {
-        /* ensure that the multiboot header is at the beginning */
-        *(_multiboot_header)
-    }
 
     .text :
     {
@@ -24,7 +17,5 @@ SECTIONS {
       *(".bss.*")
       ___BSS_END__ = .;
     }
-
-    ___KERNEL_DATA_END__ = .;
 
 }
