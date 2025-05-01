@@ -3,20 +3,6 @@
 version = 4
 
 [[package]]
-name = "ByteOS_animation"
-version = "0.1.1"
-dependencies = [
- "usrlib",
-]
-
-[[package]]
-name = "ByteOS_counter"
-version = "0.1.1"
-dependencies = [
- "usrlib",
-]
-
-[[package]]
 name = "ByteOS_hello"
 version = "0.1.1"
 dependencies = [
@@ -34,13 +20,6 @@ dependencies = [
  "tar-no-std",
  "x86",
  "x86_64",
-]
-
-[[package]]
-name = "ByteOS_music"
-version = "0.1.1"
-dependencies = [
- "usrlib",
 ]
 
 [[package]]

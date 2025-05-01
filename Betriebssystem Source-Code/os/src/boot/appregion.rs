@@ -68,50 +68,73 @@ pub fn get_app(mbi_ptr: u64) -> Option<AppRegion> {
 pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
     // Erstmal Multiboot auslesen
     let multiboot_info: &MultibootInfo = unsafe { MultibootInfo::read(mbi_ptr) };
+    kprintln!("!=!=!=!==!=!=!=!=! Ich bin hier Nummer 1");
+
+    //dump(mbi_ptr);
+    kprintln!("!=!=!=!=!=!=!=!=! ------ Multiboot Pointer: {:#x}", mbi_ptr);
+
+
 
     // Infos holen
     let app_count: u32 = multiboot_info.mods_count;
+    let app_addr: u32 = multiboot_info.mods_addr;
+    kprintln!("===================== {:x?}", app_count);
+    kprintln!("===================== Mods addr {:x?}", app_addr);
+
+
     let tar_mod_entry: ModEntry =
         unsafe { *((multiboot_info.mods_addr as *const usize) as *const ModEntry) };
     let tar_start: u64 = tar_mod_entry.start as u64;
     let tar_end: u64 = tar_mod_entry.end as u64;
 
-    kprintln!("!MULTIBOOT INFO !");
-    kprintln!(
-        "Mod-Count: {}, Tar-Start {:#x}, Tar-End: {:#x}",
-        app_count,
-        tar_start,
-        tar_end
-    );
+    //let tar_mod_pointer = unsafe { app_addr as *const u32};
+    //let tar_start: u32 = unsafe { tar_mod_pointer.read() };
+    //let tar_end: u32 = unsafe { tar_mod_pointer.add(1).read() };
 
-    // Daten aus dem Archiv als rohen Memory-Slice schreiben
-    let tar_data: &[u8] =
-        unsafe { slice::from_raw_parts(tar_start as *const u8, (tar_end - tar_start) as usize) };
 
-    // Archiv aus dem Slice erstellen
-    let archive: TarArchiveRef = TarArchiveRef::new(tar_data);
 
-    // Alle Entries aus dem Archiv holen
-    let mut entries = archive.entries().collect::<Vec<_>>();
-    kprintln!("Number of apps loaded: {}", entries.len());
-    // Nichts drin?
-    if entries.len() < 1 {
-        return None;
-    }
 
-    // Entries in Apps verwandeln
-    let mut apps: Vec<AppRegion> = Vec::new();
-    for entry in entries {
-        let filename = entry.filename().as_str().to_string();
-        let app_start_address = entry.data().as_ptr() as u64;
-        let app_end_address = entry.data().as_ptr() as u64 + entry.data().len() as u64;
+    //kprintln!("===================== tar Start: {:?}      tar End: {:?}", tar_start, tar_end);
 
-        apps.push(AppRegion {
-            start: app_start_address,
-            end: app_end_address,
-            file_name: filename,
-        });
-    }
+    kprintln!("!=!=!=!==!=!=!=!=! Ich bin hier Nummer 2");
+    //None
+    ///*
+        kprintln!("!MULTIBOOT INFO !");
+        kprintln!(
+            "Mod-Count: {}, Tar-Start {:#x}, Tar-End: {:#x}",
+            app_count,
+            tar_start,
+            tar_end
+        );
 
-    return Some(apps);
+        // Daten aus dem Archiv als rohen Memory-Slice schreiben
+        let tar_data: &[u8] =
+            unsafe { slice::from_raw_parts(tar_start as *const u8, (tar_end - tar_start) as usize) };
+
+        // Archiv aus dem Slice erstellen
+        let archive: TarArchiveRef = TarArchiveRef::new(tar_data);
+
+        // Alle Entries aus dem Archiv holen
+        let mut entries = archive.entries().collect::<Vec<_>>();
+        kprintln!("Number of apps loaded: {}", entries.len());
+        // Nichts drin?
+        if entries.len() < 1 {
+            return None;
+        }
+
+        // Entries in Apps verwandeln
+        let mut apps: Vec<AppRegion> = Vec::new();
+        for entry in entries {
+            let filename = entry.filename().as_str().to_string();
+            let app_start_address = entry.data().as_ptr() as u64;
+            let app_end_address = entry.data().as_ptr() as u64 + entry.data().len() as u64;
+
+            apps.push(AppRegion {
+                start: app_start_address,
+                end: app_end_address,
+                file_name: filename,
+            });
+        }
+
+        return Some(apps);//*/
 }

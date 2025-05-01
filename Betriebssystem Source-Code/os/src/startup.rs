@@ -256,11 +256,15 @@ fn print_frames_with_headline(headline: &str) {
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
 
+    kprintln!("----------- Noch vor dem Init. MBI-Pointer: {:#x}\n", mbi);
+
     // Alles Wichtige Initialisieren
     init_all(mbi);
 
     // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
     scheduler::spawn_kernel();
+
+    kprintln!("----------- Nach Spawn kernel. MBI-Pointer: {:#x}\n", mbi);
 
     // Apps aus initrd.tar extrahieren
     let opt_apps: Option<Vec<AppRegion>> = appregion::get_apps_from_tar(mbi);
@@ -278,6 +282,7 @@ pub extern "C" fn kmain(mbi: u64) {
     // Prozesse mit je einem Thread fuer alle Apps erzeugen & im Scheduler registrieren
 
     //Lade später die Apps, aber starte sie nicht direkt
+    /*
     match opt_apps {
         None => kprintln!("No apps found."),
         Some(mut apps) => {
@@ -291,7 +296,7 @@ pub extern "C" fn kmain(mbi: u64) {
                 scheduler::spawn(app.unwrap());
             }
         }
-    }
+    }*/
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();
