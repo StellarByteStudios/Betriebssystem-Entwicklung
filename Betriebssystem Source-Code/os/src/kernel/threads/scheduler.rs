@@ -90,7 +90,7 @@ pub fn spawn_kernel() {
  *                                                                           *
  * Parameter:       app    Code-Image fuer den neuen Prozess                 *
  *****************************************************************************/
-pub fn spawn(app: AppRegion) {
+pub fn spawn_app(app: AppRegion) {
     // Neuen Prozess anlegen
     let new_pid = create_fresh_process(app.file_name.as_str());
 

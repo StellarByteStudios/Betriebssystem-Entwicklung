@@ -15,6 +15,7 @@ use usrlib::{
     },
     print_setpos,
 };
+use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -41,7 +42,8 @@ pub fn main() {
     };
 
     // Ausgabe
-    print_setpos!(50, 36, "Name: {}; pid: {}", actual_name, pid);
+    //print_setpos!(50, 36, "Name: {}; pid: {}", actual_name, pid)
+    usr_hello_world_print(6600);
 
     // Animation
     animate_charmander(500, 400);

@@ -10,6 +10,7 @@ use usrlib::{
     print_setpos,
     utility::delay::delay,
 };
+use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -17,7 +18,7 @@ pub fn main() {
     let mut i: u64 = 0;
     loop {
         const BUFFERLENGH: usize = 255;
-
+    /*
         // Daten holen
         let pid = usr_get_pid();
         let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
@@ -31,10 +32,12 @@ pub fn main() {
                     .unwrap_or(&[]),
             )
         };
-
+*/
         // Ausgabe
-        print_setpos!(90, 30, "Name: {}; pid: {}", actual_name, pid);
-        print_setpos!(90, 31, "Extra Counter {}", i);
+        //print_setpos!(90, 30, "Name: {}; pid: {}", actual_name, pid);
+        //print_setpos!(90, 31, "Extra Counter {}", i);
+
+        usr_hello_world_print(i);
 
         // Counter verschieben
         i = i + 1;

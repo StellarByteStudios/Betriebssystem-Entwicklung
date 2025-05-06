@@ -1,12 +1,10 @@
-use alloc::{
-    string::{String, ToString},
-    vec::Vec,
-};
+use alloc::{format, string::{String, ToString}, vec, vec::Vec};
 use core::{ops::Deref, ptr::null, sync::atomic::AtomicBool};
 
 use spin::Mutex;
 
 use crate::{boot::appregion::AppRegion, consts, devices::keyboard, kernel::shell::shell_printing};
+use crate::kernel::threads::scheduler;
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -16,6 +14,9 @@ static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
 static COMMAND_BUFFER: Mutex<(String, u32)> = Mutex::new((String::new(), 0));
 
 static APPS: Mutex<Vec<AppRegion>> = Mutex::new(Vec::new());
+
+// Liste aller Commands bei denen man die Apps angezeigt bekommt, die geladen sind
+const LIST_ALL_COMMANDS: [&str; 3]  = ["programms", "app", "apps"];
 
 // === Behandelt je nach Zeichen, was gemacht werden soll
 pub fn handle_keystroke(code: u8) -> bool {
@@ -86,6 +87,13 @@ fn read_command() -> String {
     // Command auslesen
     let command = command_buffer.0.clone();
 
+    // Lock Freigeben
+    drop(command_buffer);
+
+    // Buffer Resetten
+    reset_command();
+
+    /*
     // Buffer löschen
     command_buffer.0 = String::new(); //String::with_capacity((consts::SCREEN_WIDTH / 10 + 2) as usize);
 
@@ -93,7 +101,7 @@ fn read_command() -> String {
     command_buffer.1 = 0;
 
     // lock freigeben
-    drop(command_buffer);
+    drop(command_buffer);*/
 
     // Command zurückgeben
     return command;
@@ -149,6 +157,17 @@ fn return_loaded_apps() -> Vec<String> {
     return app_names;
 }
 
+fn load_app_by_name(name: &str) -> Option<AppRegion> {
+    let apps = APPS.lock(); // Sperren des Mutex
+
+    // Zielname im erwarteten Format bauen
+    let expected_name = format!("./{}.bin", name);
+
+    // Suchen nach passender App
+    apps.iter()
+        .find(|app| app.file_name == expected_name)
+        .cloned()
+}
 fn handle_enter() -> bool {
     // eingelesener Befehl ausgeben
     let command: String = read_command();
@@ -168,6 +187,8 @@ fn handle_enter() -> bool {
     if command_array.get(0).is_none() {
         return false;
     }
+    // Speichern als Abkürzung
+    let main_command = command_array.get(0).unwrap();
 
     // = = = Befehl matchen = = = //
     // Konsole beenden
@@ -181,15 +202,54 @@ fn handle_enter() -> bool {
     // Erstmal neue Zeile für den Befehl
     shell_printing::print_char('\n');
 
-    // TODO: Richtige Befehle rausholen
-    let app_names: Vec<String> = return_loaded_apps();
-    shell_printing::print_string("Geladene Apps:\n");
-    for name in app_names.iter() {
-        shell_printing::print_string(name.as_str());
-        shell_printing::print_char('\n');
+
+
+    // Gebe einfach die die Befehle aus.
+    /*if loader_commands // Case Insensitive variante
+        .iter()// Vergleiche mit allen commands im array
+        .any(|cmd| cmd.eq_ignore_ascii_case(&main_command)) // Case-Insensitive
+    {*/
+    if LIST_ALL_COMMANDS.contains(&main_command.as_str()) {
+        let app_names: Vec<String> = return_loaded_apps();
+        shell_printing::print_string("Geladene Apps:\n");
+        for name in app_names.iter() {
+            shell_printing::print_string("   - ");
+            shell_printing::print_string(name.as_str());
+            shell_printing::print_char('\n');
+        }
+        return false
     }
 
-    /*
+    // TODO: Exitbefehl
+
+    // App Laden
+    let loaded_app = load_app_by_name(main_command.as_str());
+
+    if loaded_app.is_none() {
+        // Befehl existiert nicht
+        shell_printing::print_string("Der eingegebene Befehl \"");
+        shell_printing::print_string(command_array.get(0).unwrap());
+        shell_printing::print_string("\" existiert leider nicht :(\n");
+        return false;
+    }
+
+    // Wenn die App gefunden wurde, starte sie jetzt
+    scheduler::spawn_app(loaded_app.unwrap());
+    return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* ----------------------- ALTES -----------------------
     // Gibt es das Programm überhaupt?
     let programm_name = command_array.get(0).unwrap();
     if !COMMANDS.contains(&programm_name.as_str()) {
@@ -233,5 +293,5 @@ fn handle_enter() -> bool {
     //graphic_console_printer::print_char('\n');
 
     // Normaler verlauf
-    return false;
+    //return false;
 }

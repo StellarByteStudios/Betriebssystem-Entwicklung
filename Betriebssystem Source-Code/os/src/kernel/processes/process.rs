@@ -26,6 +26,8 @@ impl Process {
         // Oberste Page-Table anlegen (mit Kernel initialisiert)
         let new_pml4_addr = pages::pg_init_user_tables();
 
+        //kprintln!("Neuer Prozess erstellt namens {} mit der pml4_addr: {:#x}", fname, new_pml4_addr.0);
+
         Box::new(Process {
             pid: NEXT_PID.fetch_add(1, Ordering::SeqCst),
             file_name: fname,

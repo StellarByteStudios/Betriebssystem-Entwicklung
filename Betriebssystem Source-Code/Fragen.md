@@ -47,6 +47,12 @@ Ich habe folgendes herausgefunden:
 - Wenn beide Prints drin sind, werden alle Apps ohne Probleme geladen
 
 **Jetzt bekomme ich einen Pagefault irgendwo in meiner App auf Adresse `0x0`**
+- Pagefault tritt im Printer Macro auf. Wenn das weg ist, gehts
+- Jetzt bekomme ich `Panic: invalid opcode - processor halted.` 
+  - Ich habe versucht die App zu finden bei der das passiert, aber immer wenn ich nur 3 beliebige habe, läuft das, aber mit allen 4 geht alles kaputt
+- Alternative: Starte nicht alle Apps bei boot sondern über shell:
+  - quasi immer page faults, sobalt "hello" oder "extra" mit drin sind. Aber nicht alleine
+  - Meistens ein Pagefault direkt am Code (0x...1000)
 
 
 ## Ideen für die Shell
