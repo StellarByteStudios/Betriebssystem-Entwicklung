@@ -50,9 +50,12 @@ Ich habe folgendes herausgefunden:
 - Pagefault tritt im Printer Macro auf. Wenn das weg ist, gehts
 - Jetzt bekomme ich `Panic: invalid opcode - processor halted.` 
   - Ich habe versucht die App zu finden bei der das passiert, aber immer wenn ich nur 3 beliebige habe, läuft das, aber mit allen 4 geht alles kaputt
+  - In der Regel von Music erzeugt
 - Alternative: Starte nicht alle Apps bei boot sondern über shell:
   - quasi immer page faults, sobalt "hello" oder "extra" mit drin sind. Aber nicht alleine
-  - Meistens ein Pagefault direkt am Code (0x...1000)
+  - Meistens ein Pagefault direkt am Code (0x...1000) oder bei `0xfd280003`
+  - Einige Appkombinationen laufen ohne Probleme und manche nicht. Fehlerquelle meist die Animation
+- Ich habe herausgefunden, selbst wenn ich in allen `Cargo.toml` die Optimierung auf 0 Stelle bleibt das Problem bestehen
 
 
 ## Ideen für die Shell
