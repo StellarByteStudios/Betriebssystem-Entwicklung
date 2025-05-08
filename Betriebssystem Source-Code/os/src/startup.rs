@@ -256,7 +256,7 @@ fn print_frames_with_headline(headline: &str) {
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
 
-    kprintln!("----------- Noch vor dem Init. MBI-Pointer: {:#x}\n", mbi);
+    kprintln!("-- Noch vor dem Init. MBI-Pointer: {:#x}\n", mbi);
 
     // Alles Wichtige Initialisieren
     init_all(mbi);
@@ -265,7 +265,7 @@ pub extern "C" fn kmain(mbi: u64) {
     scheduler::spawn_kernel();
 
     // TODO: Wenn auskommentiert sehr wilde ausgabe
-    kprintln!("----------- Nach Spawn kernel. MBI-Pointer: {:#x}\n", mbi);
+    kprintln!("-- Nach Spawn kernel. MBI-Pointer: {:#x}\n", mbi);
 
     // Apps aus initrd.tar extrahieren
     let opt_apps: Option<Vec<AppRegion>> = appregion::get_apps_from_tar(mbi);

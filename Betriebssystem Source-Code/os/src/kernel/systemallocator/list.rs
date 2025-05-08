@@ -50,10 +50,13 @@ impl LinkedListAllocator {
     // This function is unsafe because the caller must guarantee that
     // the given heap bounds are valid. This method must be called only once.
     pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
-        self.add_free_block(heap_start, heap_size);
-
+        self.head = ListNode::new(0);
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size - 1;
+
+        self.add_free_block(heap_start, heap_size);
+
+
     }
 
     // Adds the given free memory block 'addr' to the front of the free list.
@@ -61,6 +64,14 @@ impl LinkedListAllocator {
         // ensure that the freed block is capable of holding ListNode
         assert_eq!(align_up(addr, mem::align_of::<ListNode>()), addr);
         assert!(size >= mem::size_of::<ListNode>());
+
+        //kprintln!("!_!_!_!_!_!_!_!_!_ Füge neuen Block hinzu: Anfang {:#x}, Size: {:#x}", addr, size);
+
+        if addr < self.heap_start || addr + size > self.heap_end +1{
+            kprint!("===! Fehlerhafter free! - ");
+            kprintln!("Der Freed Block von alloc [{:#x}  /  {:#x}]: Anfang {:#x}, Size: {:#x}", self.heap_start, self.heap_end, addr, size);
+            return;
+        }
 
         // create a new ListNode (on stack)
         let mut node = ListNode::new(size);
