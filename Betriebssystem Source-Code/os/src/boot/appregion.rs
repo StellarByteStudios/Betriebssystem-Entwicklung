@@ -129,6 +129,8 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
             let app_start_address = entry.data().as_ptr() as u64;
             let app_end_address = entry.data().as_ptr() as u64 + entry.data().len() as u64;
 
+            kprintln!("------ App hinzugefügt: {}, start: {:#x}, end: {:#x}", filename.as_str(), app_start_address, app_end_address);
+
             apps.push(AppRegion {
                 start: app_start_address,
                 end: app_end_address,
