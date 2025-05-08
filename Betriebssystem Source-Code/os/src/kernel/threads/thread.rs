@@ -333,7 +333,7 @@ impl fmt::Display for Thread {
 pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
     unsafe {
         kprintln!(
-            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}",
+            "kickoff_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}",
             (*object).tid,
             (*object).old_rsp0,
             (*object).is_kernel_thread,
