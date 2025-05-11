@@ -84,3 +84,30 @@ Ich habe folgendes herausgefunden:
 - Reden über Shell Geschichte
   - KI Shell 
 
+
+## Promt an KI
+Ich schreibe ein Betriebssystem in Rust. Dort habe ich ein sehr kompliziertes Problem.
+*Zur Struktur des Systems:*
+Ich habe ein Hauptsystem welches Speicherverwaltung, schedulling, paging, etc. implementiert und verwaltet. Ich habe eine userlib, welche eine Schnittstelle für User Applications bildet. Diese sollen nämlich separat vom Kernel kompiliert werden, aber im Usermode laufen. Daher stellt die Userlib die Schnittstelle über Syscalls bereit. Ich habe des weiteren 4 verschiedene Apps mit einer kleinen Main Methode, welche einige dieser Syscalls verwenden. Jedes der 6 genannten Systeme ist in einem eigenen Rust workspace und wird von einem darüberliegenden Makefile mit Cargo make zusammen gebaut und gelinkt.
+Wenn das System zusammen gelinkt wird, werden erst alle einzelnen Subsysteme gebaut. Die Apps werden dann von einer .elf Datei in eine .bin Datei umgewandelt und zu einem einzigen Tar-File zusammengepackt. Beim Starten des Betriebssystems läd der Kernel diese Tar-Datei als Multiboot-Modul, und extrahiert daraus die Programme, sodass sie später gestartet werden können
+Das System verwendet Multiboot und grub und läuft im Graphic VGA modus
+
+*Problembeschreibung:*
+Es gibt in Rust 2 unterschiedliche Möglichkeiten zu Kompilieren. Es gibt den development modus. Dort werden alle Debug-Symbole beibehalten. Methoden werden gleich benannt und es wird nichts optimiert. Dann gibt es den Production oder Release Modus, dort werden vom Kompiler einige optimierungen vorgenommen.
+Ich habe jetzt das Problem, dass ich verschiedene unerklärliche Probleme habe, welche aber auschließlich auftreten, wenn ich im Production Modus kompiliere. Wenn ich das System im Development Modus kompiliere läuft alles reibungslos.
+
+*Folgende Probleme Treten auf:*
+Ich habe 4 Programme namens "hello", "extra", "animation" und "music" die folgendes machen:
+- "hello" & "Extra": geben nur ein paar Zahlen über die serielle Schnittstelle via Syscalls aus
+- "animation": gibt wiederholt eine Bit-Map auf dem Bildschirm aus
+- "music": spielt durch Triggern des pc-speakers eine Melodie
+
+Problemfälle:
+- Wenn ich 3 Programme von "hello" und "Extra" in beliebiger reihenfolge und kombination starte, gibt es beim 3ten mal einen Pagefault und zwar immer an der addresse "0x10000001000". Dabei Startet der Usercode bei "0x10000000000" und die Page im Virtuellen Adressraum geht genau bis "0x10000000fff", es ist also ein off bei one error. Es wirkt so, als würde die App direkt versuchen bei "0x10000001000" zu starten, da sie vorher nix ausgibt und "PageFault: error_code = 0b100, cs-Register = 0b100011, rip-Register = 0x10000001000, CR2 = 0x10000001000" gilt
+- wenn ich zuerst das Programm "animation" starte und dann ein weiteres Programm, dann bekomme ich auch einen Pagefault "PageFault: error_code = 0b101, cs-Register = 0b100011, rip-Register = 0x10000000004, CR2 = 0xfd300003" auf eine Scheinbar zufällige Addresse
+- wenn ich zuerst das programm "music" starte und dann ein weiteres programm bekomme ich dauerhaft "Panic: invalid opcode - processor halted."
+- Jede App alleine läuft ohne Probleme
+
+
+Hast du eine Idee, wo ich nach dem Fehler suchen könnte?
+

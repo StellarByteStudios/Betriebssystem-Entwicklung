@@ -25,7 +25,7 @@ pub fn main() {
     usr_dump_active_vmas();
 
     // Allokator initialisieren
-    let pid: usize = usr_get_pid() as usize;
+    //let pid: usize = usr_get_pid() as usize;
 
     //init(pid, HEAP_SIZE);
 

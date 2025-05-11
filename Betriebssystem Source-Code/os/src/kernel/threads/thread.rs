@@ -265,6 +265,7 @@ impl Thread {
             *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS
                                                      //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
             *sp0.offset(-5) = consts::USER_CODE_VM_START as u64;
+            //*sp0.offset(-5) = (*object).entry as u64;
 
             *sp0.offset(-6) = object as u64; // RDI
 
