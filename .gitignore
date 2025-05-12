@@ -11,3 +11,6 @@ Betriebssystem Source-Code/loader/isofiles/
 
 # Mac-Dateien
 *.DS_Store
+
+# Inneres Repository
+hhuTOSuserlib/
