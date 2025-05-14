@@ -33,7 +33,9 @@ use crate::kernel::{
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = NUM_SYSCALLS; // NUM_SYSCALLS aus der userlib
+#[no_mangle] // No mangle, weil ich versuche die Variable direkt in Assembler zu benutzen
+pub static NO_SYSCALLS: usize = NUM_SYSCALLS;
+pub const NO_SYSCALLS_CONST: usize = NUM_SYSCALLS; // NUM_SYSCALLS aus der userlib
 
 extern "C" {
     fn _init_syscalls();
@@ -52,7 +54,7 @@ pub static SYSCALL_FUNCTABLE: SyscallFuncTable = SyscallFuncTable::new();
 #[repr(align(64))]
 #[repr(C)]
 pub struct SyscallFuncTable {
-    handle: [*const usize; NO_SYSCALLS],
+    handle: [*const usize; NO_SYSCALLS_CONST],
 }
 
 impl SyscallFuncTable {

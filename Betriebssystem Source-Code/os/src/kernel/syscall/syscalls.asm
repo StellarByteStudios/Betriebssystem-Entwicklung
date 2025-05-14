@@ -19,12 +19,19 @@
 [EXTERN syscall_abort]        ; Funktion in Rust, die abbricht, 
                               ; falls der Systemaufruf nicht existiert
 
+
+[EXTERN NO_SYSCALLS]          ; Holt sich die Anzahl aus dem Rust-Code (Achtung! nur Adresse)
+
+[SECTION .bss]
+syscall_count: resq 1         ; 8 Byte (64 Bit) für usize (Variable die nach Init genutzt werden soll)
+
 [SECTION .text]
 [BITS 64]
 
 ; Hoechste Funktionsnummer für den System-Aufruf-Dispatcher
 ; Muss mit NO_SYSCALLS in 'kernel/syscall/mod.rs' konsistent sein!
-NO_SYSCALLS: equ 14
+;NO_SYSCALLS: equ 14
+
 
 ; Vektor fuer Systemaufrufe
 SYSCALL_TRAPGATE: equ 0x80
@@ -64,6 +71,10 @@ _init_syscalls:
 
 	mov rcx, 0x00000000
 	mov [rax+12], ecx ; reserved
+
+	; Syscall-Anzahl laden und lokal speichern
+	mov rax, [NO_SYSCALLS]   ; Laufzeitwert aus Rust laden
+    mov [syscall_count], rax ; lokal ablegen
 
 	ret
 	
@@ -109,8 +120,13 @@ _syscall_handler:
 
 
 	; Pruefen, ob die Funktionsnummer nicht zu gross ist
-	cmp rax, NO_SYSCALLS
-	jge syscall_abort   ; wirft eine Panic, kehrt nicht zurueck
+	; cmp rax, NO_SYSCALLS ; Nicht mehr mit der Konstante vergleichen
+	; jge syscall_abort   ; wirft eine Panic, kehrt nicht zurueck
+
+	; vergleich mit lokaler variable
+	mov rbx, [syscall_count]
+    cmp rax, rbx
+    jge syscall_abort
 
 	; Funktionsnummer ist OK -> Rust aufrufen
 	call syscall_disp
