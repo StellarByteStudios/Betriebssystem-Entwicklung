@@ -45,7 +45,7 @@ pub fn main() {
         let pid = usr_get_pid();
 
         let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-        usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
+        usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH) as usize;
 
         let actual_name: &str = unsafe {
             from_utf8_unchecked(

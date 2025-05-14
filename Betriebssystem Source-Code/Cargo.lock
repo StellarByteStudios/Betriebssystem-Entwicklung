@@ -142,7 +142,7 @@ dependencies = [
 [[package]]
 name = "usrlib"
 version = "0.1.1"
-source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=syscalls-to-ENUM#a3a71d4be3a42d7ac15a4d2f785966183cb38a4f"
+source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=syscalls-to-ENUM#57901006385444fbc7f38e1cddc1db304c488d74"
 dependencies = [
  "spin",
 ]

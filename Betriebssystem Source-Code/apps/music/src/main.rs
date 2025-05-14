@@ -24,7 +24,7 @@ pub fn main() {
     // Daten holen
     let pid = usr_get_pid();
     let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
+    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH) as usize;
     let actual_name: &str = unsafe {
         from_utf8_unchecked(
             namebuffer
@@ -38,7 +38,7 @@ pub fn main() {
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
 
-    usr_play_song(SongID::super_mario as u64);
+    usr_play_song(SongID::super_mario as usize);
 
 }
 
