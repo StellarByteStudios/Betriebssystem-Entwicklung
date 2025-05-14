@@ -110,6 +110,13 @@ fn backspace_command() {
     // Lock holen
     let mut command_buffer = COMMAND_BUFFER.lock();
 
+    // Lehren befehl abfangen
+    if command_buffer.1 < 1 {
+        // Wir haben nix zu löschen
+        drop(command_buffer);
+        return;
+    }
+
     // Char löschen
     command_buffer.0.pop();
 
