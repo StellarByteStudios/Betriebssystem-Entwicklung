@@ -36,13 +36,10 @@ pub fn main() {
     };
 
     // Ausgabe
-    //print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
+    print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
 
     usr_play_song(SongID::super_mario as u64);
 
-    loop {
-        usr_hello_world_print(7777);
-    }
 }
 
 /*

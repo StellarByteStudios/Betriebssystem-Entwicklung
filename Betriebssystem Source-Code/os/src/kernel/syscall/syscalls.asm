@@ -24,7 +24,7 @@
 
 ; Hoechste Funktionsnummer für den System-Aufruf-Dispatcher
 ; Muss mit NO_SYSCALLS in 'kernel/syscall/mod.rs' konsistent sein!
-NO_SYSCALLS: equ 16
+NO_SYSCALLS: equ 14
 
 ; Vektor fuer Systemaufrufe
 SYSCALL_TRAPGATE: equ 0x80

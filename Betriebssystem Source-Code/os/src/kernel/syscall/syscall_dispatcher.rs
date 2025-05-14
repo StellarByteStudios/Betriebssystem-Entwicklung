@@ -11,7 +11,7 @@
  *                  Michael Schoettner, 23.10.2024, modifiziert              *
  *****************************************************************************/
 use core::arch::{asm, naked_asm};
-
+use usrlib::kernel::syscall::NUM_SYSCALLS;
 use crate::kernel::{
     syscall,
     syscall::kfuncs::{
@@ -33,7 +33,7 @@ use crate::kernel::{
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 16;
+pub const NO_SYSCALLS: usize = NUM_SYSCALLS; // NUM_SYSCALLS aus der userlib
 
 extern "C" {
     fn _init_syscalls();
@@ -63,16 +63,14 @@ impl SyscallFuncTable {
                 sys_hello_world_print as *const _,
                 sys_getlastkey as *const _,
                 sys_gettid as *const _,
-                sys_write as *const _,
-                sys_read as *const _,
-                sys_get_systime as *const _,
-                sys_graphical_print as *const _,
-                sys_graphical_print_pos as *const _,
-                sys_get_screen_witdh as *const _,
                 sys_getpid as *const _,
                 sys_read_process_name as *const _,
+                sys_get_systime as *const _,
+                sys_get_screen_witdh as *const _,
                 sys_dump_vmas as *const _,
                 sys_mmap_heap_space as *const _,
+                sys_graphical_print as *const _,
+                sys_graphical_print_pos as *const _,
                 sys_paint_picture_on_pos as *const _,
                 sys_play_song as *const _,
             ],
