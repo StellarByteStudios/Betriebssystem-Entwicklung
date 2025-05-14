@@ -43,7 +43,6 @@ pub fn main() {
     // Ausgabe
     print_setpos!(50, 36, "Name: {}; pid: {}", actual_name, pid);
 
-
     // Animation
     animate_charmander(500, 400);
 

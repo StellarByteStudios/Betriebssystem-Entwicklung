@@ -1,10 +1,19 @@
-use alloc::{format, string::{String, ToString}, vec, vec::Vec};
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 use core::{ops::Deref, ptr::null, sync::atomic::AtomicBool};
 
 use spin::Mutex;
 
-use crate::{boot::appregion::AppRegion, consts, devices::keyboard, kernel::shell::shell_printing};
-use crate::kernel::threads::scheduler;
+use crate::{
+    boot::appregion::AppRegion,
+    consts,
+    devices::keyboard,
+    kernel::{shell::shell_printing, threads::scheduler},
+};
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -16,7 +25,7 @@ static COMMAND_BUFFER: Mutex<(String, u32)> = Mutex::new((String::new(), 0));
 static APPS: Mutex<Vec<AppRegion>> = Mutex::new(Vec::new());
 
 // Liste aller Commands bei denen man die Apps angezeigt bekommt, die geladen sind
-const LIST_ALL_COMMANDS: [&str; 3]  = ["programms", "app", "apps"];
+const LIST_ALL_COMMANDS: [&str; 3] = ["programms", "app", "apps"];
 
 // === Behandelt je nach Zeichen, was gemacht werden soll
 pub fn handle_keystroke(code: u8) -> bool {
@@ -202,8 +211,6 @@ fn handle_enter() -> bool {
     // Erstmal neue Zeile für den Befehl
     shell_printing::print_char('\n');
 
-
-
     // Gebe einfach die die Befehle aus.
     /*if loader_commands // Case Insensitive variante
         .iter()// Vergleiche mit allen commands im array
@@ -217,7 +224,7 @@ fn handle_enter() -> bool {
             shell_printing::print_string(name.as_str());
             shell_printing::print_char('\n');
         }
-        return false
+        return false;
     }
 
     // TODO: Exitbefehl
@@ -236,18 +243,6 @@ fn handle_enter() -> bool {
     // Wenn die App gefunden wurde, starte sie jetzt
     scheduler::spawn_app(loaded_app.unwrap());
     return false;
-
-
-
-
-
-
-
-
-
-
-
-
 
     /* ----------------------- ALTES -----------------------
     // Gibt es das Programm überhaupt?

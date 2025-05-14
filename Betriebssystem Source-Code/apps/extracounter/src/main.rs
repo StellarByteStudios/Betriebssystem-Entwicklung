@@ -6,11 +6,10 @@ use core::{panic::PanicInfo, str::from_utf8_unchecked};
 #[macro_use]
 use usrlib;
 use usrlib::{
-    kernel::syscall::user_api::{usr_get_pid, usr_read_process_name},
+    kernel::syscall::user_api::{usr_get_pid, usr_hello_world_print, usr_read_process_name},
     print_setpos,
     utility::delay::delay,
 };
-use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]

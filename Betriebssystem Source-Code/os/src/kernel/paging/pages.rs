@@ -346,7 +346,12 @@ pub fn pg_mmap_user_app(pid: usize, pml4_addr: PhysAddr, app: AppRegion) -> bool
     let app_lenght: usize = (app.end - app.start) as usize;
     let app_pages = (app_lenght / PAGE_SIZE) + 1;
 
-    kprintln!("Lege Mapping für App \"{}\" an. Sie brauch {} Pages, denn sie ist {:#x} groß", app.file_name.as_str(), app_pages, app_lenght);
+    kprintln!(
+        "Lege Mapping für App \"{}\" an. Sie brauch {} Pages, denn sie ist {:#x} groß",
+        app.file_name.as_str(),
+        app_pages,
+        app_lenght
+    );
 
     // Physische Speicherzellen anfordern
     let app_phys_start_address = pf_alloc(app_pages, false);
@@ -505,9 +510,11 @@ pub fn where_physical_address(pml4_addr: PhysAddr, virtual_address: usize) {
         );
     }
     let right_index = get_index_in_table(virtual_address, 0);
-    kprintln!("Der gesuchte Eintrag ist:\n\t{:}: Address=0x{:x}, Flags={:#b}",
+    kprintln!(
+        "Der gesuchte Eintrag ist:\n\t{:}: Address=0x{:x}, Flags={:#b}",
         right_index,
         page_table_1.entries[right_index].get_addr().raw(),
-        page_table_1.entries[right_index].get_flags().bits());
+        page_table_1.entries[right_index].get_flags().bits()
+    );
     kprintln!("= = = = = = = = = = = = = = = = = = = =\n\n")
 }

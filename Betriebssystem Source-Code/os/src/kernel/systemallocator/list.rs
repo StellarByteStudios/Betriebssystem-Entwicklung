@@ -55,8 +55,6 @@ impl LinkedListAllocator {
         self.heap_end = heap_start + heap_size - 1;
 
         self.add_free_block(heap_start, heap_size);
-
-
     }
 
     // Adds the given free memory block 'addr' to the front of the free list.
@@ -67,9 +65,15 @@ impl LinkedListAllocator {
 
         //kprintln!("!_!_!_!_!_!_!_!_!_ Füge neuen Block hinzu: Anfang {:#x}, Size: {:#x}", addr, size);
 
-        if addr < self.heap_start || addr + size > self.heap_end +1{
+        if addr < self.heap_start || addr + size > self.heap_end + 1 {
             kprint!("===! Fehlerhafter free! - ");
-            kprintln!("Der Freed Block von alloc [{:#x}  /  {:#x}]: Anfang {:#x}, Size: {:#x}", self.heap_start, self.heap_end, addr, size);
+            kprintln!(
+                "Der Freed Block von alloc [{:#x}  /  {:#x}]: Anfang {:#x}, Size: {:#x}",
+                self.heap_start,
+                self.heap_end,
+                addr,
+                size
+            );
             return;
         }
 

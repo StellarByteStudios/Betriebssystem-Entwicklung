@@ -11,7 +11,9 @@
  *                  Michael Schoettner, 23.10.2024, modifiziert              *
  *****************************************************************************/
 use core::arch::{asm, naked_asm};
+
 use usrlib::kernel::syscall::NUM_SYSCALLS;
+
 use crate::kernel::{
     syscall,
     syscall::kfuncs::{

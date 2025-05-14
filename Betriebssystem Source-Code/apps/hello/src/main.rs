@@ -11,12 +11,13 @@ use usrlib::{
     self,
     kernel::{
         allocator::allocator::{init, HEAP_SIZE},
-        syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_read_process_name},
+        syscall::user_api::{
+            usr_dump_active_vmas, usr_get_pid, usr_hello_world_print, usr_read_process_name,
+        },
     },
     print_setpos,
     utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
 };
-use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -32,14 +33,10 @@ pub fn main() {
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
 
-
-
     // Counter starten
     let mut i: u64 = 0;
     loop {
-
         const BUFFERLENGH: usize = 255;
-
 
         // Daten holen
         let pid = usr_get_pid();

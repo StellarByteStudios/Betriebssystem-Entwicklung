@@ -14,7 +14,6 @@ use usrlib::{
     },
     print_setpos,
 };
-use usrlib::kernel::syscall::user_api::usr_hello_world_print;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -39,7 +38,6 @@ pub fn main() {
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
 
     usr_play_song(SongID::super_mario as usize);
-
 }
 
 /*
