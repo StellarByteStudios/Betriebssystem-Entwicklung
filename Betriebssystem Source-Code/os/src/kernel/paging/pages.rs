@@ -22,9 +22,10 @@ use crate::{
         interrupts::intdispatcher,
         paging::{frames, pagetable_flags::PTEflags},
         processes::{process_handler, vma},
+
     },
-    utility::mathadditions::math::pow_usize,
 };
+use usrlib::utility::mathadditions::math::pow_usize;
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
