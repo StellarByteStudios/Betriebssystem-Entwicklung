@@ -19,17 +19,14 @@ use crate::kernel::{
     syscall::kfuncs::{
         sys_dump_vmas::sys_dump_vmas,
         sys_getlastkey::sys_getlastkey,
-        sys_graphical_print::sys_graphical_print,
-        sys_graphical_print_pos::sys_graphical_print_pos,
-        sys_hello_world::sys_hello_world,
-        sys_hello_world_print::sys_hello_world_print,
         sys_mmap_heap_space::sys_mmap_heap_space,
         sys_paint_picture_on_pos::sys_paint_picture_on_pos,
         sys_play_song::sys_play_song,
-        sys_read::sys_read,
+        sys_printing::{
+            sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
+        },
         sys_read_process_name::sys_read_process_name,
         sys_simple_getter::{sys_get_screen_witdh, sys_get_systime, sys_getpid, sys_gettid},
-        sys_write::sys_write,
     },
 };
 

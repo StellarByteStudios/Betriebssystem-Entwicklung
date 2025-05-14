@@ -102,16 +102,6 @@ fn read_command() -> String {
     // Buffer Resetten
     reset_command();
 
-    /*
-    // Buffer löschen
-    command_buffer.0 = String::new(); //String::with_capacity((consts::SCREEN_WIDTH / 10 + 2) as usize);
-
-    // Counter wieder auf 0 setzten
-    command_buffer.1 = 0;
-
-    // lock freigeben
-    drop(command_buffer);*/
-
     // Command zurückgeben
     return command;
 }
@@ -200,13 +190,6 @@ fn handle_enter() -> bool {
     let main_command = command_array.get(0).unwrap();
 
     // = = = Befehl matchen = = = //
-    // Konsole beenden
-    /*
-    if command_array.get(0).unwrap() == "exit" || command_array.get(0).unwrap() == "quit" {
-        graphic_console_printer::print_char('\n');
-        kprintln!("System wird beendet");
-        return true;
-    } */
 
     // Erstmal neue Zeile für den Befehl
     shell_printing::print_char('\n');
@@ -243,50 +226,4 @@ fn handle_enter() -> bool {
     // Wenn die App gefunden wurde, starte sie jetzt
     scheduler::spawn_app(loaded_app.unwrap());
     return false;
-
-    /* ----------------------- ALTES -----------------------
-    // Gibt es das Programm überhaupt?
-    let programm_name = command_array.get(0).unwrap();
-    if !COMMANDS.contains(&programm_name.as_str()) {
-        vprintln!("Command \"{}\" not avaiable", command_array.get(0).unwrap());
-    }
-
-    // Programm ausführen
-
-    call_init!("scream"); */
-
-    /* Altes matching
-    // Matching auf andere Befehle
-    // Funktioniert nicht mit neuen Threads
-    match command_array.get(0).unwrap().as_str() {
-        "animation" => gc_programms::animation::init(command_array),
-        "scream" => gc_programms::scream::init(), // Lustige Textausgabe
-        "greet" => gc_programms::greet::init(),   // Andere lustige Textausgabe
-        "clear" => gc_programms::clear::init(command_array), // Bildschirm freiräumen
-        "echo" => gc_programms::echo::init(command_array), // Argumente wiedergeben
-        "play" => gc_programms::play::init(command_array), // Song abspielen
-        "mandelbrot" => gc_programms::mandelbrot::init(command_array), // Mandelbrot malen
-        "testprint" => gc_programms::macrotest::init(),
-        "sysinfo" => gc_programms::sysinfo::init(),
-        "help" => gc_programms::help::init(command_array),
-        "kill" => gc_programms::kill::init(command_array),
-        "silence" => gc_programms::silence::init(),
-        "cat" => gc_programms::cat::init(),
-        "doge" => gc_programms::doge::init(),
-        "threads" => gc_programms::threads::init(),
-        "meminfo" => gc_programms::meminfo::init(),
-        "scrollup" => gc_programms::scrollup::init(),
-        "clock" => gc_programms::clock::init(command_array),
-        "fontchange" => gc_programms::fontchange::init(command_array),
-        _ => vprintln!(
-            "Command \"{}\" is not supportet",
-            command_array.get(0).unwrap().as_str()
-        ), // Falscher Befehl
-    }
-     */
-    // neue Zeile nach Befehl
-    //graphic_console_printer::print_char('\n');
-
-    // Normaler verlauf
-    //return false;
 }
