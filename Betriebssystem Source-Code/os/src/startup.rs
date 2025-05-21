@@ -311,3 +311,9 @@ fn panic(info: &PanicInfo) -> ! {
     kprintln!("Panic: {}", info);
     loop {}
 }
+
+// Dummy-Main Methode wegen der Dependency von Usrlib
+#[no_mangle]
+pub fn main() {
+    kprintln!("Should never be reached");
+}

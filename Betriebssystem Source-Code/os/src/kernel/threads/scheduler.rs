@@ -7,8 +7,12 @@
    ║ Autor:  Michael Schoettner, HHU, 14.6.2024                              ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use alloc::{boxed::Box, string::ToString};
-use core::{ptr, sync::atomic::AtomicUsize};
+use alloc::{
+    boxed::Box,
+    string::{String, ToString},
+    vec::Vec,
+};
+use core::{ptr, ptr::null_mut, sync::atomic::AtomicUsize};
 
 use spin::Mutex;
 
@@ -90,12 +94,12 @@ pub fn spawn_kernel() {
  *                                                                           *
  * Parameter:       app    Code-Image fuer den neuen Prozess                 *
  *****************************************************************************/
-pub fn spawn_app(app: AppRegion) {
+pub fn spawn_app(app: AppRegion, args: Vec<String>) {
     // Neuen Prozess anlegen
     let new_pid = create_fresh_process(app.file_name.as_str());
 
     // Idle-Thread mit Pid anleggen
-    let new_app_thread = thread::Thread::new_app_thread(app, new_pid);
+    let new_app_thread = thread::Thread::new_app_thread(app, new_pid, &args);
 
     // Thread dem Scheduler geben
     Scheduler::ready(new_app_thread);

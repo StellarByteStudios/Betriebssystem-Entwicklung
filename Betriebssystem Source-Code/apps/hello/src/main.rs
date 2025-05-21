@@ -5,15 +5,14 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use core::{panic::PanicInfo, str::from_utf8_unchecked};
+use core::str::from_utf8_unchecked;
 
 use usrlib::{
     self,
     kernel::{
-        allocator::allocator::{init, HEAP_SIZE},
-        syscall::user_api::{
-            usr_dump_active_vmas, usr_get_pid, usr_hello_world_print, usr_read_process_name,
-        },
+        allocator::allocator::init,
+        runtime::runtime::HEAP_SIZE,
+        syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_read_process_name},
     },
     print_setpos,
     utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
@@ -79,12 +78,4 @@ pub fn main() {
         // kurz warten
         delay(10);
     }
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
 }

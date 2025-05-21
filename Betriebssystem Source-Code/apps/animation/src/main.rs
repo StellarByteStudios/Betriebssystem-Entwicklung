@@ -4,13 +4,14 @@
 
 extern crate alloc;
 
-use core::{panic::PanicInfo, str::from_utf8_unchecked};
+use core::str::from_utf8_unchecked;
 
 use usrlib::{
     self,
     graphix::picturepainting::animate::animate_charmander,
     kernel::{
-        allocator::allocator::{init, HEAP_SIZE},
+        allocator::allocator::init,
+        runtime::runtime::HEAP_SIZE,
         syscall::user_api::{usr_get_pid, usr_read_process_name},
     },
     print_setpos,
@@ -46,13 +47,5 @@ pub fn main() {
     // Animation
     animate_charmander(500, 400);
 
-    loop {}
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
     loop {}
 }

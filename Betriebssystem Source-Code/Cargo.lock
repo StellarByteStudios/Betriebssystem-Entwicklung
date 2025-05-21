@@ -17,6 +17,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ByteOS_echo"
+version = "0.1.1"
+dependencies = [
+ "usrlib",
+]
+
+[[package]]
 name = "ByteOS_hello"
 version = "0.1.1"
 dependencies = [
@@ -141,8 +148,8 @@ dependencies = [
 
 [[package]]
 name = "usrlib"
-version = "0.1.1"
-source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=syscalls-to-ENUM#57901006385444fbc7f38e1cddc1db304c488d74"
+version = "0.1.2"
+source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=runtime-environment#cf30b660f03074e4145d1bbbe5b567b2d93555e6"
 dependencies = [
  "spin",
 ]

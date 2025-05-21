@@ -1,9 +1,9 @@
 use core::{ptr, slice, str};
+
 use crate::{
     devices::graphical::graphic_console_printer::{print_string, print_string_on_position},
-    kernel::cpu,
+    kernel::{cpu, threads::scheduler},
 };
-use crate::kernel::threads::scheduler;
 
 #[no_mangle]
 pub extern "C" fn sys_hello_world() {

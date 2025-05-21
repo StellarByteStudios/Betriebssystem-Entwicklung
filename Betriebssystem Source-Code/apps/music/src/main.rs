@@ -4,7 +4,7 @@
 
 extern crate alloc;
 
-use core::{panic::PanicInfo, str::from_utf8_unchecked};
+use core::str::from_utf8_unchecked;
 
 use usrlib::{
     self,
@@ -37,13 +37,5 @@ pub fn main() {
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
 
-    usr_play_song(SongID::super_mario as usize);
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
+    usr_play_song(SongID::starwars_imperial as usize);
 }

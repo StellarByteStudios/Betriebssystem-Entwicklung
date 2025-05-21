@@ -9,6 +9,9 @@
  *****************************************************************************/
 use core::{ptr, ptr::null_mut, slice, sync::atomic::AtomicUsize};
 
+use usrlib::utility::mathadditions::math::pow_usize;
+use x86_64::VirtAddr;
+
 use super::{frames::pf_alloc, pagetable_entry::PageTableEntry, physical_addres::PhysAddr};
 use crate::{
     boot::{
@@ -22,10 +25,8 @@ use crate::{
         interrupts::intdispatcher,
         paging::{frames, pagetable_flags::PTEflags},
         processes::{process_handler, vma},
-
     },
 };
-use usrlib::utility::mathadditions::math::pow_usize;
 
 // Anzahl Eintraege in einer Seitentabelle
 const PAGE_TABLE_ENTRIES: usize = 512;
@@ -416,6 +417,70 @@ pub fn pg_mmap_user_heap(pid: usize, addr: usize, len: usize) -> u64 {
     pml4_thread_table.mmap_general(addr, (len / PAGE_SIZE) + 1, false, false, false, 0);
 
     return 0;
+}
+
+pub fn pg_mmap_user_environment(pid: usize, start_address: usize, len: usize) -> PhysAddr {
+    // PageTable holen
+    let pml4_addr = process_handler::get_pml4_address_by_pid(pid);
+
+    // Type-Cast der pml4-Tabllenadresse auf "PageTable"
+    let pml4_thread_table;
+    unsafe { pml4_thread_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+
+    // VMA berechnen und anlegen
+    let vma_end = start_address + ((len / PAGE_SIZE) + 1) * PAGE_SIZE;
+    let new_vma = vma::VMA::new(start_address, vma_end, vma::VmaType::Environment);
+    // Past diese VMA noch?
+    let success = process_handler::add_vma_to_process(pid, new_vma);
+    kprintln!("VMA für Environment angelegt");
+    if !success {
+        return PhysAddr::new(0);
+    }
+
+    // Wie viele Pages brauche ich für meine Argumente
+    let env_page_count = (len / PAGE_SIZE) + 1;
+
+    // mappen der Environment Pages
+    pml4_thread_table.mmap_general(start_address, env_page_count, false, false, false, 0);
+
+    // Holen der physischen Startadresse
+    let raw_phys_address = get_physical_address(pml4_addr, start_address);
+
+    return raw_phys_address;
+}
+
+fn get_physical_address(pml4_addr: PhysAddr, virtual_address: usize) -> PhysAddr {
+    // Table Adresse zum Pointer
+    let pml4_table;
+    unsafe { pml4_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }
+
+    // Durch alle Tabellen durchsteppen
+    let page_table_4_entry: PageTableEntry =
+        pml4_table.entries[get_index_in_table(virtual_address, 3)];
+
+    let page_table_3: &mut PageTable =
+        unsafe { &mut *(page_table_4_entry.get_addr().as_mut_ptr::<PageTable>()) };
+
+    let page_table_3_entry: PageTableEntry =
+        page_table_3.entries[get_index_in_table(virtual_address, 2)];
+
+    let page_table_2: &mut PageTable =
+        unsafe { &mut *(page_table_3_entry.get_addr().as_mut_ptr::<PageTable>()) };
+
+    let page_table_2_entry: PageTableEntry =
+        page_table_2.entries[get_index_in_table(virtual_address, 1)];
+
+    let page_table_1: &mut PageTable =
+        unsafe { &mut *(page_table_2_entry.get_addr().as_mut_ptr::<PageTable>()) };
+
+    let page_table_1_entry: PageTableEntry =
+        page_table_1.entries[get_index_in_table(virtual_address, 0)];
+
+    // Index auf die Physische Adresse
+    let right_index = get_index_in_table(virtual_address, 0);
+
+    // Physische Adresse holen
+    return page_table_1.entries[right_index].get_addr();
 }
 
 /*

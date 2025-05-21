@@ -231,6 +231,6 @@ fn handle_enter() -> bool {
     }
 
     // Wenn die App gefunden wurde, starte sie jetzt
-    scheduler::spawn_app(loaded_app.unwrap());
+    scheduler::spawn_app(loaded_app.unwrap(), command_array);
     return false;
 }

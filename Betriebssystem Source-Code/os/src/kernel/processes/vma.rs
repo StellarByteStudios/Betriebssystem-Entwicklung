@@ -19,6 +19,7 @@ pub enum VmaType {
     Code,
     Heap,
     Stack,
+    Environment,
 }
 
 // Verwaltungsstruktur fuer eine VMA

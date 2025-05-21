@@ -2,11 +2,11 @@
 #![no_main]
 #![allow(unused_variables)] // avoid warnings
 
-use core::{panic::PanicInfo, str::from_utf8_unchecked};
+use core::str::from_utf8_unchecked;
 #[macro_use]
 use usrlib;
 use usrlib::{
-    kernel::syscall::user_api::{usr_get_pid, usr_hello_world_print, usr_read_process_name},
+    kernel::syscall::user_api::{usr_get_pid, usr_read_process_name},
     print_setpos,
     utility::delay::delay,
 };
@@ -42,12 +42,4 @@ pub fn main() {
         // kurz warten
         delay(7);
     }
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
 }
