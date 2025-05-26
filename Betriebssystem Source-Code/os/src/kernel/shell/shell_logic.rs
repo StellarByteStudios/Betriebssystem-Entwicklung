@@ -11,10 +11,9 @@ use spin::Mutex;
 use crate::{
     boot::appregion::AppRegion,
     consts,
-    devices::keyboard,
-    kernel::{threads::scheduler},
+    devices::{graphical::graphic_console_printer, keyboard},
+    kernel::threads::scheduler,
 };
-use crate::devices::graphical::graphic_console_printer;
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);

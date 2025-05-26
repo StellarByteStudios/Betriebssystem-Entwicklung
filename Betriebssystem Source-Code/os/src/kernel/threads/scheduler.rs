@@ -223,7 +223,7 @@ impl Scheduler {
             tokill_tid,
             Self::dummy_thread_function,
             false,
-            "Dummy-Thread".to_string()
+            "Dummy-Thread".to_string(),
         );
 
         // Thread löschen
