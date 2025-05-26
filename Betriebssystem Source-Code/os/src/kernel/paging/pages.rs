@@ -7,8 +7,8 @@
  *                                                                           *
  * Autor:           Michael Schoettner, 13.9.2023                            *
  *****************************************************************************/
-use core::{ptr, ptr::null_mut, slice, sync::atomic::AtomicUsize};
-use core::arch::asm;
+use core::{arch::asm, ptr, ptr::null_mut, slice, sync::atomic::AtomicUsize};
+
 use usrlib::utility::mathadditions::math::pow_usize;
 use x86_64::VirtAddr;
 
@@ -51,7 +51,12 @@ fn get_index_in_table(vm_addr: usize, level: usize) -> usize {
 impl PageTable {
     // Aktuelle Root-Tabelle auslesen
     pub fn get_cr3() -> PhysAddr {
-        let cr3 = unsafe { x86_64::registers::control::Cr3::read().0.start_address().as_u64() };
+        let cr3 = unsafe {
+            x86_64::registers::control::Cr3::read()
+                .0
+                .start_address()
+                .as_u64()
+        };
         PhysAddr::new(cr3)
     }
 
