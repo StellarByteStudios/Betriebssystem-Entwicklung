@@ -10,7 +10,6 @@ use alloc::{boxed::Box, string::String, vec::Vec};
 use core::{fmt, mem::transmute};
 
 use usrlib::kernel::runtime::environment::USER_SPACE_ENV_START;
-use x86_64::registers::control::Cr3;
 
 use crate::{
     boot::appregion::AppRegion,
