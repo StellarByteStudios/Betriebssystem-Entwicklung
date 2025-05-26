@@ -10,7 +10,6 @@ use alloc::{boxed::Box, string::String, vec::Vec};
 use core::{fmt, mem::transmute};
 
 use usrlib::kernel::runtime::environment::USER_SPACE_ENV_START;
-use x86_64::registers::control::Cr3;
 
 use crate::{
     boot::appregion::AppRegion,
@@ -109,40 +108,8 @@ impl Thread {
         return threadobj;
     }
 
-    // Neuen Thread anlegen
-    pub fn new(
-        my_pid: usize,
-        process_pml4: PhysAddr,
-        myentry: extern "C" fn(),
-        kernel_thread: bool,
-    ) -> Box<Thread> {
-        return Thread::internal_new(
-            myentry,
-            kernel_thread,
-            my_pid,
-            String::from("Nameless"),
-            Vec::new(),
-        );
-    }
-
-    /*
-     * Erwerterung für Name und Args
-     */
     /**
-       Description: Create new Thread (Mit Args!)
-    */
-    pub fn new_with_args(
-        my_pid: usize,
-        myentry: extern "C" fn(),
-        kernel_thread: bool,
-        thread_name: String,
-        my_args: Vec<String>,
-    ) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, thread_name, my_args);
-    }
-
-    /**
-       Description: Create new Thread (mit Name)
+       Threadkonstruktor mit Threadname
     */
     pub fn new_name(
         my_pid: usize,
@@ -160,7 +127,7 @@ impl Thread {
         let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
 
         let app_thread =
-            Self::internal_new(thread_entry, false, pid, app.file_name.clone(), Vec::new());
+            Self::internal_new(thread_entry, false, pid, args[0].clone(), args.clone());
 
         // ============ NEU! Environment ============ //
         // Gesammten Speicherplatz für die Argumente berechnen
@@ -184,26 +151,21 @@ impl Thread {
         // Alle Argumente zum pointer kopieren
         unsafe {
             // Anzahl der Argumente in den Speicher schreiben
-            argc_phys.write(args.len() + 1);
+            argc_phys.write(args.len());
 
             // Physische Startadresse der Environment-Variablen
-            // (args.len() + 1) weil davor ja nur die Pointer sind und dannach die Echten Inhalte kommen
-            let args_begin_phys = argv_phys.offset((args.len() + 1) as isize).cast::<u8>();
+            // (args.len()) weil davor ja nur die Pointer sind und dannach die Echten Inhalte kommen
+            let args_begin_phys = argv_phys.offset(args.len() as isize).cast::<u8>();
             // Virtuelle Startadresse der Environment-Variablen
             let args_begin_virt = env_virt_start
                 + size_of::<usize>() // Feld mit Anzahl Einträge
-                + ((args.len() + 1) * size_of::<usize>()); // Platz für die Pointer
-
-            // Programmname als erstes Argument speichern
-            let name = app.file_name.clone();
-            args_begin_phys.copy_from(name.as_bytes().as_ptr(), name.len());
-            args_begin_phys.add(name.len()).write(0); // null-terminieren für den String
+                + ((args.len()) * size_of::<usize>()); // Platz für die Pointer
 
             // Pointer auf Anfang des Namens im Eingabearray speichern
             argv_phys.write(args_begin_virt as *mut u8);
 
-            // Wo gehen die nächsten Argumente hin?
-            let mut offset = name.len() + 1;
+            // Index, wo das nächste Argument hin geht?
+            let mut offset = 1;
 
             // Restlichen Argumente kopieren
             for (i, arg) in args.iter().enumerate() {
@@ -216,7 +178,7 @@ impl Thread {
 
                 // Pointer auf neue das Argument in unser Array schreiben
                 argv_phys
-                    .add(i + 1)
+                    .add(i)
                     .write((args_begin_virt + offset) as *mut u8);
 
                 // Offset neu berechnen
@@ -403,12 +365,13 @@ impl fmt::Display for Thread {
 pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
     unsafe {
         kprintln!(
-            "kickoff_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}",
+            "kickoff_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}, args={:?}",
             (*object).tid,
             (*object).old_rsp0,
             (*object).is_kernel_thread,
             (*object).pml4_addr.0,
             (*object).name,
+            (*object).args,
         );
     }
 

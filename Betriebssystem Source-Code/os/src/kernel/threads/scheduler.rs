@@ -219,11 +219,11 @@ impl Scheduler {
     */
     pub fn kill(tokill_tid: usize) -> bool {
         // Threadmaske erzeugen um remove gut zu benutzten
-        let dummy_thread: Box<thread::Thread> = thread::Thread::new(
+        let dummy_thread: Box<thread::Thread> = thread::Thread::new_name(
             tokill_tid,
-            PhysAddr::new(0),
             Self::dummy_thread_function,
             false,
+            "Dummy-Thread".to_string(),
         );
 
         // Thread löschen

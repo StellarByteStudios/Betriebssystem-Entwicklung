@@ -11,8 +11,8 @@ use spin::Mutex;
 use crate::{
     boot::appregion::AppRegion,
     consts,
-    devices::keyboard,
-    kernel::{shell::shell_printing, threads::scheduler},
+    devices::{graphical::graphic_console_printer, keyboard},
+    kernel::threads::scheduler,
 };
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
@@ -40,12 +40,12 @@ pub fn handle_keystroke(code: u8) -> bool {
         0xd => error_code = handle_enter(), // Newline
         0x8 => {
             // Backspace
-            shell_printing::print_backspace();
+            graphic_console_printer::print_backspace();
             backspace_command()
         }
         _ => {
             // normale Zeichen
-            shell_printing::print_char(code as char);
+            graphic_console_printer::print_char(code as char);
             save_command(code as char)
         }
     }
@@ -181,7 +181,7 @@ fn handle_enter() -> bool {
 
     // Gibt es überhaupt einen Befehl?
     if command.len() < 1 {
-        shell_printing::print_char('\n');
+        graphic_console_printer::print_char('\n');
         kprintln!("Lehrer befehl");
         return false;
     }
@@ -199,20 +199,16 @@ fn handle_enter() -> bool {
     // = = = Befehl matchen = = = //
 
     // Erstmal neue Zeile für den Befehl
-    shell_printing::print_char('\n');
+    graphic_console_printer::print_char('\n');
 
     // Gebe einfach die die Befehle aus.
-    /*if loader_commands // Case Insensitive variante
-        .iter()// Vergleiche mit allen commands im array
-        .any(|cmd| cmd.eq_ignore_ascii_case(&main_command)) // Case-Insensitive
-    {*/
     if LIST_ALL_COMMANDS.contains(&main_command.as_str()) {
         let app_names: Vec<String> = return_loaded_apps();
-        shell_printing::print_string("Geladene Apps:\n");
+        graphic_console_printer::print_string("Geladene Apps:\n");
         for name in app_names.iter() {
-            shell_printing::print_string("   - ");
-            shell_printing::print_string(name.as_str());
-            shell_printing::print_char('\n');
+            graphic_console_printer::print_string("   - ");
+            graphic_console_printer::print_string(name.as_str());
+            graphic_console_printer::print_char('\n');
         }
         return false;
     }
@@ -224,9 +220,9 @@ fn handle_enter() -> bool {
 
     if loaded_app.is_none() {
         // Befehl existiert nicht
-        shell_printing::print_string("Der eingegebene Befehl \"");
-        shell_printing::print_string(command_array.get(0).unwrap());
-        shell_printing::print_string("\" existiert leider nicht :(\n");
+        graphic_console_printer::print_string("Der eingegebene Befehl \"");
+        graphic_console_printer::print_string(command_array.get(0).unwrap());
+        graphic_console_printer::print_string("\" existiert leider nicht :(\n");
         return false;
     }
 
