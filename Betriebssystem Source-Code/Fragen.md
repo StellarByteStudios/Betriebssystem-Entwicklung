@@ -12,7 +12,7 @@
   - [ ] Pipes (Interprozesskommunikation)
 
 ## Refactoring:
-- [ ] Linkerskript er Apps vereinheitlichen
+- [x] Linkerskript er Apps vereinheitlichen
 - [ ] syncronisation von shell print und Konsolenausgabe
 
 ## Userlib noch implementieren

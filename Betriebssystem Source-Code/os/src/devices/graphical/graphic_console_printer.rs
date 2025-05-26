@@ -2,7 +2,10 @@ use core::sync::atomic::AtomicU32;
 
 use spin::Mutex;
 
-use crate::devices::graphical::vga::{self, draw_pixel};
+use crate::{
+    consts,
+    devices::graphical::vga::{self, draw_pixel},
+};
 
 // Possition des Cursors
 static CURSOR: Mutex<(u32, u32)> = Mutex::new((0, 0));
@@ -68,6 +71,9 @@ pub fn print_char(b: char) {
     // Muss man vielleicht hochscrollen?
     scroll_with_check();
 
+    // Lock zum zeichnen
+    let printlock = PRINTER.lock();
+
     // Possition des Cursers holen
     let cursor: (u32, u32) = get_pos();
 
@@ -78,6 +84,9 @@ pub fn print_char(b: char) {
         //scroll_with_check();
         return;
     }
+
+    // Formatierung holen
+    //let attribute: u8 = attribute(Color::Black, Color::Green, false);
 
     // Hintergrund einfärben
     for dx in 0..10 {
@@ -105,6 +114,9 @@ pub fn print_char(b: char) {
     if cursor.0 >= (vga::get_res().0 / 10) - 1 {
         set_pos(0, cursor.1 + 1);
     }
+
+    // Lock wieder freigeben
+    drop(printlock);
 }
 
 // Ganzen String Ausgeben
