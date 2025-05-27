@@ -14,6 +14,8 @@ use crate::{
     devices::{graphical::graphic_console_printer, keyboard},
     kernel::{shell::command_parser::parse_command, threads::scheduler},
 };
+use crate::kernel::shell::command_parser;
+use crate::kernel::shell::command_parser::EnvPutStatus;
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -188,6 +190,43 @@ fn handle_enter() -> bool {
 
     // = = = Befehl parsen = = = //
     // Ist es das erstellen/updaten einer Variable
+    let environment_status = command_parser::check_and_update_env_command(command.clone());
+    match environment_status {
+        // Standartfall: Es wird einfach normal weiter gemacht
+        EnvPutStatus::NotRightCommand => {}
+
+        // Fälle in denen etwas geändert wurde
+        EnvPutStatus::Updated => {
+            kprintln!("Eine vorhandene Environment-Variable wurde geupdated");
+            graphic_console_printer::print_char('\n');
+
+            return false;
+        }
+        EnvPutStatus::Inserted => {
+            kprintln!("Eine neue Environment-Variable wurde eingefügt");
+            graphic_console_printer::print_char('\n');
+            return false;
+        }
+        EnvPutStatus::Deleted => {
+            kprintln!("Eine Environment-Variable wurde entfernt");
+            graphic_console_printer::print_char('\n');
+            return false;
+        }
+
+        // Fehlerfälle
+        EnvPutStatus::NotEnoughArguments => {
+            kprintln!("put befehl nicht richtig Verwendet");
+            vprintln!("\"{}\" ist keine valide Syntax", command);
+            vprintln!("lege neue Environment Variable wie folgt an:");
+            vprintln!("\t{} <name_der_variable> <inhalt_der_variable>", command_parser::ENVIRONMENT_COMMAND);
+            return false;
+        }
+
+        _ => {
+            kprintln!("Fehler in Environment-Variables");
+            return true;
+        }
+   }
 
     // Läd die Environment Variablen und den Namen separat
     let parsed_command: (String, Vec<String>) = parse_command(command);

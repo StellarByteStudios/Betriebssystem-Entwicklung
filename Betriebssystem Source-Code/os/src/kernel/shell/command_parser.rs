@@ -6,6 +6,57 @@ use alloc::{
 use spin::Mutex;
 
 use crate::kernel::shell::{command_parser, env_variables};
+use crate::kernel::shell::command_parser::EnvPutStatus::{NotEnoughArguments, NotRightCommand};
+
+
+pub const ENVIRONMENT_COMMAND: &str = "env_put";
+
+pub enum EnvPutStatus{
+    NotRightCommand,
+    Updated,
+    Inserted,
+    Deleted,
+    NotEnoughArguments,
+    Error,
+}
+pub fn check_and_update_env_command(command: String) -> EnvPutStatus {
+    //  Befehl aufspalten für ggf argumente
+    let command_array: Vec<String> = command
+        .split(" ")
+        .map(str::to_string)
+        .collect();
+
+    // Haben wir unseren put befehl?
+    if !command_array.get(0)
+        .unwrap()
+        .clone()
+        .contains(ENVIRONMENT_COMMAND) {
+        return NotRightCommand;
+    }
+
+    // Ist der Befehl vollständig?
+    if command_array.len() < 3{
+        return NotEnoughArguments
+    }
+
+    // Speichern der einzelnen Teile
+    let var_name = command_array[1].clone();
+    let var_content = command_array[2].clone();
+
+    // Gibt es diese Variable schon?
+    if !env_variables::env_contains(var_name
+        .clone()
+        .as_str()){
+
+        // Nein? Es wird inserted
+        env_variables::env_insert(var_name.as_str(), var_content.as_str());
+        return EnvPutStatus::Inserted;
+    }
+
+    // Sie gibt es schon, also update
+    env_variables::env_insert(var_name.as_str(), var_content.as_str());
+    return EnvPutStatus::Updated;
+}
 
 pub fn parse_command(command: String) -> (String, Vec<String>) {
     //  Befehl aufspalten für ggf argumente
