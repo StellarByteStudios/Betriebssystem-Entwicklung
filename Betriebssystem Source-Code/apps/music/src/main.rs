@@ -6,14 +6,11 @@ extern crate alloc;
 
 use core::str::from_utf8_unchecked;
 
-use usrlib::{
-    self,
-    kernel::syscall::{
-        user_api::{usr_get_pid, usr_play_song, usr_read_process_name},
-        SongID,
-    },
-    print_setpos,
-};
+use usrlib::{self, gprintln, kernel::syscall::{
+    user_api::{usr_get_pid, usr_play_song, usr_read_process_name},
+    SongID,
+}, print_setpos};
+use usrlib::kernel::runtime::environment::args_as_vec;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -34,8 +31,32 @@ pub fn main() {
         )
     };
 
+    // Laden welcher Song gespielt werden muss
+    let args = args_as_vec();
+
+    if args.len() < 2 {
+        gprintln!("Nicht genug argumente um ein Lied auszuwählen");
+        return;
+    }
+
+    // Parsen der songnummer
+    let song_nr = args.get(1).unwrap().parse::<u32>();
+
+    // War das Parsen erfolgreich
+    if song_nr.is_err() {
+        gprintln!("Die songnummer muss eine richtige Zahl sein und das hat bei {:?} nicht funktioniert", args.get(1));
+        return;
+    }
+
+    // Ist die Zahl sinnvoll
+    if song_nr.clone().unwrap() > SongID::doom as u32 {
+        gprintln!("Maximale Songnummer: {}", SongID::doom as usize);
+        return;
+    }
+
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
 
-    usr_play_song(SongID::starwars_imperial as usize);
+
+    usr_play_song(song_nr.unwrap() as usize);
 }
