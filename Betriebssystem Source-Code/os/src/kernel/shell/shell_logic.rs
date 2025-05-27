@@ -12,7 +12,7 @@ use crate::{
     boot::appregion::AppRegion,
     consts,
     devices::{graphical::graphic_console_printer, keyboard},
-    kernel::threads::scheduler,
+    kernel::{shell::command_parser::parse_command, threads::scheduler},
 };
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
@@ -91,7 +91,7 @@ fn save_command(c: char) {
 
 fn read_command() -> String {
     // Lock holen
-    let mut command_buffer = COMMAND_BUFFER.lock();
+    let command_buffer = COMMAND_BUFFER.lock();
 
     // Command auslesen
     let command = command_buffer.0.clone();
@@ -132,7 +132,7 @@ fn reset_command() {
     let mut command_buffer = COMMAND_BUFFER.lock();
 
     // Buffer löschen
-    command_buffer.0 = String::new(); //String::with_capacity((consts::SCREEN_WIDTH / 10 + 2) as usize);
+    command_buffer.0 = String::new();
 
     // Counter wieder auf 0 setzten
     command_buffer.1 = 0;
@@ -186,23 +186,18 @@ fn handle_enter() -> bool {
         return false;
     }
 
-    // = = = Befehl aufspalten für ggf argumente = = = //
-    let command_array: Vec<String> = command.split(" ").map(str::to_string).collect();
+    // = = = Befehl parsen = = = //
+    // Ist es das erstellen/updaten einer Variable
 
-    // Hat das aufspalten funktioniert? Ansonsten abbruch
-    if command_array.get(0).is_none() {
-        return false;
-    }
-    // Speichern als Abkürzung
-    let main_command = command_array.get(0).unwrap();
+    // Läd die Environment Variablen und den Namen separat
+    let parsed_command: (String, Vec<String>) = parse_command(command);
 
     // = = = Befehl matchen = = = //
-
     // Erstmal neue Zeile für den Befehl
     graphic_console_printer::print_char('\n');
 
     // Gebe einfach die die Befehle aus.
-    if LIST_ALL_COMMANDS.contains(&main_command.as_str()) {
+    if LIST_ALL_COMMANDS.contains(&parsed_command.0.as_str()) {
         let app_names: Vec<String> = return_loaded_apps();
         graphic_console_printer::print_string("Geladene Apps:\n");
         for name in app_names.iter() {
@@ -216,17 +211,17 @@ fn handle_enter() -> bool {
     // TODO: Exitbefehl
 
     // App Laden
-    let loaded_app = load_app_by_name(main_command.as_str());
+    let loaded_app = load_app_by_name(parsed_command.0.as_str());
 
     if loaded_app.is_none() {
         // Befehl existiert nicht
         graphic_console_printer::print_string("Der eingegebene Befehl \"");
-        graphic_console_printer::print_string(command_array.get(0).unwrap());
+        graphic_console_printer::print_string(parsed_command.0.as_str());
         graphic_console_printer::print_string("\" existiert leider nicht :(\n");
         return false;
     }
 
     // Wenn die App gefunden wurde, starte sie jetzt
-    scheduler::spawn_app(loaded_app.unwrap(), command_array);
+    scheduler::spawn_app(loaded_app.unwrap(), parsed_command.1);
     return false;
 }

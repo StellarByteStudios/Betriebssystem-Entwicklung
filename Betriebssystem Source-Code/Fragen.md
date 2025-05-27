@@ -4,24 +4,22 @@
 
 ## Ideen für die Shell
 - [x] Erstmal Apps starten können
+  - [x] Argumente übergeben können
 - [ ] auto complete
 - [ ] serielle Übertragung
 - [ ] kill-switch
 - [ ] Shell-Syntax
   - [ ] Environment Variablen
+    - [x] Variablen nachschlagen und ersetzen
+    - [ ] neue Variablen anlegen
   - [ ] Pipes (Interprozesskommunikation)
 
 ## Refactoring:
-- [x] Linkerskript er Apps vereinheitlichen
-- [ ] syncronisation von shell print und Konsolenausgabe
 
 ## Userlib noch implementieren
 - [ ] neue Syscalls
 
 
-
-
-- Die Shell und die Syscalls benutzen verschiedene Print writer
 ## Probleme mit Production
 ```rust
 pub extern "C" fn kmain(mbi: u64) {

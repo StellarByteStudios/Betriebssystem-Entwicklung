@@ -91,8 +91,6 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
     //kprintln!("===================== tar Start: {:?}      tar End: {:?}", tar_start, tar_end);
 
     kprintln!("!=!=!=!==!=!=!=!=! Ich bin hier Nummer 2");
-    //None
-    ///*
     kprintln!("!MULTIBOOT INFO !");
     kprintln!(
         "Mod-Count: {}, Tar-Start {:#x}, Tar-End: {:#x}",
@@ -137,5 +135,5 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
         });
     }
 
-    return Some(apps); //*/
+    return Some(apps);
 }

@@ -51,24 +51,20 @@ fn get_index_in_table(vm_addr: usize, level: usize) -> usize {
 impl PageTable {
     // Aktuelle Root-Tabelle auslesen
     pub fn get_cr3() -> PhysAddr {
-        let cr3 = unsafe {
-            x86_64::registers::control::Cr3::read()
-                .0
-                .start_address()
-                .as_u64()
-        };
+        let cr3 = x86_64::registers::control::Cr3::read()
+            .0
+            .start_address()
+            .as_u64();
         PhysAddr::new(cr3)
     }
 
     // Setze Root-Tabelle
     pub fn set_cr3(phys_addr: PhysAddr) {
-        unsafe {
-            let addr = phys_addr.raw();
-            let value = ((false as u64) << 63) | addr | 0;
+        let addr = phys_addr.raw();
+        let value = ((false as u64) << 63) | addr | 0;
 
-            unsafe {
-                asm!("mov cr3, {}", in(reg) value, options(nostack, preserves_flags));
-            }
+        unsafe {
+            asm!("mov cr3, {}", in(reg) value, options(nostack, preserves_flags));
         }
     }
 
