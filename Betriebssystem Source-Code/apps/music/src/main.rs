@@ -6,11 +6,17 @@ extern crate alloc;
 
 use core::str::from_utf8_unchecked;
 
-use usrlib::{self, gprintln, kernel::syscall::{
-    user_api::{usr_get_pid, usr_play_song, usr_read_process_name},
-    SongID,
-}, print_setpos};
-use usrlib::kernel::runtime::environment::args_as_vec;
+use usrlib::{
+    self, gprintln,
+    kernel::{
+        runtime::environment::args_as_vec,
+        syscall::{
+            user_api::{usr_get_pid, usr_play_song, usr_read_process_name},
+            SongID,
+        },
+    },
+    print_setpos,
+};
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -35,7 +41,7 @@ pub fn main() {
     let args = args_as_vec();
 
     if args.len() < 2 {
-        gprintln!("Nicht genug argumente um ein Lied auszuwählen");
+        gprintln!("Nicht genug argumente um ein Lied auszuwaehlen");
         return;
     }
 
@@ -44,7 +50,10 @@ pub fn main() {
 
     // War das Parsen erfolgreich
     if song_nr.is_err() {
-        gprintln!("Die songnummer muss eine richtige Zahl sein und das hat bei {:?} nicht funktioniert", args.get(1));
+        gprintln!(
+            "Die songnummer muss eine richtige Zahl sein und das hat bei {:?} nicht funktioniert",
+            args.get(1)
+        );
         return;
     }
 
@@ -56,7 +65,6 @@ pub fn main() {
 
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
-
 
     usr_play_song(song_nr.unwrap() as usize);
 }

@@ -14,7 +14,6 @@ use usrlib::{
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() -> isize {
-
     // Argumente holen
     let arguments = args_as_vec();
 

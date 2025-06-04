@@ -12,10 +12,14 @@ use crate::{
     boot::appregion::AppRegion,
     consts,
     devices::{graphical::graphic_console_printer, keyboard},
-    kernel::{shell::command_parser::parse_command, threads::scheduler},
+    kernel::{
+        shell::{
+            command_parser,
+            command_parser::{parse_command, EnvPutStatus},
+        },
+        threads::scheduler,
+    },
 };
-use crate::kernel::shell::command_parser;
-use crate::kernel::shell::command_parser::EnvPutStatus;
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
 static KEYBOARD_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -218,7 +222,10 @@ fn handle_enter() -> bool {
             kprintln!("put befehl nicht richtig Verwendet");
             vprintln!("\n\"{}\" ist keine valide Syntax", command);
             vprintln!("lege neue Environment Variable wie folgt an:");
-            vprintln!("\t{} <name_der_variable> <inhalt_der_variable>", command_parser::ENVIRONMENT_COMMAND);
+            vprintln!(
+                "\t{} <name_der_variable> <inhalt_der_variable>",
+                command_parser::ENVIRONMENT_COMMAND
+            );
             return false;
         }
 
@@ -226,7 +233,7 @@ fn handle_enter() -> bool {
             kprintln!("Fehler in Environment-Variables");
             return true;
         }
-   }
+    }
 
     // Läd die Environment Variablen und den Namen separat
     let parsed_command: (String, Vec<String>) = parse_command(command);
