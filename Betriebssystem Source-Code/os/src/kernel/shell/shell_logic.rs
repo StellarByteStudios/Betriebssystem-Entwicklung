@@ -216,7 +216,7 @@ fn handle_enter() -> bool {
         // Fehlerfälle
         EnvPutStatus::NotEnoughArguments => {
             kprintln!("put befehl nicht richtig Verwendet");
-            vprintln!("\"{}\" ist keine valide Syntax", command);
+            vprintln!("\n\"{}\" ist keine valide Syntax", command);
             vprintln!("lege neue Environment Variable wie folgt an:");
             vprintln!("\t{} <name_der_variable> <inhalt_der_variable>", command_parser::ENVIRONMENT_COMMAND);
             return false;

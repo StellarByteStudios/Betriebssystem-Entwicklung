@@ -14,12 +14,17 @@ use usrlib::{
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() -> isize {
-    gprintln!("Hello, world!\n\n\n");
-    usr_hello_world_print(6666);
 
+    // Argumente holen
     let arguments = args_as_vec();
 
-    gprint!("argumente eingelesen: {:?}", arguments);
+    // Argumente Ausgeben
+    for argument in &arguments {
+        gprint!("{} ", argument);
+    }
+
+    // Neue Zeile zum Abschluss
+    gprintln!("");
 
     loop {}
     return 0;
