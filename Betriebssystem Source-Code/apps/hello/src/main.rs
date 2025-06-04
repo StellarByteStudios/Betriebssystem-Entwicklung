@@ -5,6 +5,7 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
+use alloc::string::ToString;
 use core::str::from_utf8_unchecked;
 
 use usrlib::{

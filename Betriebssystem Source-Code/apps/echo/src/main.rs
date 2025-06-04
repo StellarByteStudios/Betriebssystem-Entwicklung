@@ -30,6 +30,5 @@ pub fn main() -> isize {
     // Neue Zeile zum Abschluss
     gprintln!("");
 
-    loop {}
     return 0;
 }
