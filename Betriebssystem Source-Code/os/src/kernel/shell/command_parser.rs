@@ -6,9 +6,10 @@ use alloc::{
 use spin::Mutex;
 use usrlib::kernel::runtime::env_variables;
 
-use crate::kernel::shell::{command_parser, env_variables};
-use crate::kernel::shell::command_parser::EnvPutStatus::{NotEnoughArguments, NotRightCommand};
-
+use crate::kernel::shell::{
+    command_parser,
+    command_parser::EnvPutStatus::{NotEnoughArguments, NotRightCommand},
+};
 
 pub const ENVIRONMENT_COMMAND: &str = "env_put";
 

@@ -278,7 +278,7 @@ pub extern "C" fn kmain(mbi: u64) {
     }
 
     // Environment Test
-    kernel::shell::env_variables::env_insert("Hello", "SuperTollerInhalt");
+    usrlib::kernel::runtime::env_variables::env_insert("Hello", "Super Toller Inhalt");
 
     // Schellprogramm starten
     shell_process::spawn_shell_process(opt_apps.clone().unwrap());
