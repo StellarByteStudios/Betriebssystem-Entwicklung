@@ -1,6 +1,13 @@
 # Notizen für das Betriebssystem
 
 ## Allgemeine Fragen
+### Probleme mit zu viel Ram
+- Überprüft: Tar ist korrekt
+- Mapping ist korrekt
+- Tar-Adresse ist kleiner als die maximale Physische Adresse
+- Grub und Multiboot scheinen die Tar richtig zu laden
+- Wenn ich den Speicherauslese, hat es keinen richtigen Header
+  - Wenn wenig RAM: Anfang besteht aus "./" was ein vernüftiger Tar-Anfang ist 
 
 ## Ideen für die Shell
 - [x] Erstmal Apps starten können

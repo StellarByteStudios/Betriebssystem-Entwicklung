@@ -16,7 +16,7 @@
 use alloc::vec::Vec;
 use core::{fmt, mem::size_of};
 
-use crate::devices::kprint; // used to import code needed by kprintln!
+use crate::{boot::appregion::ModEntry, devices::kprint}; // used to import code needed by kprintln!
 
 // Beschreibt eine Region im physikalischen Adressraum
 pub struct PhysRegion {
@@ -140,6 +140,11 @@ pub fn get_free_memory(
         let mmap_length = mb_info.mmap_length;
         let mmap_addr = mb_info.mmap_addr;
 
+        let tar_mod_entry: ModEntry =
+            unsafe { *((mb_info.mods_addr as *const usize) as *const ModEntry) };
+        let tar_start: u64 = tar_mod_entry.start as u64;
+        let tar_end: u64 = tar_mod_entry.end as u64;
+
         unsafe {
             for i in 0..(mb_info.mmap_length / size_of::<MmapEntry>() as u32) {
                 let mmap_entry = &*((mb_info.mmap_addr as u64) as *const MmapEntry).add(i as usize);
@@ -147,7 +152,20 @@ pub fn get_free_memory(
                     start: mmap_entry.addr,
                     end: mmap_entry.addr + mmap_entry.len - 1,
                 };
+                let entry_end_address = mmap_entry.addr + mmap_entry.len;
+                let entry_start_address = mmap_entry.addr;
 
+                if !((entry_end_address < tar_start) || (mmap_entry.addr > tar_end))
+                    && mmap_entry.typ == 1
+                {
+                    kprintln!("!!!!!!!!!!! Tar-kollision gefunden");
+                    let tar_region = PhysRegion {
+                        start: tar_start,
+                        end: tar_end - 1,
+                    };
+                    reserved.push(tar_region);
+                    //reserved.push(region);
+                }
                 if mmap_entry.typ == 1 {
                     free.push(region);
                 } else {

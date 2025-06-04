@@ -54,7 +54,9 @@
         "--no-workspace",
         "--profile",
         "development",
-        "qemu-gdb"
+        "qemu-gdb",
+        "-m",
+        "3192"
       ],
       "problemMatcher": [
         {

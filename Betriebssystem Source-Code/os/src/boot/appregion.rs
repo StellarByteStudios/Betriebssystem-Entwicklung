@@ -5,7 +5,8 @@ use alloc::{
 use core::{fmt, slice};
 
 use tar_no_std::TarArchiveRef;
-
+use crate::kernel::paging::pages::where_physical_address;
+use crate::kernel::paging::physical_addres::PhysAddr;
 use super::multiboot::MultibootInfo;
 
 // Beschreibt eine App, die separat vom Kernel compiliert wurde
@@ -28,7 +29,7 @@ impl fmt::Debug for AppRegion {
 
 #[derive(Clone, Copy)]
 #[repr(C, packed)]
-struct ModEntry {
+pub struct ModEntry {
     pub start: u32,
     pub end: u32,
     pub string: u32,
@@ -68,29 +69,19 @@ pub fn get_app(mbi_ptr: u64) -> Option<AppRegion> {
 pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
     // Erstmal Multiboot auslesen
     let multiboot_info: &MultibootInfo = unsafe { MultibootInfo::read(mbi_ptr) };
-    kprintln!("!=!=!=!==!=!=!=!=! Ich bin hier Nummer 1");
 
-    //dump(mbi_ptr);
     kprintln!("!=!=!=!=!=!=!=!=! ------ Multiboot Pointer: {:#x}", mbi_ptr);
+    kprintln!("!!!!!!!!!!! Letzte Physische Adresse: {:#x}", PhysAddr::get_max_phys_addr().raw());
 
     // Infos holen
     let app_count: u32 = multiboot_info.mods_count;
     let app_addr: u32 = multiboot_info.mods_addr;
-    kprintln!("===================== {:x?}", app_count);
-    kprintln!("===================== Mods addr {:x?}", app_addr);
 
     let tar_mod_entry: ModEntry =
         unsafe { *((multiboot_info.mods_addr as *const usize) as *const ModEntry) };
     let tar_start: u64 = tar_mod_entry.start as u64;
     let tar_end: u64 = tar_mod_entry.end as u64;
 
-    //let tar_mod_pointer = unsafe { app_addr as *const u32};
-    //let tar_start: u32 = unsafe { tar_mod_pointer.read() };
-    //let tar_end: u32 = unsafe { tar_mod_pointer.add(1).read() };
-
-    //kprintln!("===================== tar Start: {:?}      tar End: {:?}", tar_start, tar_end);
-
-    kprintln!("!=!=!=!==!=!=!=!=! Ich bin hier Nummer 2");
     kprintln!("!MULTIBOOT INFO !");
     kprintln!(
         "Mod-Count: {}, Tar-Start {:#x}, Tar-End: {:#x}",
@@ -98,6 +89,23 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
         tar_start,
         tar_end
     );
+
+    // TODO: Mapping überprüfen
+    let current_pml4_addr: u64;
+    unsafe {
+        core::arch::asm!("mov {}, cr3", out(reg) current_pml4_addr);
+    }
+    kprintln!("CR3: {:#x}", current_pml4_addr);
+
+    where_physical_address(PhysAddr::new(current_pml4_addr), tar_start as usize);
+
+    for i in 0..512 {
+        let byte = unsafe { *((tar_start + i) as *const u8) };
+        kprint!("{:02x} ", byte);
+        if i % 16 == 15 {
+            kprintln!("");
+        }
+    }
 
     // Daten aus dem Archiv als rohen Memory-Slice schreiben
     let tar_data: &[u8] =
