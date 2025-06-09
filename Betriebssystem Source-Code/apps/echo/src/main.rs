@@ -6,11 +6,7 @@ extern crate alloc;
 
 #[allow(unused_imports)]
 use usrlib::kernel::runtime::*;
-use usrlib::{
-    gprint, gprintln,
-    kernel::{runtime::environment::args_as_vec},
-};
-use usrlib::kernel::runtime::environment::args_len;
+use usrlib::{gprint, gprintln, kernel::runtime::environment::{args_as_vec, args_len}, kprint, kprintln};
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -30,5 +26,7 @@ pub fn main() -> isize {
     // Neue Zeile zum Abschluss
     gprintln!("");
 
+    // Kernel Print test
+    kprintln!("Syscall kprint: args={:?}", arguments);
     return 0;
 }

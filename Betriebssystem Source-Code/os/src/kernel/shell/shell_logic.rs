@@ -7,18 +7,17 @@ use alloc::{
 use core::{ops::Deref, ptr::null, sync::atomic::AtomicBool};
 
 use spin::Mutex;
+use usrlib::kernel::shell::{
+    command_parser,
+    command_parser::{parse_command, EnvPutStatus},
+    ENVIRONMENT_COMMAND,
+};
 
 use crate::{
     boot::appregion::AppRegion,
     consts,
     devices::{graphical::graphic_console_printer, keyboard},
-    kernel::{
-        shell::{
-            command_parser,
-            command_parser::{parse_command, EnvPutStatus},
-        },
-        threads::scheduler,
-    },
+    kernel::threads::scheduler,
 };
 
 // Gibt an, ob die Kommandozeile schon aktiviert ist
@@ -224,7 +223,7 @@ fn handle_enter() -> bool {
             vprintln!("lege neue Environment Variable wie folgt an:");
             vprintln!(
                 "\t{} <name_der_variable> <inhalt_der_variable>",
-                command_parser::ENVIRONMENT_COMMAND
+                ENVIRONMENT_COMMAND
             );
             return false;
         }

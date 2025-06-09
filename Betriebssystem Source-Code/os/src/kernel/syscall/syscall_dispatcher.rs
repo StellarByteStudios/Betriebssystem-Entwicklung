@@ -17,6 +17,7 @@ use usrlib::kernel::syscall::NUM_SYSCALLS;
 use crate::kernel::{
     syscall,
     syscall::kfuncs::{
+        sys_call_not_implemented::sys_call_not_implemented,
         sys_dump_vmas::sys_dump_vmas,
         sys_getlastkey::sys_getlastkey,
         sys_mmap_heap_space::sys_mmap_heap_space,
@@ -29,7 +30,7 @@ use crate::kernel::{
         sys_simple_getter::{sys_get_screen_witdh, sys_get_systime, sys_getpid, sys_gettid},
     },
 };
-use crate::kernel::syscall::kfuncs::sys_call_not_implemented::sys_call_not_implemented;
+use crate::kernel::syscall::kfuncs::sys_printing::sys_kernel_print;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
@@ -76,7 +77,7 @@ impl SyscallFuncTable {
                 sys_paint_picture_on_pos as *const _,
                 sys_play_song as *const _,
                 sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
+                sys_kernel_print as *const _,
                 sys_call_not_implemented as *const _,
                 sys_call_not_implemented as *const _,
                 sys_call_not_implemented as *const _,

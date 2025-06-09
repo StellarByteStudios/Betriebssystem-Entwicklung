@@ -1,4 +1,4 @@
-mod command_parser;
+//mod command_parser;
 //pub mod env_variables;
 mod input;
 mod shell_logic;

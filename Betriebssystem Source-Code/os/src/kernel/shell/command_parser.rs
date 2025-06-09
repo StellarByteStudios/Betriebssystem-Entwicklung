@@ -3,7 +3,6 @@ use alloc::{
     vec::Vec,
 };
 
-use spin::Mutex;
 use usrlib::kernel::runtime::env_variables;
 
 use crate::kernel::shell::{
@@ -63,7 +62,7 @@ pub fn parse_command(command: String) -> (String, Vec<String>) {
     // Programm Name rausholen
     let main_command = command_array.get(0).unwrap().clone();
 
-    // TODO: Argumente mit "" und Leerzeichen zusammenfassen
+    // Argumente mit "" und Leerzeichen zusammenfassen
     let merged_command_array = merge_quoted_args(command_array);
 
     // Environmentvariablen ersetzen

@@ -6,28 +6,28 @@ version = 4
 name = "ByteOS_animation"
 version = "0.1.1"
 dependencies = [
- "usrlib",
+ "usrlib 0.2.1",
 ]
 
 [[package]]
 name = "ByteOS_counter"
 version = "0.1.1"
 dependencies = [
- "usrlib",
+ "usrlib 0.2.1",
 ]
 
 [[package]]
 name = "ByteOS_echo"
 version = "0.1.1"
 dependencies = [
- "usrlib",
+ "usrlib 0.2.3",
 ]
 
 [[package]]
 name = "ByteOS_hello"
 version = "0.1.1"
 dependencies = [
- "usrlib",
+ "usrlib 0.2.1",
 ]
 
 [[package]]
@@ -35,11 +35,10 @@ name = "ByteOS_kernel"
 version = "0.1.1"
 dependencies = [
  "bitflags 1.3.2",
- "hashbrown",
  "log",
  "spin",
  "tar-no-std",
- "usrlib",
+ "usrlib 0.2.3",
  "x86_64",
 ]
 
@@ -47,7 +46,7 @@ dependencies = [
 name = "ByteOS_music"
 version = "0.1.1"
 dependencies = [
- "usrlib",
+ "usrlib 0.2.1",
 ]
 
 [[package]]
@@ -217,6 +216,15 @@ name = "usrlib"
 version = "0.2.1"
 source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=main#66367dbb8249b3e619bcfdb13f901cf9a9bd2cb1"
 dependencies = [
+ "spin",
+]
+
+[[package]]
+name = "usrlib"
+version = "0.2.3"
+source = "git+https://github.com/StellarByteStudios/hhuTOSuserlib?branch=runtime-environment#aca4d7409f0e93ceed77eba27dd1db5c35205a29"
+dependencies = [
+ "hashbrown",
  "spin",
 ]
 
