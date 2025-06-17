@@ -6,7 +6,11 @@ extern crate alloc;
 
 #[allow(unused_imports)]
 use usrlib::kernel::runtime::*;
-use usrlib::{gprint, gprintln, kernel::runtime::environment::{args_as_vec, args_len}, kprint, kprintln};
+use usrlib::{
+    gprint, gprintln,
+    kernel::runtime::environment::{args_as_vec, args_len},
+    kprint, kprintln,
+};
 
 #[link_section = ".main"]
 #[no_mangle]

@@ -11,7 +11,7 @@ use usrlib::{
     kernel::{
         runtime::environment::args_as_vec,
         syscall::{
-            user_api::{usr_get_pid, usr_play_song, usr_read_process_name},
+            user_api::{usr_get_pid, usr_read_process_name},
             SongID,
         },
     },
@@ -65,6 +65,7 @@ pub fn main() {
 
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
+    gprintln!("Playing Songs not implemented yet");
 
-    usr_play_song(song_nr.unwrap() as usize);
+    //usr_play_song(song_nr.unwrap() as usize);
 }

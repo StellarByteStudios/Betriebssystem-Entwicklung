@@ -16,7 +16,7 @@ pub struct Process {
     pub pid: usize,
     pub file_name: String,
     pml4_addr: PhysAddr,
-    vmas: linked_list::LinkedList<Box<VMA>>, // List der Virtual Memory Areas des Prozesses
+    pub vmas: linked_list::LinkedList<Box<VMA>>, // List der Virtual Memory Areas des Prozesses
 }
 
 impl Process {

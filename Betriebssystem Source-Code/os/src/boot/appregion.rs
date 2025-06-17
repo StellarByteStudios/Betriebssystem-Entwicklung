@@ -79,7 +79,6 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
     let tar_start: u64 = tar_mod_entry.start as u64;
     let tar_end: u64 = tar_mod_entry.end as u64;
 
-
     // Daten aus dem Archiv als rohen Memory-Slice schreiben
     let tar_data: &[u8] =
         unsafe { slice::from_raw_parts(tar_start as *const u8, (tar_end - tar_start) as usize) };

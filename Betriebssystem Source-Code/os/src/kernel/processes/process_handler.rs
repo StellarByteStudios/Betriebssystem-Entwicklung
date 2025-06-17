@@ -13,7 +13,7 @@ use crate::kernel::{
         process_handler,
         vma::{VmaType, VMA},
     },
-    threads::thread,
+    threads::{scheduler::Scheduler, thread},
 };
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
@@ -23,6 +23,32 @@ pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = Non
 pub fn init() {
     unsafe {
         PROCESSES = Some(btree_map::BTreeMap::new());
+    }
+}
+
+pub fn kill_process(pid: usize) {
+    // TODO: Hier gibts ihrgendwie noch speicherfehler
+    loop {}
+
+    // Threads zum Prozess suchen
+    let threads_to_kill = Scheduler::get_thread_ids_with_pid(pid);
+
+
+    // Alle Threads killen
+    for id in threads_to_kill {
+        Scheduler::kill(id);
+    }
+
+
+    let process;
+    // Prozess aus der Liste nehmen
+    unsafe {
+        process = PROCESSES.as_mut().unwrap().remove(&pid).unwrap();
+    }
+
+    // TODO: Alle VMAs freigeben
+    for vma in process.vmas {
+        // TODO: VMA Freigeben
     }
 }
 

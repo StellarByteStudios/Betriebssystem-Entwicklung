@@ -25,12 +25,15 @@ use crate::kernel::{
         sys_play_song::sys_play_song,
         sys_printing::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
+            sys_kernel_print,
         },
-        sys_read_process_name::sys_read_process_name,
-        sys_simple_getter::{sys_get_screen_witdh, sys_get_systime, sys_getpid, sys_gettid},
+        sys_simple_getter::{sys_get_screen_witdh, sys_get_systime},
+        sys_thread_process_management::{
+            sys_exit_process, sys_exit_thread, sys_getpid, sys_gettid, sys_kill_process,
+            sys_read_process_name,
+        },
     },
 };
-use crate::kernel::syscall::kfuncs::sys_printing::sys_kernel_print;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
@@ -65,26 +68,31 @@ impl SyscallFuncTable {
                 sys_hello_world as *const _,
                 sys_hello_world_print as *const _,
                 sys_getlastkey as *const _,
+
                 sys_gettid as *const _,
                 sys_getpid as *const _,
                 sys_read_process_name as *const _,
+
                 sys_get_systime as *const _,
                 sys_get_screen_witdh as *const _,
-                sys_dump_vmas as *const _,
+
                 sys_mmap_heap_space as *const _,
+
+                sys_exit_thread as *const _,
+                sys_exit_process as *const _,
+                sys_kill_process as *const _,
+
+                sys_dump_vmas as *const _,
                 sys_graphical_print as *const _,
                 sys_graphical_print_pos as *const _,
                 sys_paint_picture_on_pos as *const _,
-                sys_play_song as *const _,
-                sys_call_not_implemented as *const _,
+
                 sys_kernel_print as *const _,
                 sys_call_not_implemented as *const _,
                 sys_call_not_implemented as *const _,
                 sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
+
+                sys_play_song as *const _,
             ],
         }
     }

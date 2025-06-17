@@ -43,6 +43,7 @@ extern "C" {
 
 // Verwaltungsstruktur fuer einen Thread
 #[repr(C)]
+#[derive(Clone)]
 pub struct Thread {
     pub pid: usize, // Zu welchem Prozess gehört dieser Thread
     pub tid: usize,

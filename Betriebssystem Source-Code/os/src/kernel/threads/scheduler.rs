@@ -23,7 +23,7 @@ use crate::{
         cpu,
         paging::physical_addres::PhysAddr,
         processes::process_handler::create_fresh_process,
-        threads::{idle_thread, queue::Queue, scheduler, thread},
+        threads::{idle_thread, queue::Queue, scheduler, thread, thread::Thread},
     },
 };
 
@@ -53,6 +53,13 @@ pub fn get_active_pid() -> usize {
     cpu::enable_int_nested(irq);
 
     return active_pid;
+}
+
+/**
+   Threads beenden
+*/
+pub fn exit_current_thread() {
+    Scheduler::exit()
 }
 
 /**
@@ -167,6 +174,26 @@ impl Scheduler {
         Description: Calling thread terminates. Scheduler switches to next thread.
                      (The thread terminating is not in the ready queue.)
     */
+
+    pub fn get_thread_ids_with_pid(pid: usize) -> Vec<usize> {
+        // Rückgabeliste erstellen
+        let mut tids: Vec<usize> = Vec::new();
+
+        // Scheduler locken und Queue holen
+        let thread_queue: Vec<Box<Thread>> = SCHEDULER.lock().ready_queue.to_vec();
+
+        // Daraus einen Vektor zum traversieren machen
+        let thread_vec: Vec<Box<Thread>> = thread_queue.to_vec();
+
+        // Alle Thread IDs filtern, welche die selbe pid haben
+        for thread in thread_vec {
+            if thread.pid == pid {
+                tids.push(thread.tid);
+            }
+        }
+
+        return tids;
+    }
     pub fn exit() {
         // Get next thread from ready queue
         let next = SCHEDULER.lock().ready_queue.dequeue();

@@ -38,7 +38,6 @@ pub extern "C" fn sys_kernel_print(buff: *const u8, len: u64) -> i64 {
     return 0;
 }
 
-
 #[no_mangle]
 pub extern "C" fn sys_graphical_print(buff: *const u8, len: u64) -> i64 {
     // Fehlerabfrage

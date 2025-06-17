@@ -1,4 +1,4 @@
-use alloc::rc::Rc;
+use alloc::{rc::Rc, vec::Vec};
 use core::{cell::RefCell, fmt::Display};
 
 // Definition eines generischen Listenelements
@@ -22,6 +22,19 @@ pub struct Queue<T> {
 
 // Typ-Definition für eine Referenz auf ein Listenelement
 pub type Link<T> = Option<Rc<RefCell<Node<T>>>>;
+
+// Methode um den Inhalt als Vec zu bekommen
+impl<T: PartialEq + Clone> Queue<T> {
+    pub fn to_vec(&self) -> Vec<T> {
+        let mut vec = Vec::new();
+        let mut node = self.head.clone();
+        while let Some(n) = node {
+            vec.push(n.borrow().data.clone());
+            node = n.borrow().next.clone();
+        }
+        vec
+    }
+}
 
 impl<T: PartialEq> Queue<T> {
     // Konstruktor, um eine leere Liste zu erzeugen

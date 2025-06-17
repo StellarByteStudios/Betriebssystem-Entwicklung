@@ -19,6 +19,7 @@ use crate::{
 };
 
 #[repr(C)]
+#[derive(Debug, Clone)]
 pub struct Stack {
     data: *mut u8,
     size: usize,
