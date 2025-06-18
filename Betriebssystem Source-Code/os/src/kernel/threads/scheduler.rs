@@ -175,25 +175,35 @@ impl Scheduler {
                      (The thread terminating is not in the ready queue.)
     */
 
-    pub fn get_thread_ids_with_pid(pid: usize) -> Vec<usize> {
-        // Rückgabeliste erstellen
-        let mut tids: Vec<usize> = Vec::new();
+    pub fn kill_thread_with_pid(pid: usize) {
+        // Idlethread nicht killen
+        if pid == 0 {
+            return;
+        }
 
-        // Scheduler locken und Queue holen
-        let thread_queue: Vec<Box<Thread>> = SCHEDULER.lock().ready_queue.to_vec();
+        // Scheduler locken
+        let mut sched = SCHEDULER.lock();
 
-        // Daraus einen Vektor zum traversieren machen
-        let thread_vec: Vec<Box<Thread>> = thread_queue.to_vec();
+        // Referenz auf ready Queue
+        let queue: &mut Queue<Box<Thread>> = &mut sched.ready_queue;
 
-        // Alle Thread IDs filtern, welche die selbe pid haben
-        for thread in thread_vec {
+        // Neue Queue mit den übrigen Threads
+        let mut temp_queue = Queue::new();
+
+        // Durch alle Threads durchgehen
+        while let Some(thread) = queue.dequeue() {
             if thread.pid == pid {
-                tids.push(thread.tid);
+                // Thread nicht wieder hinzugefügt
+            } else {
+                temp_queue.enqueue(thread);
             }
         }
 
-        return tids;
+        // Ready Queue mit neu befüllten queue überschreiben
+        *queue = temp_queue;
     }
+
+
     pub fn exit() {
         // Get next thread from ready queue
         let next = SCHEDULER.lock().ready_queue.dequeue();

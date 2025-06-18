@@ -33,7 +33,7 @@ pub fn main() -> isize {
     // Kernel Print test
     kprintln!("Syscall kprint: args={:?}", arguments);
 
-    drop(arguments);
+    //drop(arguments);
 
     kprintln!("Arguments Dropped");
     return 0;

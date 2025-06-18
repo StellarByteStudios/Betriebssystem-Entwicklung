@@ -7,13 +7,18 @@ use alloc::{
 use core::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::kernel::{
+    cpu::{disable_int_nested, enable_int_nested},
     paging::{pages, physical_addres::PhysAddr},
     processes::{
         process::Process,
         process_handler,
         vma::{VmaType, VMA},
     },
-    threads::{scheduler, scheduler::Scheduler, thread},
+    threads::{
+        scheduler,
+        scheduler::{Scheduler, SCHEDULER},
+        thread,
+    },
 };
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
@@ -26,14 +31,45 @@ pub fn init() {
     }
 }
 
+pub fn remove_process_by_pid(pid: u64) -> Option<Box<Process>> {
+    /*
+    let process = unsafe { PROCESSES.as_mut() };
+
+    let unwraped = process.unwrap();
+
+    let removed = unwraped.remove(&(pid as usize));
+
+    return removed;
+*/
+    return unsafe { PROCESSES.as_mut().and_then(|btree_map: &mut btree_map::BTreeMap<usize, Box<Process>>| btree_map.remove(&(pid as usize))) };
+}
+
 pub fn kill_process(pid: usize) {
+    //let proc = remove_process_by_pid(pid as u64);
+
+    //drop(proc);
+
+    let int_disable = disable_int_nested();
+
+    // Droppe alle Threads
+    Scheduler::kill_thread_with_pid(pid);
+
+    enable_int_nested(int_disable);
+
+    Scheduler::exit();
+
+    /*
     // TODO: Hier gibts irgendwie noch speicherfehler
     kprintln!("Bevor allem anderem");
-    Scheduler::exit();
-    loop {}
+
 
     // Einzigen Thread holen
     let tid = scheduler::get_active_tid();
+
+    Scheduler::exit();
+    loop {
+
+    }
 
     kprintln!("Nach get tid");
 
@@ -65,7 +101,7 @@ pub fn kill_process(pid: usize) {
     // TODO: Alle VMAs freigeben
     for vma in process.vmas {
         // TODO: VMA Freigeben
-    }
+    }*/
 }
 
 // Neuen Prozess registrieren
