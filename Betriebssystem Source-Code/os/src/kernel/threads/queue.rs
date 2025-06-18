@@ -1,10 +1,11 @@
-use alloc::{rc::Rc, vec::Vec};
+use alloc::{vec::Vec};
+use alloc::sync::Arc;
 use core::{cell::RefCell, fmt::Display};
 
 // Definition eines generischen Listenelements
 pub struct Node<T> {
     pub data: T,
-    pub next: Option<Rc<RefCell<Node<T>>>>,
+    pub next: Option<Arc<RefCell<Node<T>>>>,
 }
 
 // Implementierung eines Konstruktors für ein generisches Listenelement
@@ -21,7 +22,7 @@ pub struct Queue<T> {
 }
 
 // Typ-Definition für eine Referenz auf ein Listenelement
-pub type Link<T> = Option<Rc<RefCell<Node<T>>>>;
+pub type Link<T> = Option<Arc<RefCell<Node<T>>>>;
 
 // Methode um den Inhalt als Vec zu bekommen
 impl<T: PartialEq + Clone> Queue<T> {
@@ -44,7 +45,7 @@ impl<T: PartialEq> Queue<T> {
 
     // Ein Listenelement am Ende der Liste einfuegen
     pub fn enqueue(&mut self, data: T) {
-        let new_node = Rc::new(RefCell::new(Node::new(data)));
+        let new_node = Arc::new(RefCell::new(Node::new(data)));
 
         if self.head.is_none() {
             self.head = Some(new_node.clone());
@@ -69,7 +70,7 @@ impl<T: PartialEq> Queue<T> {
                 }
                 None => {}
             }
-            Rc::try_unwrap(old_head).ok().unwrap().into_inner().data
+            Arc::try_unwrap(old_head).ok().unwrap().into_inner().data
         })
     }
 
