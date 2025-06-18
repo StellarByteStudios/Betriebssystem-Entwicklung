@@ -170,11 +170,9 @@ impl Scheduler {
         SCHEDULER.lock().ready_queue.enqueue(that);
     }
 
-    /**
-        Description: Calling thread terminates. Scheduler switches to next thread.
-                     (The thread terminating is not in the ready queue.)
-    */
-
+    pub fn print_ready_queue() {
+        vprintln!("{}", SCHEDULER.lock().ready_queue);
+    }
     pub fn kill_thread_with_pid(pid: usize) {
         // Idlethread nicht killen
         if pid == 0 {
@@ -203,6 +201,10 @@ impl Scheduler {
         *queue = temp_queue;
     }
 
+    /**
+    Description: Calling thread terminates. Scheduler switches to next thread.
+                 (The thread terminating is not in the ready queue.)
+    */
 
     pub fn exit() {
         // Get next thread from ready queue

@@ -1,6 +1,9 @@
 use core::{ptr, slice};
 
-use crate::kernel::{processes::process_handler, threads::scheduler};
+use crate::kernel::{
+    processes::process_handler,
+    threads::{scheduler, scheduler::Scheduler},
+};
 
 // = = Einfache ID getter = = //
 #[no_mangle]
@@ -33,6 +36,12 @@ pub extern "C" fn sys_exit_process() -> u64 {
 #[no_mangle]
 pub extern "C" fn sys_kill_process(pid: u64) -> u64 {
     process_handler::kill_process(pid as usize);
+    return 0;
+}
+
+#[no_mangle]
+pub extern "C" fn sys_show_threads() -> u64 {
+    Scheduler::print_ready_queue();
     return 0;
 }
 

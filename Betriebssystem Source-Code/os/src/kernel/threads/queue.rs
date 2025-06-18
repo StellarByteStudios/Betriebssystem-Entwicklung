@@ -1,5 +1,4 @@
-use alloc::{vec::Vec};
-use alloc::sync::Arc;
+use alloc::{sync::Arc, vec::Vec};
 use core::{cell::RefCell, fmt::Display};
 
 // Definition eines generischen Listenelements
@@ -149,7 +148,7 @@ impl<T: Display> Display for Queue<T> {
             write!(w, "{}", n.borrow().data)?;
             node = n.borrow().next.clone();
             if node.is_some() {
-                write!(w, ", ")?;
+                write!(w, ", \n ")?;
             }
         }
         write!(w, "]")
