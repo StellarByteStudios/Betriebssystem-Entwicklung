@@ -6,6 +6,8 @@ extern crate alloc;
 
 use core::str::from_utf8_unchecked;
 
+mod songs;
+
 use usrlib::{
     self, gprintln,
     kernel::{
@@ -17,6 +19,7 @@ use usrlib::{
     },
     print_setpos,
 };
+use usrlib::music::player;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -37,6 +40,7 @@ pub fn main() {
         )
     };
 
+    /*
     // Laden welcher Song gespielt werden muss
     let args = args_as_vec();
 
@@ -61,11 +65,12 @@ pub fn main() {
     if song_nr.clone().unwrap() > SongID::doom as u32 {
         gprintln!("Maximale Songnummer: {}", SongID::doom as usize);
         return;
-    }
+    }*/
 
     // Ausgabe
     print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
-    gprintln!("Playing Songs not implemented yet");
+    //gprintln!("Playing Songs not implemented yet");
 
     //usr_play_song(song_nr.unwrap() as usize);
+    player::play_notes(songs::nyancat::NYANCAT)
 }
