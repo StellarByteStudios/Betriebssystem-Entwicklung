@@ -90,7 +90,6 @@ impl SyscallFuncTable {
                 sys_kernel_print as *const _,
                 sys_call_not_implemented as *const _,
                 sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
 
                 sys_play_song_by_notes as *const _,
             ],
