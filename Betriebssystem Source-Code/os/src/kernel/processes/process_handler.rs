@@ -13,7 +13,7 @@ use crate::kernel::{
         process_handler,
         vma::{VmaType, VMA},
     },
-    threads::{scheduler::Scheduler, thread},
+    threads::{scheduler, scheduler::Scheduler, thread},
 };
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
@@ -27,18 +27,34 @@ pub fn init() {
 }
 
 pub fn kill_process(pid: usize) {
-    // TODO: Hier gibts ihrgendwie noch speicherfehler
+    // TODO: Hier gibts irgendwie noch speicherfehler
+    kprintln!("Bevor allem anderem");
+    Scheduler::exit();
     loop {}
 
+    // Einzigen Thread holen
+    let tid = scheduler::get_active_tid();
+
+    kprintln!("Nach get tid");
+
+    // Einzelnen Thread beenden
+    //Scheduler::kill(tid);
+    //Scheduler::exit();
+
+    kprintln!("Nach exit");
+    loop {}
+    // TODO: Beendet hier alles? Wird Prozess noch abgeräumt
+
     // Threads zum Prozess suchen
+    /*
+    // TODO: Hier gibts irgendwie noch speicherfehler
     let threads_to_kill = Scheduler::get_thread_ids_with_pid(pid);
 
 
     // Alle Threads killen
     for id in threads_to_kill {
         Scheduler::kill(id);
-    }
-
+    }*/
 
     let process;
     // Prozess aus der Liste nehmen
