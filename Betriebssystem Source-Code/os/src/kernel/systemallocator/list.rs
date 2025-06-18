@@ -63,16 +63,19 @@ impl LinkedListAllocator {
         assert_eq!(align_up(addr, mem::align_of::<ListNode>()), addr);
         assert!(size >= mem::size_of::<ListNode>());
 
-        //kprintln!("!_!_!_!_!_!_!_!_!_ Füge neuen Block hinzu: Anfang {:#x}, Size: {:#x}", addr, size);
-
         if addr < self.heap_start || addr + size > self.heap_end + 1 {
+            let mut temp = 0;
+
+            temp = temp + 1;
+
             kprint!("===! Fehlerhafter free! - ");
             kprintln!(
-                "Der Freed Block von alloc [{:#x}  /  {:#x}]: Anfang {:#x}, Size: {:#x}",
+                "Heap: [{:#x}  /  {:#x}]: \n Angegebener Block: Start {:#x}, Größe: {:#x}, Block-Ende: {:#x}",
                 self.heap_start,
                 self.heap_end,
                 addr,
-                size
+                size,
+                addr + size
             );
             return;
         }
