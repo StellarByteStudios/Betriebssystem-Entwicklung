@@ -10,7 +10,9 @@
 #![allow(dead_code)]
 
 use alloc::vec::Vec;
+
 use usrlib::music::note::Note;
+
 use super::pit;
 use crate::kernel::{cpu, threads::scheduler::Scheduler};
 
@@ -83,17 +85,14 @@ pub fn play(f: f32, d: u32) {
     speaker_off();
 }
 
-
-pub fn play_notes(notes: Vec<Note>){
+pub fn play_notes(notes: Vec<Note>) {
     // Einfach alle Noten nacheinander abspielen
     for note in notes {
         play_note(note);
     }
 }
 
-
-fn play_note(note: Note){
-
+fn play_note(note: Note) {
     // Ist es nur ein Delay?
     if note.frequency == 0 {
         delay(note.duration);

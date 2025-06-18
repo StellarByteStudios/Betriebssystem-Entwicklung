@@ -17,9 +17,9 @@ use usrlib::{
             SongID,
         },
     },
+    music::player,
     print_setpos,
 };
-use usrlib::music::player;
 
 #[link_section = ".main"]
 #[no_mangle]

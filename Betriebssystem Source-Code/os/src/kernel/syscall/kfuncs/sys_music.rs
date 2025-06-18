@@ -1,29 +1,19 @@
 use alloc::vec::{self, Vec};
-use usrlib::music::player;
-use crate::devices::pcspk::{self, aerodynamic, alle_meine_entchen, doom, intro, nyancat, play_notes, starwars_imperial, super_mario, tetris};
 
+use usrlib::music::player;
+
+use crate::devices::pcspk::{
+    self, aerodynamic, alle_meine_entchen, doom, intro, nyancat, play_notes, starwars_imperial,
+    super_mario, tetris,
+};
 
 #[no_mangle]
 pub extern "C" fn sys_play_song_by_notes(buffer: *const u8, len: usize) {
-
     // Noten zurück umwandeln
     let notes = unsafe { player::deserialize_notes(buffer, len) };
     // Song abspielen
     play_notes(notes);
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 *
