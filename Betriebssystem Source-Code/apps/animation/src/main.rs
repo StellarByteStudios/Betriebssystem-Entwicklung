@@ -56,7 +56,7 @@ pub fn main() {
     // Raussuchen welche Animation gemeint wird
     match args.get(3).unwrap().as_str() {
         "flame" | "Flame" | "blueflame" | "BlueFlame"=> custom_animations::animate::animate_blue_flame(x, y),
-        "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate_charmander(500, 20),
+        "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate_charmander(x, y),
         "blink" | "blinking" | "Blink" => animate_blink(x, y),
         _ => gprintln!("Animation not avaiable... :("), // nicht registriert
     }
