@@ -6,20 +6,22 @@ extern crate alloc;
 
 use core::str::from_utf8_unchecked;
 
-use usrlib::{self, gprintln, graphix::picturepainting::animate::animate_charmander, kernel::{
-    allocator::allocator::init,
-    runtime::runtime::HEAP_SIZE,
-    syscall::user_api::{usr_get_pid, usr_read_process_name},
-}, print_setpos};
-use usrlib::graphix::picturepainting::animate::animate_blink;
-use usrlib::kernel::runtime::environment::args_as_vec;
+use usrlib::{
+    self, gprintln,
+    graphix::picturepainting::animate::{animate_blink, animate_charmander},
+    kernel::{
+        allocator::allocator::init,
+        runtime::{environment::args_as_vec, runtime::HEAP_SIZE},
+        syscall::user_api::{usr_get_pid, usr_read_process_name},
+    },
+    print_setpos,
+};
 
 mod custom_animations;
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
-
     // Laden der Argumente
     let args = args_as_vec();
 
@@ -31,7 +33,6 @@ pub fn main() {
     // Parsen der Position'
     let x_result = args.get(1).unwrap().parse::<u32>();
     let y_result = args.get(2).unwrap().parse::<u32>();
-
 
     // War das Parsen erfolgreich
     if x_result.is_err() || y_result.is_err() {
@@ -52,10 +53,11 @@ pub fn main() {
         return;
     }
 
-
     // Raussuchen welche Animation gemeint wird
     match args.get(3).unwrap().as_str() {
-        "flame" | "Flame" | "blueflame" | "BlueFlame"=> custom_animations::animate::animate_blue_flame(x, y),
+        "flame" | "Flame" | "blueflame" | "BlueFlame" => {
+            custom_animations::animate::animate_blue_flame(x, y)
+        }
         "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate_charmander(x, y),
         "blink" | "blinking" | "Blink" => animate_blink(x, y),
         _ => gprintln!("Animation not avaiable... :("), // nicht registriert

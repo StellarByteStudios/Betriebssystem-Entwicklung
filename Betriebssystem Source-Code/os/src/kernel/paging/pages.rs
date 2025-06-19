@@ -283,7 +283,7 @@ pub fn pg_mmap_user_stack(pid: usize, pml4_addr: PhysAddr) -> *mut u8 {
 // Returned True wenn alles funktioniert hat; False bei fehler
 pub fn pg_mmap_extend_user_stack(pid: usize, pml4_addr: PhysAddr, address_to_map: usize) -> bool {
     // Page der Adresse herausfinden
-    let start_address = (address_to_map & 0xFFFF_FFFF_FFFF_F000 ) - (15 * PAGE_SIZE); // Unterste 12 Bit abschneiden
+    let start_address = (address_to_map & 0xFFFF_FFFF_FFFF_F000) - (15 * PAGE_SIZE); // Unterste 12 Bit abschneiden
     let end_address = start_address + (16 * PAGE_SIZE) - 1;
 
     // Type-Cast der pml4-Tabllenadresse auf "PageTable"
