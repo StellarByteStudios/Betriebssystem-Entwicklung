@@ -25,7 +25,7 @@ use crate::kernel::{
         sys_paint_picture_on_pos::sys_paint_picture_on_pos,
         sys_printing::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
-            sys_kernel_print,
+            sys_kernel_print, sys_print_apps,
         },
         sys_simple_getter::{sys_get_screen_witdh, sys_get_systime},
         sys_thread_process_management::{
@@ -68,22 +68,29 @@ impl SyscallFuncTable {
                 sys_hello_world as *const _,
                 sys_hello_world_print as *const _,
                 sys_getlastkey as *const _,
+                //
                 sys_gettid as *const _,
                 sys_getpid as *const _,
                 sys_read_process_name as *const _,
+                //
                 sys_get_systime as *const _,
                 sys_get_screen_witdh as *const _,
+                //
                 sys_mmap_heap_space as *const _,
+                //
                 sys_exit_thread as *const _,
                 sys_exit_process as *const _,
                 sys_kill_process as *const _,
+                //
                 sys_dump_vmas as *const _,
                 sys_graphical_print as *const _,
                 sys_graphical_print_pos as *const _,
                 sys_paint_picture_on_pos as *const _,
+                //
                 sys_kernel_print as *const _,
-                sys_call_not_implemented as *const _,
+                sys_print_apps as *const _,
                 sys_show_threads as *const _,
+                //
                 sys_play_song_by_notes as *const _,
             ],
         }

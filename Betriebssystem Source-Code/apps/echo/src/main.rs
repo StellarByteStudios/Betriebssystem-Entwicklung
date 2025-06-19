@@ -9,7 +9,7 @@ use usrlib::kernel::runtime::*;
 use usrlib::{
     gprint, gprintln,
     kernel::runtime::environment::{args_as_vec, args_len},
-    kprint, kprintln,
+    kprintln,
 };
 
 #[link_section = ".main"]
@@ -32,9 +32,5 @@ pub fn main() -> isize {
 
     // Kernel Print test
     kprintln!("Syscall kprint: args={:?}", arguments);
-
-    //drop(arguments);
-
-    kprintln!("Arguments Dropped");
     return 0;
 }

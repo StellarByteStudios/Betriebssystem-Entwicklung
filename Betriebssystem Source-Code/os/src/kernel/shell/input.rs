@@ -1,8 +1,5 @@
 use crate::devices::keyboard;
 
-const KEY_LF: u8 = 10;
-const KEY_CR: u8 = 13;
-
 // Wartet bis neue Tastatureingabe kommt
 pub fn getchar() -> u8 {
     let mut k: u8;

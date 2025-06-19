@@ -2,7 +2,7 @@ use core::{ptr, slice, str};
 
 use crate::{
     devices::graphical::graphic_console_printer::{print_string, print_string_on_position},
-    kernel::{cpu, threads::scheduler},
+    kernel::{cpu, shell::shell_logic, threads::scheduler},
 };
 
 #[no_mangle]
@@ -16,6 +16,12 @@ pub extern "C" fn sys_hello_world() {
 #[no_mangle]
 pub extern "C" fn sys_hello_world_print(arg0: u64) {
     kprintln!("Hello World with Argument={}", arg0);
+}
+
+#[no_mangle]
+pub extern "C" fn sys_print_apps() {
+    // Funktion aus der Shell aufrufen
+    shell_logic::print_all_apps();
 }
 
 #[no_mangle]

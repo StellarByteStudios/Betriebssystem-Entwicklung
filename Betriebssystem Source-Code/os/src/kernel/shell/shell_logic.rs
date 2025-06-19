@@ -179,6 +179,18 @@ fn load_app_by_name(name: &str) -> Option<AppRegion> {
         .find(|app| app.file_name == expected_name)
         .cloned()
 }
+
+// = = Verarbeitet die Eingabe und startet ggf. die Apps = = //
+pub fn print_all_apps() {
+    let app_names: Vec<String> = return_loaded_apps();
+    for name in app_names.iter() {
+        graphic_console_printer::print_string("   - ");
+        graphic_console_printer::print_string(name.as_str());
+        graphic_console_printer::print_char('\n');
+    }
+}
+
+// = = Parsed die Eingabe bei Enter und startet ggf. die Apps = = //
 fn handle_enter() -> bool {
     // eingelesener Befehl ausgeben
     let command: String = read_command();
@@ -242,16 +254,7 @@ fn handle_enter() -> bool {
     graphic_console_printer::print_char('\n');
 
     // Gebe einfach die die Befehle aus.
-    if LIST_ALL_COMMANDS.contains(&parsed_command.0.as_str()) {
-        let app_names: Vec<String> = return_loaded_apps();
-        graphic_console_printer::print_string("Geladene Apps:\n");
-        for name in app_names.iter() {
-            graphic_console_printer::print_string("   - ");
-            graphic_console_printer::print_string(name.as_str());
-            graphic_console_printer::print_char('\n');
-        }
-        return false;
-    }
+    if LIST_ALL_COMMANDS.contains(&parsed_command.0.as_str()) {}
 
     // TODO: Exitbefehl
 
