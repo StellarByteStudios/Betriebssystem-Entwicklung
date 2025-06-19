@@ -11,45 +11,24 @@ use usrlib::{self, gprintln, graphix::picturepainting::animate::animate_charmand
     runtime::runtime::HEAP_SIZE,
     syscall::user_api::{usr_get_pid, usr_read_process_name},
 }, print_setpos};
+use usrlib::graphix::picturepainting::animate::animate_blink;
 use usrlib::kernel::runtime::environment::args_as_vec;
-use usrlib::kernel::syscall::user_api::usr_get_screen_width;
 
 mod custom_animations;
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
-    // Allokator initialisieren
-    let pid: usize = usr_get_pid() as usize;
 
-    init(pid, HEAP_SIZE);
-
-    const BUFFERLENGH: usize = 255;
-
-    // Daten holen
-    let pid = usr_get_pid();
-    let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH) as usize;
-    let actual_name: &str = unsafe {
-        from_utf8_unchecked(
-            namebuffer
-                .as_slice()
-                .split(|&b| b == 0)
-                .next()
-                .unwrap_or(&[]),
-        )
-    };
-
-
-    // Laden welcher Song gespielt werden muss
+    // Laden der Argumente
     let args = args_as_vec();
 
-    if args.len() < 3 {
+    if args.len() < 4 {
         gprintln!("Nicht genug argumente um Position und Animation auszuwaehlen");
         return;
     }
 
-    // Parsen der songnummer
+    // Parsen der Position'
     let x_result = args.get(1).unwrap().parse::<u32>();
     let y_result = args.get(2).unwrap().parse::<u32>();
 
@@ -74,12 +53,11 @@ pub fn main() {
     }
 
 
-    // Ausgabe
-    print_setpos!(50, 36, "Name: {}; pid: {}", actual_name, pid);
-
-    // Animation
-    //animate_charmander(500, 400);
-    //animate_ghost(500, 400);
-    custom_animations::animate::animate_blue_flame(x, y);
-
+    // Raussuchen welche Animation gemeint wird
+    match args.get(3).unwrap().as_str() {
+        "flame" | "Flame" | "blueflame" | "BlueFlame"=> custom_animations::animate::animate_blue_flame(x, y),
+        "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate_charmander(500, 20),
+        "blink" | "blinking" | "Blink" => animate_blink(x, y),
+        _ => gprintln!("Animation not avaiable... :("), // nicht registriert
+    }
 }
