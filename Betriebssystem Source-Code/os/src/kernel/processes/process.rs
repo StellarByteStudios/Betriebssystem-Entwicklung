@@ -62,10 +62,10 @@ impl Process {
     pub fn is_address_neighbour_page_of_stack(&self, address: usize) -> bool {
         // Alle VMAs durchgehen
         for vma in self.vmas.iter() {
-            kprintln!("--- Prüfe VMA");
+            //kprintln!("--- Prüfe VMA");
             // Ist das ein Stack
             if vma.get_type() == VmaType::Stack {
-                kprintln!("--- Beim Prüfen eine Stack VMA gefunden");
+                //kprintln!("--- Beim Prüfen eine Stack VMA gefunden");
                 // Ist sie Nachbar von der Stack-VMA
                 if vma.is_address_on_neighbour_page(address) {
                     return true;

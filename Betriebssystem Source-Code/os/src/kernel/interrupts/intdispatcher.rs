@@ -249,7 +249,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     };
 
     // Der Active Prozess gibt hier nur Müll raus
-    kprintln!("Aktiven Prozess geholt: {:?}", active_process);
+    //kprintln!("Aktiven Prozess geholt: {:?}", active_process);
     //kprintln!("---- Dump VMAs");
     //active_process.dump_vmas();
     //kprintln!("---- ----");
@@ -257,7 +257,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     // Addresse prüfen
     let is_part_of_stack = active_process.is_address_neighbour_page_of_stack(fault_address);
 
-    kprintln!("Part of stack?: {:#}", is_part_of_stack);
+    //kprintln!("Part of stack?: {:#}", is_part_of_stack);
 
     //delay(10);
 
@@ -275,12 +275,12 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
 
         // hat es funktioniert?
         if success {
-            kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
-            where_physical_address(PhysAddr::new(pml4_addr), fault_address);
+            //kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
+            //where_physical_address(PhysAddr::new(pml4_addr), fault_address);
 
             // Aufräumen
             cpu::enable_int_nested(nested);
-            kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
+            //kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
             //cpu::enable_int();
             // CR3 aktuallisieren für den TLB flush
             //let cr3 = Cr3::read().0.start_address().as_u64();
