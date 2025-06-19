@@ -14,3 +14,6 @@ Betriebssystem Source-Code/loader/isofiles/
 
 # Inneres Repository
 hhuTOSuserlib/
+
+# Log aktuallisiert sich ständig. Soll nicht gepusht werden
+Betriebssystem Source-Code/Cargo.lock
