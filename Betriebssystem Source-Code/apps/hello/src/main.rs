@@ -4,15 +4,13 @@
 
 extern crate alloc;
 
-use alloc::{boxed::Box, string::ToString};
-use core::str::from_utf8_unchecked;
+use alloc::boxed::Box;
 
 use usrlib::{
     self,
-    kernel::{
-        allocator::allocator::init,
-        runtime::runtime::HEAP_SIZE,
-        syscall::user_api::{usr_dump_active_vmas, usr_get_pid, usr_read_process_name},
+    kernel::syscall::{
+        user_api::{usr_dump_active_vmas, usr_get_pid},
+        wrapper::get_process_name,
     },
     print_setpos,
     utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
@@ -24,34 +22,15 @@ pub fn main() {
     // VMAs Ausgeben
     usr_dump_active_vmas();
 
-    // Allokator initialisieren
-    let pid: usize = usr_get_pid() as usize;
-
-    init(pid, HEAP_SIZE);
-
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
 
     // Counter starten
     let mut i: u64 = 0;
     loop {
-        const BUFFERLENGH: usize = 255;
-
         // Daten holen
         let pid = usr_get_pid();
-
-        let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-        usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH) as usize;
-
-        let actual_name: &str = unsafe {
-            from_utf8_unchecked(
-                namebuffer
-                    .as_slice()
-                    .split(|&b| b == 0)
-                    .next()
-                    .unwrap_or(&[]),
-            )
-        };
+        let actual_name = get_process_name();
 
         // Ausgabe
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
