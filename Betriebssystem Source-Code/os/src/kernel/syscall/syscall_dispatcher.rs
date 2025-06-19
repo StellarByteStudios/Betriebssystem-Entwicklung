@@ -92,6 +92,10 @@ impl SyscallFuncTable {
                 sys_show_threads as *const _,
                 //
                 sys_play_song_by_notes as *const _,
+                //
+                sys_call_not_implemented as *const _,
+                sys_call_not_implemented as *const _,
+                sys_call_not_implemented as *const _,
             ],
         }
     }
