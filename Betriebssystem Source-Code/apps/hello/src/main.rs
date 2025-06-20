@@ -9,8 +9,8 @@ use alloc::boxed::Box;
 use usrlib::{
     self,
     kernel::syscall::{
+        process_management::get_process_name,
         user_api::{usr_dump_active_vmas, usr_get_pid},
-        wrapper::get_process_name,
     },
     print_setpos,
     utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
@@ -29,7 +29,7 @@ pub fn main() {
     let mut i: u64 = 0;
     loop {
         // Daten holen
-        let pid = usr_get_pid();
+        let pid = usr_get_pid() as usize;
         let actual_name = get_process_name();
 
         // Ausgabe

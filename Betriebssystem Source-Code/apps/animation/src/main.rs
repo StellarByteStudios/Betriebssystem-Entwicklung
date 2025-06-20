@@ -4,17 +4,10 @@
 
 extern crate alloc;
 
-use core::str::from_utf8_unchecked;
-
 use usrlib::{
     self, gprintln,
     graphix::picturepainting::animate::{animate_blink, animate_charmander},
-    kernel::{
-        allocator::allocator::init,
-        runtime::{environment::args_as_vec, runtime::HEAP_SIZE},
-        syscall::user_api::{usr_get_pid, usr_read_process_name},
-    },
-    print_setpos,
+    kernel::runtime::environment::args_as_vec,
 };
 
 mod custom_animations;

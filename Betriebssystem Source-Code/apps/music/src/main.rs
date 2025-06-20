@@ -9,14 +9,8 @@ use core::str::from_utf8_unchecked;
 mod songs;
 
 use usrlib::{
-    self, gprintln,
-    kernel::{
-        runtime::environment::args_as_vec,
-        syscall::{
-            user_api::{usr_get_pid, usr_read_process_name},
-            SongID,
-        },
-    },
+    self,
+    kernel::syscall::user_api::{usr_get_pid, usr_read_process_name},
     music::player,
     print_setpos,
 };

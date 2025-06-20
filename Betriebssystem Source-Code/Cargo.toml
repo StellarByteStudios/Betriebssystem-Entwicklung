@@ -2,5 +2,13 @@
 resolver = "2"
 
 #members = ["usrlib", "os", "apps/hello"]
-members = ["os", "apps/hello", "apps/extracounter", "apps/animation", "apps/music", "apps/echo", "apps/threads", "apps/apps"]
+members = ["os",
+    "apps/hello",
+    "apps/extracounter",
+    "apps/animation",
+    "apps/music",
+    "apps/echo",
+    "apps/threads",
+    "apps/apps",
+]
 #members = ["os", "apps/hello", "apps/music", "apps/animation"]
