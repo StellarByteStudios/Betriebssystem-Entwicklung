@@ -1,7 +1,7 @@
 # Notizen für das Betriebssystem
 
 ## Allgemeine Fragen
-- [ ] Wie rum beenden von Prozessen und threads
+- [ ] Datetime: Warum format und nicht Display?
 
 ## Ideen für die Shell
 - [x] Erstmal Apps starten können
@@ -18,7 +18,6 @@
 ## Refactoring:
 
 ## Userlib noch implementieren
-- [ ] neue Syscalls
 
 
 ## Alte Probleme

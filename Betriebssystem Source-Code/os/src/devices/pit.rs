@@ -13,11 +13,11 @@ use core::{
     ptr::null_mut,
     sync::atomic::{AtomicU64, AtomicUsize, Ordering},
 };
-
+use usrlib::time::rtc_date_time::RtcDateTime;
 use super::cga_print;
 use crate::{
     consts::{CLOCK_POS, GRAPHIC_BYTE_CLOCK_POS, GRAPHIC_CLOCK_POS},
-    devices::{cga, graphical::graphic_console_printer, rtc::get_time},
+    devices::{cga, graphical::graphic_console_printer},
     kernel::{
         cpu,
         interrupts::{intdispatcher, intdispatcher::INT_VEC_TIMER, isr, pic, pic::IRQ_TIMER},
@@ -29,6 +29,7 @@ use crate::{
         },
     },
 };
+use crate::devices::rtc::{get_current_date, get_current_time, get_date_time};
 
 // read systime
 pub fn get_systime() -> u64 {
@@ -114,7 +115,7 @@ impl isr::ISR for PitISR {
             let clock_cursor_pos: (u32, u32) = GRAPHIC_CLOCK_POS;
 
             // Systemzeit holen
-            let timestamp = get_time();
+            let timestamp = get_date_time();
 
             // Berechnen welches Zeichen überhaupt ausgeben
             let clock_index: usize = (SYS_TIME_DISPLAY.fetch_add(1, Ordering::SeqCst)) % 4;
@@ -131,7 +132,7 @@ impl isr::ISR for PitISR {
             graphic_console_printer::print_string_on_position(
                 clock_cursor_pos.0 as u64,
                 clock_cursor_pos.1 as u64,
-                format!("{:}", timestamp).as_str(),
+                timestamp.format().as_str(),
             );
 
             // Cursor wieder an richtige Stelle setzen

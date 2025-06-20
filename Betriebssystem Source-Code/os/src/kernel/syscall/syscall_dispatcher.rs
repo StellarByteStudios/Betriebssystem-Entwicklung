@@ -34,6 +34,7 @@ use crate::kernel::{
         },
     },
 };
+use crate::kernel::syscall::kfuncs::sys_simple_getter::sys_get_datetime;
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
@@ -94,7 +95,7 @@ impl SyscallFuncTable {
                 sys_play_song_by_notes as *const _,
                 //
                 sys_call_not_implemented as *const _,
-                sys_call_not_implemented as *const _,
+                sys_get_datetime as *const _,
                 sys_call_not_implemented as *const _,
             ],
         }
