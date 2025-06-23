@@ -110,23 +110,31 @@ fn play_key_notes(notes: String) {
 fn key_char_to_note(note: char) -> Option<Note> {
     let freq = match note {
         // Niedere Oktave
-        'K' => Some(A0),
-        'L' => Some(B0),
         'A' => Some(C0),
+        'W' => Some(C0X),
         'S' => Some(D0),
+        'E' => Some(D0X),
         'D' => Some(E0),
-        'F' => Some(F0),
+        'H' => Some(F0),
+        'U' => Some(F0X),
         'J' => Some(G0),
-        //'Ö' => Some(C1), // Overflow für 8 Finger
+        'I' => Some(G0X),
+        'K' => Some(A0),
+        'O' => Some(A0X),
+        'L' => Some(B0),
         // Höhere Oktave
-        'k' => Some(A1),
-        'l' => Some(B1),
         'a' => Some(C1),
+        'w' => Some(C1X),
         's' => Some(D1),
+        'e' => Some(D1X),
         'd' => Some(E1),
-        'f' => Some(F1),
+        'h' => Some(F1),
+        'u' => Some(F1X),
         'j' => Some(G1),
-        //'ö' => Some(C2), // Overflow für 8 Finger
+        'i' => Some(G1X),
+        'k' => Some(A1),
+        'o' => Some(A1X),
+        'l' => Some(B1),
         // Pause
         'b' | 'B' => Some(PAUSE),
         // Keine Valide Note
