@@ -12,6 +12,7 @@ members = ["os",
     "apps/apps",
     "apps/kill",
     "apps/datetime",
-    "apps/uptime"
+    "apps/uptime",
+    "apps/picture",
 ]
 #members = ["os", "apps/hello", "apps/music", "apps/animation"]

@@ -12,10 +12,13 @@ use usrlib::{
     kernel::runtime::environment::args_as_vec,
     music::{note::Note, player::play_notes},
 };
-use crate::play::player;
-use crate::songs::{
-    daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
-    starwars::STARWARS_IMPERIAL, tetris::TETRIS,
+
+use crate::{
+    play::player,
+    songs::{
+        daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
+        starwars::STARWARS_IMPERIAL, tetris::TETRIS,
+    },
 };
 
 const SONGS: &'static [&'static str] = &[

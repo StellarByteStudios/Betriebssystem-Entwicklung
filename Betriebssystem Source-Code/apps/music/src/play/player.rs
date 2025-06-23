@@ -1,6 +1,9 @@
 use alloc::{string::String, vec::Vec};
 
-use usrlib::{gprintln, kprintln, music::{note::Note, player::play_notes}};
+use usrlib::{
+    gprintln, kprintln,
+    music::{note::Note, player::play_notes},
+};
 
 use crate::play::scale::*;
 
@@ -47,11 +50,7 @@ fn check_arguments(args: &Vec<String>) -> PlayerMode {
 // = = Spielt die Noten nach echten Namen = = //
 fn play_true_notes(notes: String) {
     // String zu einzelnen Chars zerlegen
-    let true_notes: Vec<Note> = notes
-        .chars()
-        .filter_map(|c| true_char_to_note(c))
-        .collect();
-
+    let true_notes: Vec<Note> = notes.chars().filter_map(|c| true_char_to_note(c)).collect();
 
     // Ausgabe
     gprintln!("Dein Song \"{}\" wird abgespielt", notes);
