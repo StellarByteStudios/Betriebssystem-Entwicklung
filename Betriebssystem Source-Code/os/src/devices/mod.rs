@@ -12,4 +12,4 @@ pub mod keyboard;
 pub mod pcspk;
 pub mod pit;
 pub mod serial;
- pub mod rtc;
+pub mod rtc;

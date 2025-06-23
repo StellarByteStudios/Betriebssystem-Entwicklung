@@ -8,6 +8,11 @@ pub extern "C" fn sys_get_systime() -> u64 {
 }
 
 #[no_mangle]
+pub extern "C" fn sys_get_systime_intervall() -> u64 {
+    return pit::get_systime_intervall();
+}
+
+#[no_mangle]
 pub extern "C" fn sys_get_screen_witdh() -> u64 {
     return vga::get_res().0 as u64;
 }

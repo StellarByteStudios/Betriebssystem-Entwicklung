@@ -36,6 +36,10 @@ pub fn get_systime() -> u64 {
     SYS_TIME.load(Ordering::SeqCst)
 }
 
+pub fn get_systime_intervall() -> u64 {
+    return SYS_TICK_LENGHT as u64;
+}
+
 // Ports
 const PORT_CTRL: u16 = 0x43;
 const PORT_DATA0: u16 = 0x40;
