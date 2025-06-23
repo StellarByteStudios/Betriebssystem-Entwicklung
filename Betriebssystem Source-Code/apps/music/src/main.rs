@@ -4,6 +4,7 @@
 
 extern crate alloc;
 
+mod play;
 mod songs;
 
 use usrlib::{
@@ -11,7 +12,7 @@ use usrlib::{
     kernel::runtime::environment::args_as_vec,
     music::{note::Note, player::play_notes},
 };
-
+use crate::play::player;
 use crate::songs::{
     daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
     starwars::STARWARS_IMPERIAL, tetris::TETRIS,
@@ -49,6 +50,11 @@ pub fn main() {
         "tetris" => note_slice = TETRIS,
         "entchen" | "allemeineentchen" => note_slice = ENTCHEN,
         "doom" => note_slice = DOOM,
+        // Dynamischer Player
+        "play" | "player" => {
+            player::play_args(args);
+            return;
+        }
         // gibt eine Liste aller Songs aus
         "song" | "songs" => {
             gprintln!("Folgende Songs sind abspielbar: ");
