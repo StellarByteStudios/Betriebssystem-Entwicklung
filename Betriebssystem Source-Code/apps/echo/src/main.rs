@@ -23,7 +23,7 @@ pub fn main() -> isize {
 
     // Argumente Ausgeben
     //gprintln!("Anzahl: {}, gemessen: {}", argc, arguments.len());
-    for argument in &arguments {
+    for argument in &arguments[1..] {
         gprint!("{} ", argument);
     }
 
