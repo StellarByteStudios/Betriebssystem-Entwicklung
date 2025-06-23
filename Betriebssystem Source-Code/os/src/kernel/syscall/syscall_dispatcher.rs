@@ -27,14 +27,15 @@ use crate::kernel::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
             sys_kernel_print, sys_print_apps,
         },
-        sys_simple_getter::{sys_get_screen_witdh, sys_get_systime},
+        sys_simple_getter::{
+            sys_get_datetime, sys_get_screen_witdh, sys_get_systime, sys_get_systime_intervall,
+        },
         sys_thread_process_management::{
             sys_exit_process, sys_exit_thread, sys_getpid, sys_gettid, sys_kill_process,
             sys_read_process_name, sys_show_threads,
         },
     },
 };
-use crate::kernel::syscall::kfuncs::sys_simple_getter::{sys_get_datetime, sys_get_systime_intervall};
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!

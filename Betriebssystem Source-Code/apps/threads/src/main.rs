@@ -4,8 +4,7 @@
 
 extern crate alloc;
 
-use usrlib::{gprintln};
-use usrlib::kernel::syscall::process_management::print_running_threads;
+use usrlib::{gprintln, kernel::syscall::process_management::print_running_threads};
 
 #[link_section = ".main"]
 #[no_mangle]

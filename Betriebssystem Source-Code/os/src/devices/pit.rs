@@ -13,11 +13,17 @@ use core::{
     ptr::null_mut,
     sync::atomic::{AtomicU64, AtomicUsize, Ordering},
 };
+
 use usrlib::time::rtc_date_time::RtcDateTime;
+
 use super::cga_print;
 use crate::{
     consts::{CLOCK_POS, GRAPHIC_BYTE_CLOCK_POS, GRAPHIC_CLOCK_POS},
-    devices::{cga, graphical::graphic_console_printer},
+    devices::{
+        cga,
+        graphical::graphic_console_printer,
+        rtc::{get_current_date, get_current_time, get_date_time},
+    },
     kernel::{
         cpu,
         interrupts::{intdispatcher, intdispatcher::INT_VEC_TIMER, isr, pic, pic::IRQ_TIMER},
@@ -29,7 +35,6 @@ use crate::{
         },
     },
 };
-use crate::devices::rtc::{get_current_date, get_current_time, get_date_time};
 
 // read systime
 pub fn get_systime() -> u64 {

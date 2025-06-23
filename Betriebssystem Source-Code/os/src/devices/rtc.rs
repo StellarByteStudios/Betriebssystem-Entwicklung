@@ -1,5 +1,6 @@
-use crate::cpu::{inb, outb};
 use usrlib::time::rtc_date_time::{RtcDate, RtcDateTime, RtcTime};
+
+use crate::cpu::{inb, outb};
 
 const CMOS_ADDRESS: u16 = 0x70;
 const CMOS_DATA: u16 = 0x71;
@@ -34,9 +35,12 @@ pub fn get_current_time() -> RtcTime {
     let minutes: u8 = bcd_to_binary(read_cmos(0x02));
     let hours: u8 = bcd_to_binary(read_cmos(0x04)) + TIMEZONE; // for +2 UTC time
 
-    RtcTime { seconds, minutes, hours }
+    RtcTime {
+        seconds,
+        minutes,
+        hours,
+    }
 }
-
 
 pub fn get_date_time() -> RtcDateTime {
     let time = get_current_time();

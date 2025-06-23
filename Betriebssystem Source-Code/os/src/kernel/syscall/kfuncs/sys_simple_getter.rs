@@ -1,6 +1,10 @@
 use usrlib::time::rtc_date_time::RtcDateTime;
-use crate::devices::{graphical::vga, pit};
-use crate::devices::rtc::{get_current_date, get_current_time};
+
+use crate::devices::{
+    graphical::vga,
+    pit,
+    rtc::{get_current_date, get_current_time},
+};
 
 #[no_mangle]
 pub extern "C" fn sys_get_systime() -> u64 {
@@ -16,7 +20,6 @@ pub extern "C" fn sys_get_systime_intervall() -> u64 {
 pub extern "C" fn sys_get_screen_witdh() -> u64 {
     return vga::get_res().0 as u64;
 }
-
 
 #[no_mangle]
 pub extern "C" fn sys_get_datetime(buff: usize) {
