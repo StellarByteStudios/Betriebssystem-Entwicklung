@@ -4,7 +4,10 @@
 
 extern crate alloc;
 
-use usrlib::{gprintln, kernel::runtime::environment::args_as_vec};
+use usrlib::{
+    gprintln,
+    kernel::{runtime::environment::args_as_vec, syscall::process_management::kill_process},
+};
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -30,4 +33,5 @@ pub fn main() {
     }
 
     // Prozess mit Pid beenden
+    kill_process(pid_result.unwrap() as usize);
 }

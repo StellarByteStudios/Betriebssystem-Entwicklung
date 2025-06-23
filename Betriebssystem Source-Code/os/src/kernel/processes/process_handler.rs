@@ -6,18 +6,21 @@ use alloc::{
 };
 use core::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::kernel::{
-    cpu::{disable_int_nested, enable_int_nested},
-    paging::{pages, physical_addres::PhysAddr},
-    processes::{
-        process::Process,
-        process_handler,
-        vma::{VmaType, VMA},
-    },
-    threads::{
-        scheduler,
-        scheduler::{Scheduler, SCHEDULER},
-        thread,
+use crate::{
+    devices::pcspk,
+    kernel::{
+        cpu::{disable_int_nested, enable_int_nested},
+        paging::{pages, physical_addres::PhysAddr},
+        processes::{
+            process::Process,
+            process_handler,
+            vma::{VmaType, VMA},
+        },
+        threads::{
+            scheduler,
+            scheduler::{Scheduler, SCHEDULER},
+            thread,
+        },
     },
 };
 
@@ -57,8 +60,11 @@ pub fn kill_process(pid: usize) {
 
     let int_disable = disable_int_nested();
 
-    // Droppe alle Threads
+    // Beende alle Threads
     Scheduler::kill_thread_with_pid(pid);
+
+    // GGF Gespielte Note noch beenden
+    pcspk::speaker_off();
 
     enable_int_nested(int_disable);
 
