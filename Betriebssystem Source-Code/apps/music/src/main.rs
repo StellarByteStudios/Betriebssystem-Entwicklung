@@ -4,67 +4,69 @@
 
 extern crate alloc;
 
-use core::str::from_utf8_unchecked;
-
 mod songs;
 
 use usrlib::{
-    self,
-    kernel::syscall::user_api::{usr_get_pid, usr_read_process_name},
-    music::player,
-    print_setpos,
+    self, gprintln,
+    kernel::runtime::environment::args_as_vec,
+    music::{note::Note, player::play_notes},
 };
+
+use crate::songs::{
+    daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
+    starwars::STARWARS_IMPERIAL, tetris::TETRIS,
+};
+
+const SONGS: &'static [&'static str] = &[
+    "nyancat",
+    "starwars",
+    "mario",
+    "aerodynamics",
+    "tetris",
+    "entchen",
+    "doom",
+];
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
-    const BUFFERLENGH: usize = 255;
-
-    // Daten holen
-    let pid = usr_get_pid();
-    let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH) as usize;
-    let actual_name: &str = unsafe {
-        from_utf8_unchecked(
-            namebuffer
-                .as_slice()
-                .split(|&b| b == 0)
-                .next()
-                .unwrap_or(&[]),
-        )
-    };
-
-    /*
-    // Laden welcher Song gespielt werden muss
+    // Laden der Argumente
     let args = args_as_vec();
 
     if args.len() < 2 {
-        gprintln!("Nicht genug argumente um ein Lied auszuwaehlen");
+        gprintln!("Nicht genug argumente um Position und Animation auszuwaehlen");
         return;
     }
 
-    // Parsen der songnummer
-    let song_nr = args.get(1).unwrap().parse::<u32>();
+    let note_slice: &[Note];
 
-    // War das Parsen erfolgreich
-    if song_nr.is_err() {
-        gprintln!(
-            "Die songnummer muss eine richtige Zahl sein und das hat bei {:?} nicht funktioniert",
-            args.get(1)
-        );
-        return;
+    // Raussuchen welche Animation gemeint wird
+    match args.get(1).unwrap().to_ascii_lowercase().as_str() {
+        "cat" | "nyancat" => note_slice = NYANCAT,
+        "starwars" | "imperial" => note_slice = STARWARS_IMPERIAL,
+        "mario" => note_slice = MARIO,
+        "aerodynamics" | "aero" => note_slice = AERODYNAMIC,
+        "tetris" => note_slice = TETRIS,
+        "entchen" | "allemeineentchen" => note_slice = ENTCHEN,
+        "doom" => note_slice = DOOM,
+        // gibt eine Liste aller Songs aus
+        "song" | "songs" => {
+            gprintln!("Folgende Songs sind abspielbar: ");
+            for song in SONGS {
+                gprintln!("    - {}", song);
+            }
+            return;
+        }
+        // Fehlerfall
+        _ => {
+            gprintln!("Song not avaiable... :(");
+            return;
+        } // nicht registriert
     }
-
-    // Ist die Zahl sinnvoll
-    if song_nr.clone().unwrap() > SongID::doom as u32 {
-        gprintln!("Maximale Songnummer: {}", SongID::doom as usize);
-        return;
-    }*/
 
     // Ausgabe
-    print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
-    //gprintln!("Playing Songs not implemented yet");
+    gprintln!("Playing song: \"{}\"", args.get(1).unwrap().as_str());
 
-    //usr_play_song(song_nr.unwrap() as usize);
-    player::play_notes(songs::nyancat::NYANCAT)
+    // Musik abspielen
+    play_notes(note_slice);
 }
