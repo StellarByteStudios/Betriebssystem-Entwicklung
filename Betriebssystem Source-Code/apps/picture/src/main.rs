@@ -5,15 +5,15 @@
 extern crate alloc;
 
 use usrlib::{
-    self, gprintln, graphix::picturepainting::paint, kernel::runtime::environment::args_as_vec,
-    music::player::play_notes,
+    self, gprintln, graphix::picturepainting::paint, kernel::runtime::environment::args_as_vec
 };
 
 use crate::custom_pictures::{crumpy_cat::get_crumpy, cute_cat::get_cute_cat, doge::get_doge};
+use crate::custom_pictures::orion::get_orion;
 
 mod custom_pictures;
 
-const PICTURES: &'static [&'static str] = &["cat", "crumpy", "doge"];
+const PICTURES: &'static [&'static str] = &["cat", "crumpy", "doge", "orion"];
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -54,6 +54,7 @@ pub fn main() {
         "cat" | "cutecat" | "cute_cat" => paint::draw_picture(x, y, &get_cute_cat()),
         "doge" => paint::draw_picture(x, y, &get_doge()),
         "crumpy" | "crumpycat" | "crumpy_cat" => paint::draw_picture(x, y, &get_crumpy()),
+        "orion" | "nebel" | "nebular" => paint::draw_picture(x, y, &get_orion()),
         // gibt eine Liste aller Bilder aus
         "song" | "songs" => {
             gprintln!("Folgende Bilder sind verfügbar: ");
