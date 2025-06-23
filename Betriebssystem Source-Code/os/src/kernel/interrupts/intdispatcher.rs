@@ -249,7 +249,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     };
 
     // Der Active Prozess gibt hier nur Müll raus
-    //kprintln!("Aktiven Prozess geholt: {:?}", active_process);
+    kprintln!("Aktiven Prozess Name: {:?}", active_process.file_name);
     //kprintln!("---- Dump VMAs");
     //active_process.dump_vmas();
     //kprintln!("---- ----");

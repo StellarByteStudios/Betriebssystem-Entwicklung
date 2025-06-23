@@ -253,11 +253,6 @@ fn handle_enter() -> bool {
     // Erstmal neue Zeile für den Befehl
     graphic_console_printer::print_char('\n');
 
-    // Gebe einfach die die Befehle aus.
-    if LIST_ALL_COMMANDS.contains(&parsed_command.0.as_str()) {}
-
-    // TODO: Exitbefehl
-
     // App Laden
     let loaded_app = load_app_by_name(parsed_command.0.as_str());
 

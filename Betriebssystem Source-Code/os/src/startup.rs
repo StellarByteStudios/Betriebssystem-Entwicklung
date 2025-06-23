@@ -279,6 +279,7 @@ pub extern "C" fn kmain(mbi: u64) {
 
     // Environment Test
     usrlib::kernel::runtime::env_variables::env_insert("Hello", "Super Toller Inhalt");
+    usrlib::kernel::runtime::env_variables::env_insert("python", "/usr/local/bin/python");
 
     // Schellprogramm starten
     shell_process::spawn_shell_process(opt_apps.clone().unwrap());
