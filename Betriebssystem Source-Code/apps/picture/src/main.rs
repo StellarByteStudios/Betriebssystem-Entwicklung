@@ -5,11 +5,12 @@
 extern crate alloc;
 
 use usrlib::{
-    self, gprintln, graphix::picturepainting::paint, kernel::runtime::environment::args_as_vec
+    self, gprintln, graphix::picturepainting::paint, kernel::runtime::environment::args_as_vec,
 };
 
-use crate::custom_pictures::{crumpy_cat::get_crumpy, cute_cat::get_cute_cat, doge::get_doge};
-use crate::custom_pictures::orion::get_orion;
+use crate::custom_pictures::{
+    crumpy_cat::get_crumpy, cute_cat::get_cute_cat, doge::get_doge, orion::get_orion,
+};
 
 mod custom_pictures;
 
