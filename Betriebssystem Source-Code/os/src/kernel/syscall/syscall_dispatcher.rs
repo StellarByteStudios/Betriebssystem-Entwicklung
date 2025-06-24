@@ -22,7 +22,7 @@ use crate::kernel::{
         sys_getlastkey::sys_getlastkey,
         sys_mmap_heap_space::sys_mmap_heap_space,
         sys_music::sys_play_song_by_notes,
-        sys_paint_picture_on_pos::sys_paint_picture_on_pos,
+        sys_paint_picture_on_pos::{sys_draw_pixel, sys_paint_picture_on_pos},
         sys_printing::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
             sys_kernel_print, sys_print_apps,
@@ -95,7 +95,7 @@ impl SyscallFuncTable {
                 //
                 sys_play_song_by_notes as *const _,
                 //
-                sys_call_not_implemented as *const _,
+                sys_draw_pixel as *const _,
                 sys_get_datetime as *const _,
                 sys_get_systime_intervall as *const _,
             ],

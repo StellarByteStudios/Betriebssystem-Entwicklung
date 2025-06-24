@@ -9,6 +9,11 @@ use crate::{
 };
 
 #[no_mangle]
+pub extern "C" fn sys_draw_pixel(x: u64, y: u64, color: u64) {
+    vga::draw_pixel(x as u32, y as u32, color as u32);
+}
+
+#[no_mangle]
 pub extern "C" fn sys_paint_picture_on_pos(
     x: u64,
     y: u64,

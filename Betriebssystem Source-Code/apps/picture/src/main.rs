@@ -45,7 +45,7 @@ pub fn main() {
     let y = y_result.clone().unwrap();
 
     // Ist die Zahl sinnvoll
-    if x > 1280 || x < 0 || y > 720 || y < 0 {
+    if x > 1280 || y > 720 {
         gprintln!("Keine sinnvolle Position x in [0, 1280]; y in [0, 720]");
         return;
     }

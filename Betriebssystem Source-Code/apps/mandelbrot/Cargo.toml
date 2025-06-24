@@ -1,0 +1,23 @@
+[package]
+edition = "2018"
+name = "ByteOS_mandelbrot"
+version = "0.1.1"
+authors = [
+    "Michael Schöttner <michael.schoettner@hhu.de>",
+    "Carsten Krollmann <cakro105@hhu.de>",
+]
+
+[lib]
+crate-type = ["staticlib"]
+path = "src/main.rs"
+test = false
+
+[dependencies]
+usrlib = { git = "https://github.com/StellarByteStudios/hhuTOSuserlib", branch = "new-syscalls" }
+
+
+[profile.development]
+panic = "abort"
+
+[profile.production]
+panic = "abort"
