@@ -1,0 +1,48 @@
+hhuTOSuserlib/
+├── Cargo.lock
+├── Cargo.toml
+├── README.md
+└── src
+    ├── graphix
+    │   ├── gprint.rs
+    │   ├── picturepainting
+    │   │   ├── animate.rs
+    │   │   ├── paint.rs
+    │   │   └── pictures
+    │   │       ├── blinking
+    │   │       │   ├── blinking0.rs
+    │   │       │   ├── ...
+    │   │       │   └── blinking4.rs
+    │   │       └── charmander
+    │   │           ├── charmander0.rs
+    │   │           ├── ...
+    │   │           └── charmander4.rs
+    │   └── print_setpos.rs
+    ├── kernel
+    │   ├── allocator
+    │   │   ├── allocator.rs
+    │   │   ├── listnode.rs
+    │   │   └── list.rs
+    │   ├── kprint.rs
+    │   ├── runtime
+    │   │   ├── environment.rs
+    │   │   ├── env_variables.rs
+    │   │   └── runtime.rs
+    │   ├── shell
+    │   │   └── command_parser.rs
+    │   └── syscall
+    │       ├── process_management.rs
+    │       └── user_api.rs
+    ├── lib.rs
+    ├── music
+    │   ├── note.rs
+    │   └── player.rs
+    ├── time
+    │   └── rtc_date_time.rs
+    └── utility
+        ├── delay.rs
+        ├── mathadditions
+        │   ├── complex_numbers.rs
+        │   ├── fibonacci.rs
+        │   └── math.rs
+        └── queue.rs
