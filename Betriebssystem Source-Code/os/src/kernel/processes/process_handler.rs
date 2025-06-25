@@ -3,6 +3,7 @@ use alloc::{
     boxed::Box,
     collections::{btree_map, linked_list},
     string::{String, ToString},
+    vec::Vec,
 };
 use core::sync::atomic::{AtomicUsize, Ordering};
 
@@ -26,6 +27,8 @@ use crate::{
 
 pub static mut PROCESSES: Option<btree_map::BTreeMap<usize, Box<Process>>> = None;
 
+pub static mut EXITED_PROCESSES: Option<btree_map::BTreeMap<u64, Box<Process>>> = None;
+
 /* * * * Statische Prozessverwaltung * * * */
 // Prozessverwaltung anlegen; wird nur 1x aufgerufen
 pub fn init() {
@@ -34,86 +37,54 @@ pub fn init() {
     }
 }
 
-pub fn remove_process_by_pid(pid: u64) -> Option<Box<Process>> {
-    /*
-        let process = unsafe { PROCESSES.as_mut() };
-
-        let unwraped = process.unwrap();
-
-        let removed = unwraped.remove(&(pid as usize));
-
-        return removed;
-    */
-    return unsafe {
-        PROCESSES
-            .as_mut()
-            .and_then(|btree_map: &mut btree_map::BTreeMap<usize, Box<Process>>| {
-                btree_map.remove(&(pid as usize))
-            })
-    };
+pub fn init_exited() {
+    unsafe {
+        EXITED_PROCESSES = Some(btree_map::BTreeMap::new());
+    }
 }
 
-pub fn kill_process(pid: usize) {
-    //let proc = remove_process_by_pid(pid as u64);
-
-    //drop(proc);
-
-    let int_disable = disable_int_nested();
-
-    // Beende alle Threads
-    Scheduler::kill_thread_with_pid(pid);
-
-    // GGF Gespielte Note noch beenden
-    pcspk::speaker_off();
-
-    enable_int_nested(int_disable);
-
-    Scheduler::exit();
-
-    /*
-    // TODO: Hier gibts irgendwie noch speicherfehler
-    kprintln!("Bevor allem anderem");
-
-
-    // Einzigen Thread holen
-    let tid = scheduler::get_active_tid();
-
-    Scheduler::exit();
-    loop {
-
-    }
-
-    kprintln!("Nach get tid");
-
-    // Einzelnen Thread beenden
-    //Scheduler::kill(tid);
-    //Scheduler::exit();
-
-    kprintln!("Nach exit");
-    loop {}
-    // TODO: Beendet hier alles? Wird Prozess noch abgeräumt
-
-    // Threads zum Prozess suchen
-    /*
-    // TODO: Hier gibts irgendwie noch speicherfehler
-    let threads_to_kill = Scheduler::get_thread_ids_with_pid(pid);
-
-
-    // Alle Threads killen
-    for id in threads_to_kill {
-        Scheduler::kill(id);
-    }*/
-
-    let process;
-    // Prozess aus der Liste nehmen
+// Prozess löschen
+pub fn remove_process_by_pid(pid: u64) {
     unsafe {
-        process = PROCESSES.as_mut().unwrap().remove(&pid).unwrap();
-    }
+        if EXITED_PROCESSES.is_none() {
+            init_exited();
+        }
 
-    // TODO: Alle VMAs freigeben
-    for vma in process.vmas {
-        // TODO: VMA Freigeben
-    }*/
+        // remove active process of active tree and insert in exited tree
+        if let Some(ref mut processes) = PROCESSES {
+            let removed_proc = processes.remove(&(pid as usize));
+            if let Some(proc) = removed_proc {
+                EXITED_PROCESSES
+                    .as_mut()
+                    .unwrap()
+                    .insert((proc.pid as u64), proc);
+            }
+        }
+    }
+}
+
+// drop all processes in exited list
+pub fn cleanup() {
+    unsafe {
+        let irq = disable_int_nested();
+        if let Some(ref mut map) = EXITED_PROCESSES {
+            // get all pids from the tree
+            let keys: Vec<u64> = map.keys().copied().collect();
+
+            // drop Threads and Stacks
+            for (&pid, process) in map.iter() {
+                Scheduler::kill_thread_with_pid(process.pid);
+            }
+
+            // drop processes
+            for pid in keys {
+                if let Some(proc) = map.remove(&pid) {
+                    drop(proc);
+                }
+            }
+        }
+        enable_int_nested(irq);
+    }
 }
 
 // Neuen Prozess registrieren
@@ -194,4 +165,17 @@ pub fn get_pml4_address_by_pid(pid: usize) -> PhysAddr {
             .get_pml4_addr()
     };
     return pml4_adress;
+}
+
+pub fn get_exited_pml4_address_by_pid(pid: u64) -> Option<PhysAddr> {
+    unsafe {
+        Some(
+            EXITED_PROCESSES
+                .as_ref()
+                .unwrap()
+                .get(&pid)
+                .unwrap()
+                .get_pml4_addr(),
+        )
+    }
 }
