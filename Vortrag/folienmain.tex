@@ -81,6 +81,15 @@
 % Footnotes auf Seite ganz nach unten schieben
 \usepackage[bottom]{footmisc}
 
+% anzeigen von Unicode
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    columns=fullflexible,
+    breaklines=true,
+    tabsize=4
+}
+
 
 % Graphendarstellung
 \usepackage{tikz}
@@ -88,7 +97,8 @@
   arrows.meta, 
   positioning, 
   shapes.geometric, 
-  decorations.pathmorphing
+  decorations.pathmorphing,
+  calc
 }
 
 \usepackage{enumitem}% bessere aufzählungen

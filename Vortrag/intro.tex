@@ -26,3 +26,40 @@
         \item [] \quad $\Rightarrow$ Systeme austauschbar
     \end{itemize}
 \end{frame}
+
+
+\begin{frame}{Struktur}
+    \begin{center}
+        \begin{tikzpicture}[node distance=1.2cm and 1cm, every node/.style={minimum width=2.2cm, minimum height=0.9cm, align=center, font=\small}]
+
+        % Farben definieren
+        \tikzstyle{app}=[draw, fill=blue!20, ellipse]
+        \tikzstyle{lib}=[draw, fill=orange!30, diamond, rounded corners]
+        \tikzstyle{kernel}=[draw, fill=green!25, rectangle, aspect=2]
+
+        % Apps
+        \node[app] (app1) {App A};
+        \node[app, right=of app1] (app2) {App B};
+        \node[draw=none, right=of app2] (dots) {\Large$\cdots$};
+        \node[app, right=of dots] (app3) {App N};
+
+        % Userlib
+        % Userlib – zentriert zwischen app1 und app3
+        \node[lib, below=1cm of $(app1)!0.5!(app3)$] (userlib) {Userlib\\(Usermode)};
+
+        % Kernel
+        \node[kernel, below left=0.8cm and 1.2cm of userlib] (kernel1) {Kernel 1};
+        \node[kernel, below right=0.8cm and 1.2cm of userlib] (kernel2) {Kernel 2};
+
+        % Geschwungene Verbindungen Apps -> Userlib (ungerichtet)
+        \draw[->] (app1.south) to[out=-90, in=135] node[midway, above, yshift=-5pt] {API} (userlib.north west);
+        \draw[->] (app2.south) to[out=-90, in=90] node[near end, above, yshift=-5pt] {API} (userlib.north);
+        \draw[->] (app3.south) to[out=-90, in=45] node[midway, above, yshift=-5pt] {API} (userlib.north east);
+
+
+        % Userlib → Kernel
+        \draw[->] (userlib.south west) to[out=-100, in=90] node[near end, above, yshift=-5pt] {Syscalls} (kernel1.north);
+        \draw[->] (userlib.south east) to[out=-80, in=90] node[near end, above, yshift=-5pt] {Syscalls} (kernel2.north);
+        \end{tikzpicture}
+    \end{center}
+\end{frame}

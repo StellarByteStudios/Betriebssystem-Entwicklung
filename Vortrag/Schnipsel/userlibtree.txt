@@ -2,6 +2,8 @@ hhuTOSuserlib/
 ├── Cargo.lock
 ├── Cargo.toml
 ├── README.md
+├── Requirements.md
+├── rust-toolchain.toml
 └── src
     ├── graphix
     │   ├── gprint.rs
@@ -11,11 +13,15 @@ hhuTOSuserlib/
     │   │   └── pictures
     │   │       ├── blinking
     │   │       │   ├── blinking0.rs
-    │   │       │   ├── ...
+    │   │       │   ├── blinking1.rs
+    │   │       │   ├── blinking2.rs
+    │   │       │   ├── blinking3.rs
     │   │       │   └── blinking4.rs
     │   │       └── charmander
     │   │           ├── charmander0.rs
-    │   │           ├── ...
+    │   │           ├── charmander1.rs
+    │   │           ├── charmander2.rs
+    │   │           ├── charmander3.rs
     │   │           └── charmander4.rs
     │   └── print_setpos.rs
     ├── kernel
@@ -46,3 +52,5 @@ hhuTOSuserlib/
         │   ├── fibonacci.rs
         │   └── math.rs
         └── queue.rs
+
+16 directories, 38 files
