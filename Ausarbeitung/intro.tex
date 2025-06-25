@@ -1,0 +1,8 @@
+\section{Einführung}
+
+\subsection{Motivation}
+    Wenn man eine Anwendung schreibt, möchte man diese am besten so weit verbreiten wie möglich. Dazu muss diese Anwendung aber auf verschiedensten Systemen laufen können und das am besten ohne das man sie portieren muss. Eine Möglichkeit denselben Code auf verschiedenen Systemen laufen zu lassen ist eine gemeinsame Schnittstelle, welche nach außen verschleiern, dass es eigentlich unterschiedliche Systeme sind. \newline
+    In unserem bisherigen, eigenen System $(TOS)$ war die Abhängigkeit sehr stark, weswegen schon der Austausch einzelner Methoden anfällig für Fehler war, geschweige denn ganze Anwendungen. Mit einer gemeinsamen Schnittstelle ließe sich das Problem jedoch lösen und man hätte zusätzlich noch gewonnen, dass andere Apps für das eigene System erstellen können und man diese ohne Probleme integrieren könnte.
+
+\subsection{Problemstellung}
+    Um Apps Plattformunabhängig (in unserem Fall Kernel-Unabhängig) zu schreiben müssen wir eine Schnittstelle erstellen, welche alle für die App benötigten Funktionen bereitstellt. Der Kernel muss diese Funktionen implementieren, sodass die Anfragen durch die Schnittstelle bearbeitet werden können. Wir müssen also einen Weg finden bestimmte Funktionen an den Kernel weiter geben zu können. Ein Standardweg um eine solche Funktionalität zu haben sind Syscalls \cite{syscalls-osdev}. Die Verwendung von Syscalls gibt uns ebenfalls die Möglichkeit der Trennung von \verb|UserMode| und \verb|KernelMode|. Das bedeutet, dass die Anwendungen welche im \verb|UserMode| laufen nicht direkt privilegierte Befehle ausführen können, sondern der Kernel jede Anfrage direkt überwacht.

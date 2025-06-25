@@ -1,0 +1,118 @@
+\documentclass[11pt,
+a4paper,
+oneside,
+abstracton,
+cleardoublepage=empty,]{scrartcl}
+
+
+% = = = Imports in der Präambel: = = = %
+\usepackage{datetime} % Import für Monat Zahl zu Text
+\usepackage{ifthen}   % Für die Anonymisierung
+\usepackage{wrapfig}  % Um Bilder direkt in den Text einzubetten
+
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel} % Für die deutsche Sprache
+\usepackage{amsmath, amssymb, amsthm} % Einige hilfreiche Mathe-Pakete
+\usepackage{tabularx, multirow} % Für Tabellen
+\usepackage{graphicx} % Grafiken
+
+\usepackage[automark]{scrlayer-scrpage} % Fußzeile
+
+
+
+% Graphendarstellung
+\usepackage{tikz}
+\usetikzlibrary{intersections, 
+  arrows.meta, 
+  positioning, 
+  shapes.geometric, 
+  decorations.pathmorphing,
+  calc
+}
+
+\usepackage{color} % Für bessere Farbkontrolle
+\usepackage{iftex} % Für die PDF Metadaten
+\usepackage{hyperref} % Auch für die PDF Metadaten: 'hyperref' immer als letztes Paket laden!
+
+
+
+
+
+
+
+
+
+
+% = = = Sonstige Einstellungen: = = = %
+\input{metaData} % für Erstellung der Titelseite
+\input{newCommands.tex} % Selbsterstellte Commandos laden
+
+% PDF Metadaten
+\ifpdf
+    \definecolor{brown}{cmyk}{0, 0.81, 1, 0.60}
+    \hypersetup{%
+      pdftitle={\moduleTitle{}, \exerciseTitle{}},
+      pdfsubject={\moduleTitle{} Ausarbeitung},
+      pdfauthor={\excerciseAuthor{}},
+      colorlinks=false, urlcolor=blue, citecolor=brown,
+      bookmarksnumbered=true,
+    }
+\else   
+\fi
+
+
+% Fußzeile
+% Seitenstil aktivieren
+\pagestyle{scrheadings}
+
+% Alle Kopf- und Fußzeileninhalte löschen
+\clearpairofpagestyles
+
+% Zentrierte Fußzeile
+\cfoot{\textit{\excerciseAuthor{}, \excerciseAuthorID{}, \exerciseTitle}}
+
+% Linie oben deaktivieren (offiziell empfohlene Methode)
+\KOMAoptions{
+  headsepline=false,   % obere Linie AUS
+  footsepline=0.4pt    % untere Linie EIN mit 0.4pt Stärke
+}
+
+
+
+
+
+
+
+
+
+% = = = Beginn des eigentlichen Dokuments: = = = %
+\begin{document}
+
+% macht die Erste nummerierung in Römisch, damit der Kontent bei Seite 1 anfängt
+\pagenumbering{roman}
+
+% Titelseite einfügen
+\include{titlepage}
+% Nächste Seite
+\cleardoublepage
+
+
+% Jetzt normal weiter Seitenzahlen
+\pagenumbering{arabic}
+
+% = = Hier kommen die einzelnen Kapitel = = %
+\input{intro.tex}
+
+\input{userlib.tex}
+
+\input{apps.tex}
+
+\input{conclusion.tex}
+
+
+% Referenzenverzeichnis
+%\cleardoublepage
+\bibliographystyle{abbrv}
+\bibliography{sources.bib}
+
+\end{document}
