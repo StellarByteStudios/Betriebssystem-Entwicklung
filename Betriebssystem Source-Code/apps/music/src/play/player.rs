@@ -106,7 +106,7 @@ fn play_key_notes(notes: String) {
 }
 
 // = = Mapped einen Buchstaben aus Keyboard Layout = = //
-fn key_char_to_note(note: char) -> Option<Note> {
+pub fn key_char_to_note(note: char) -> Option<Note> {
     let freq = match note {
         // Niedere Oktave
         'A' => Some(C0),

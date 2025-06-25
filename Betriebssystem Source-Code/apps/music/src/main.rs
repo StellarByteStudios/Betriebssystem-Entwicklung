@@ -7,6 +7,8 @@ extern crate alloc;
 mod play;
 mod songs;
 
+mod live;
+
 use usrlib::{
     self, gprintln,
     kernel::runtime::environment::args_as_vec,
@@ -14,6 +16,7 @@ use usrlib::{
 };
 
 use crate::{
+    live::liveplayer,
     play::player,
     songs::{
         daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
@@ -64,6 +67,12 @@ pub fn main() {
             for song in SONGS {
                 gprintln!("    - {}", song);
             }
+            return;
+        }
+        // gibt eine Liste aller Songs aus
+        "live" => {
+            gprintln!("Du kannst jetzt live Spielen ");
+            liveplayer::play_live();
             return;
         }
         // Fehlerfall
