@@ -6,7 +6,7 @@ extern crate alloc;
 
 #[allow(unused_imports)]
 use usrlib::kernel::runtime::*;
-use usrlib::{gprint, gprintln, kernel::runtime::environment::args_as_vec};
+use usrlib::{gprintln, kernel::runtime::environment::args_as_vec};
 
 use crate::mandelbrot::drawer;
 

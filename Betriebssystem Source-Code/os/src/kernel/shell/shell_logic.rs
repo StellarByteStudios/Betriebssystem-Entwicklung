@@ -29,9 +29,6 @@ static COMMAND_BUFFER: Mutex<(String, u32)> = Mutex::new((String::new(), 0));
 
 static APPS: Mutex<Vec<AppRegion>> = Mutex::new(Vec::new());
 
-// Liste aller Commands bei denen man die Apps angezeigt bekommt, die geladen sind
-const LIST_ALL_COMMANDS: [&str; 3] = ["programms", "app", "apps"];
-
 // === Behandelt je nach Zeichen, was gemacht werden soll
 pub fn handle_keystroke(code: u8) -> bool {
     // Sind wir überhaupt schon ready
