@@ -57,7 +57,7 @@ pub fn remove_process_by_pid(pid: u64) {
                 EXITED_PROCESSES
                     .as_mut()
                     .unwrap()
-                    .insert((proc.pid as u64), proc);
+                    .insert(proc.pid as u64, proc);
             }
         }
     }

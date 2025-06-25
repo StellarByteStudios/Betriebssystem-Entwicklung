@@ -19,7 +19,6 @@ use crate::kernel::{
     syscall::kfuncs::{
         sys_call_not_implemented::sys_call_not_implemented,
         sys_dump_vmas::sys_dump_vmas,
-        sys_getlastkey::sys_getlastkey,
         sys_mmap_heap_space::sys_mmap_heap_space,
         sys_music::sys_play_song_by_notes,
         sys_paint_picture_on_pos::{sys_draw_pixel, sys_paint_picture_on_pos},
@@ -27,6 +26,7 @@ use crate::kernel::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
             sys_kernel_print, sys_print_apps,
         },
+        sys_shell_and_keys::{sys_activate_shell, sys_deactivate_shell, sys_getlastkey},
         sys_simple_getter::{
             sys_get_datetime, sys_get_screen_witdh, sys_get_systime, sys_get_systime_intervall,
         },
@@ -98,6 +98,9 @@ impl SyscallFuncTable {
                 sys_draw_pixel as *const _,
                 sys_get_datetime as *const _,
                 sys_get_systime_intervall as *const _,
+                //
+                sys_activate_shell as *const _,
+                sys_deactivate_shell as *const _,
             ],
         }
     }

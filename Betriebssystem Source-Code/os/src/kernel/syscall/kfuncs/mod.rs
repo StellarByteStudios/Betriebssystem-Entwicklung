@@ -1,11 +1,11 @@
 // System-Aufrufe nachfolgend
 pub mod sys_call_not_implemented;
 pub mod sys_dump_vmas;
-pub mod sys_getlastkey;
 pub mod sys_mmap_heap_space;
 pub mod sys_music;
 pub mod sys_paint_picture_on_pos;
 pub mod sys_printing;
+pub mod sys_shell_and_keys;
 //pub mod sys_read_process_name;
 pub mod sys_simple_getter;
 pub mod sys_thread_process_management;

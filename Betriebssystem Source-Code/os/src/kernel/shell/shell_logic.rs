@@ -29,9 +29,11 @@ static COMMAND_BUFFER: Mutex<(String, u32)> = Mutex::new((String::new(), 0));
 
 static APPS: Mutex<Vec<AppRegion>> = Mutex::new(Vec::new());
 
+static ACTIVE: AtomicBool = AtomicBool::new(false);
+
 // === Behandelt je nach Zeichen, was gemacht werden soll
 pub fn handle_keystroke(code: u8) -> bool {
-    // Sind wir überhaupt schon ready
+    // Ist das Keyboard schon aktiviert
     if !KEYBOARD_ENABLED.load(core::sync::atomic::Ordering::SeqCst) {
         return false;
     }
@@ -74,7 +76,26 @@ pub fn init_keyboardhandler(apps: Vec<AppRegion>) {
     drop(apps_mutex);
 
     // Commands aktivieren
-    KEYBOARD_ENABLED.store(true, core::sync::atomic::Ordering::SeqCst)
+    KEYBOARD_ENABLED.store(true, core::sync::atomic::Ordering::SeqCst);
+
+    // Shell aktivieren
+    activate_shell();
+}
+
+pub fn get_active_status() -> bool {
+    return ACTIVE.load(core::sync::atomic::Ordering::SeqCst);
+}
+
+pub fn activate_shell() {
+    // Shell aktivieren
+    ACTIVE.store(true, core::sync::atomic::Ordering::SeqCst);
+
+    // Buffer räumen
+    reset_command();
+}
+
+pub fn deactivate_shell() {
+    ACTIVE.store(false, core::sync::atomic::Ordering::SeqCst);
 }
 
 fn save_command(c: char) {
