@@ -46,10 +46,33 @@
 
 
 \subsection{Neue Funktionen}
-    Die gemeinsame User-Library \cite{usrlib-repo} wurde um zwei Hauptteile erweitert
+    Die gemeinsame User-Library \cite{usrlib-repo} wurde um zwei Hauptteile, sowie einige neue Datentypen erweitert
 
     \subsubsection{Auslagerung unabhängiger Funktionen für Kernel}
-    Um Teile des Kernel nicht mehrfach schreiben zu müssen wurden einige Funktionen auch in die User-Library verlagert. Wichtig ist dabei, dass es sich ausschließlich um Funktionen handelt welche keine privilegierten Befehle benutzt. Zu den ausgelagerten Funktionen gehört der \verb|command-parser| die \verb|environment-variablen| und einige Datentypen, sowie mathematische Funktionen wie \verb|cosinus| welche in \verb|#[no_std]| nicht vorhanden sind.
+        Um Teile des Kernel nicht mehrfach schreiben zu müssen wurden einige Funktionen auch in die User-Library verlagert. Wichtig ist dabei, dass es sich ausschließlich um Funktionen handelt welche keine privilegierten Befehle benutzt. Zu den ausgelagerten Funktionen gehört der \verb|command-parser| die \verb|environment-variablen| und einige Datentypen, sowie mathematische Funktionen wie \verb|cosinus| welche in \verb|#[no_std]| nicht vorhanden sind.
 
 
     \subsubsection{Erweiterung der Syscall API}
+        Um noch mehr Funktionen des Kernels zu benutzten haben wir weitere Syscalls gebraucht. Diese gehen von kernel-prints über zeichnen von Bitmaps bis zum managen von Threads und Prozessen. \newline
+        Ein Ziel war es außerdem auch diese Syscalls mehr abzukapseln, sodass die Apps nur noch Übermethoden verwenden und nicht mehr die Syscalls direkt. So kann man die Komplexität des zusammenbauns verschiedener Syscalls für die Apps verstecken, da die Syscalls lediglich mit \verb|u64| als Datentyp arbeiten. \newline
+        Neue Syscalls:
+        \begin{itemize}
+            \item thread/Prozessmanagement
+            \item [] \begin{itemize}
+                \item kill, get name/ID
+            \end{itemize}
+            \item holen von Daten
+            \item [] \begin{itemize}
+                \item Zeit
+                \item Bildschirmgröße
+                \item Tastatureingabe
+            \end{itemize}
+            \item Prints
+            \item [] \begin{itemize}
+                \item Bildschirm
+                \item seriell (kprint)
+                \item kerneldaten (VMAs, Apps, threads)
+            \end{itemize}
+            \item Pixel/Bildzeichnen
+            \item Musik abspielen
+        \end{itemize}
