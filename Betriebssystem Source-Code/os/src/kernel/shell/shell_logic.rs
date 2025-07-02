@@ -246,6 +246,11 @@ fn handle_enter() -> bool {
             return false;
         }
 
+        EnvPutStatus::Dumped => {
+            // Einfach nichts machen (rest macht lib schon)
+            return false;
+        }
+
         // Fehlerfälle
         EnvPutStatus::NotEnoughArguments => {
             kprintln!("put befehl nicht richtig Verwendet");
