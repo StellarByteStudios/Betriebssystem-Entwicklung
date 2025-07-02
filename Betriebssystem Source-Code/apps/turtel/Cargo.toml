@@ -1,6 +1,6 @@
 [package]
 edition = "2018"
-name = "ByteOS_music"
+name = "ByteOS_turtel"
 version = "0.1.1"
 authors = [
     "Michael Schöttner <michael.schoettner@hhu.de>",

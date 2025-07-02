@@ -455,7 +455,7 @@ pub fn pg_mmap_user_environment(pid: usize, start_address: usize, len: usize) ->
     return raw_phys_address;
 }
 
-fn get_physical_address(pml4_addr: PhysAddr, virtual_address: usize) -> PhysAddr {
+pub fn get_physical_address(pml4_addr: PhysAddr, virtual_address: usize) -> PhysAddr {
     // Table Adresse zum Pointer
     let pml4_table;
     unsafe { pml4_table = &mut *(pml4_addr.as_mut_ptr::<PageTable>()) }

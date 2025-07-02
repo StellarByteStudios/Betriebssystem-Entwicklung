@@ -18,8 +18,7 @@ hhuTOSuserlib/
 # Log aktuallisiert sich ständig. Soll nicht gepusht werden
 Betriebssystem Source-Code/Cargo.lock
 
-
-# Latex Files
+# Latex Dateien
 *.acn
 *.acr
 *.alg

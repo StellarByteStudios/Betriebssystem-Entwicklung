@@ -1,8 +1,11 @@
 use core::{ptr, slice};
 
-use crate::kernel::{
-    processes::process_handler,
-    threads::{scheduler, scheduler::Scheduler},
+use crate::{
+    devices::pcspk,
+    kernel::{
+        processes::process_handler,
+        threads::{scheduler, scheduler::Scheduler},
+    },
 };
 
 // = = Einfache ID getter = = //
@@ -27,15 +30,23 @@ pub extern "C" fn sys_exit_thread() -> u64 {
 
 #[no_mangle]
 pub extern "C" fn sys_exit_process() -> u64 {
-    let pid = scheduler::get_active_pid();
+    let pid = scheduler::get_active_pid() as u64;
     kprintln!("exit_process number: {}", pid);
-    process_handler::kill_process(pid);
+    process_handler::remove_process_by_pid(pid);
+    loop {
+        Scheduler::yield_cpu();
+    }
     return 0;
 }
 
 #[no_mangle]
 pub extern "C" fn sys_kill_process(pid: u64) -> u64 {
-    process_handler::kill_process(pid as usize);
+    process_handler::remove_process_by_pid(pid);
+    Scheduler::kill_thread_with_pid(pid as usize);
+
+    // Speaker deaktivieren, falls der ncoh lief beim killen der App
+    pcspk::speaker_off();
+
     return 0;
 }
 

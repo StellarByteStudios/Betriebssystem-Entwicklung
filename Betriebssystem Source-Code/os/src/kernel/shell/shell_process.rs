@@ -20,10 +20,13 @@ pub extern "C" fn shell_thread_entry() {
     }
 
     loop {
-        // Char laden
-        let c = input::getchar();
-        // Char abarbeiten
-        shell_logic::handle_keystroke(c);
+        // Ist die Shell grade Aktiv?
+        if shell_logic::get_active_status() {
+            // Char laden
+            let c = input::getchar();
+            // Char abarbeiten
+            shell_logic::handle_keystroke(c);
+        }
     }
 }
 

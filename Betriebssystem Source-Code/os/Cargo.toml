@@ -18,8 +18,7 @@ x86_64 = "0.15.2"
 bitflags = "1.3.2"
 log = "0.4.20"
 tar-no-std = { git = "https://github.com/schnoberts1/tar-no-std", branch = "add-support-for-non-null-terminated-strings-and-256-length-filenames" }
-usrlib = { git = "https://github.com/StellarByteStudios/hhuTOSuserlib", branch = "new-syscalls", default-features = false}
-#hashbrown = { version = "0.14"} # , default-features = false, features = ["rustc-dep-of-std"]
+usrlib = { git = "https://github.com/StellarByteStudios/hhuTOSuserlib", branch = "improvement-environment", default-features = false}
 
 [profile.development]
 panic = "abort"

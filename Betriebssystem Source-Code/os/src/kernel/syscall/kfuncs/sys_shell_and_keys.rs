@@ -4,8 +4,16 @@ pub extern "C" fn sys_getlastkey() -> u64 {
     return key as u64;
 }
 
+pub extern "C" fn sys_activate_shell() {
+    shell_logic::activate_shell();
+}
+
+pub extern "C" fn sys_deactivate_shell() {
+    shell_logic::deactivate_shell();
+}
+
 // Inportiert aus der alten Library
-use crate::devices::keyboard;
+use crate::{devices::keyboard, kernel::shell::shell_logic};
 
 const KEY_LF: u8 = 10;
 const KEY_CR: u8 = 13;
