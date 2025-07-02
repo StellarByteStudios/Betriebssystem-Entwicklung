@@ -1,8 +1,11 @@
 use core::{ptr, slice};
-use crate::devices::pcspk;
-use crate::kernel::{
-    processes::process_handler,
-    threads::{scheduler, scheduler::Scheduler},
+
+use crate::{
+    devices::pcspk,
+    kernel::{
+        processes::process_handler,
+        threads::{scheduler, scheduler::Scheduler},
+    },
 };
 
 // = = Einfache ID getter = = //
