@@ -282,7 +282,7 @@ pub extern "C" fn kmain(mbi: u64) {
     usrlib::kernel::runtime::env_variables::env_insert("python", "/usr/local/bin/python");
     usrlib::kernel::runtime::env_variables::env_insert(
         "pirates",
-        "KasbsbsdhbhbhjdbdbsaasbbbKasbsbsdhbhbhjdbdbsasbbbbKasbsbshjbjbjkobobkjksbbbsbbsdhhjks",
+        "Has s sdf f fgd d saas   Has s sdf f fgd d sas    Has s sfg g ghu u hghs    sdf f g hs   sfd d sas",
     );
 
     // Schellprogramm starten

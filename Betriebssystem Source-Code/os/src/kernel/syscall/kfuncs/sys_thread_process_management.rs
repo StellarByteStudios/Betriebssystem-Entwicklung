@@ -1,5 +1,5 @@
 use core::{ptr, slice};
-
+use crate::devices::pcspk;
 use crate::kernel::{
     processes::process_handler,
     threads::{scheduler, scheduler::Scheduler},
@@ -40,6 +40,10 @@ pub extern "C" fn sys_exit_process() -> u64 {
 pub extern "C" fn sys_kill_process(pid: u64) -> u64 {
     process_handler::remove_process_by_pid(pid);
     Scheduler::kill_thread_with_pid(pid as usize);
+
+    // Speaker deaktivieren, falls der ncoh lief beim killen der App
+    pcspk::speaker_off();
+
     return 0;
 }
 
