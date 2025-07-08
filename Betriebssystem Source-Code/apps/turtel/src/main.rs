@@ -5,7 +5,9 @@
 extern crate alloc;
 
 use alloc::vec;
-
+use rand::{Rng, SeedableRng};
+use rand::rngs::SmallRng;
+use rand::RngCore;
 use usrlib::{
     self, gprintln,
     graphix::picturepainting::{animate::Frame, paint::draw_picture},
@@ -32,6 +34,9 @@ pub fn main() {
     deactivate_shell();
 
     gprintln!("Du kanns jetzt richtig ein Keyboard benutzten. \"q\" zum beenden");
+
+    // Zufallszahl
+    let mut small_rng = SmallRng::seed_from_u64(123456789);
 
     // Erstmal Gameframe zusammenbauen
     let mut gameframe: Frame = Frame {
@@ -93,7 +98,8 @@ pub fn main() {
             }
 
             ' ' => {
-                draw_circle(10, GREEN, current_position, &mut gameframe);
+                let rand_num = small_rng.next_u64();
+                draw_circle(rand_num % 50, GREEN, current_position, &mut gameframe);
             }
 
             _ => {
@@ -119,7 +125,7 @@ fn set_color_on_pixel(color: u32, index: u32, frame: &mut Frame) {
 }
 
 
-fn draw_circle(radius: u32, color: u32, position: (u32, u32), frame: &mut Frame) {
+fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame) {
     let (cx, cy) = position;
 
     // quadratischer Bereich um den Kreis ablaufen
