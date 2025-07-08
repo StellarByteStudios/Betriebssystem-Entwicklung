@@ -57,7 +57,7 @@ pub fn main() {
         "crumpy" | "crumpycat" | "crumpy_cat" => paint::draw_picture(x, y, &get_crumpy()),
         "orion" | "nebel" | "nebular" => paint::draw_picture(x, y, &get_orion()),
         // gibt eine Liste aller Bilder aus
-        "song" | "songs" => {
+        "pictures" | "pictures" => {
             gprintln!("Folgende Bilder sind verfügbar: ");
             for pic in PICTURES {
                 gprintln!("    - {}", pic);
