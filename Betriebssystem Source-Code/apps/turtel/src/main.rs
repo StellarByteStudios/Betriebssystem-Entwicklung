@@ -20,12 +20,14 @@ use usrlib::{
 
 const SPIELFELDGROESSE: (u32, u32) = (300, 200);
 
-const RED: u32 = 0xff_00_00_00;
-const GREEN: u32 = 0x00_ff_00_00;
-const BLUE: u32 = 0x00_00_ff_00;
-const BLACK: u32 = 0x00_00_00_00;
+const RED: u32 = 0xff_00_00_ff;
+const GREEN: u32 = 0x00_ff_00_ff;
+const BLUE: u32 = 0x00_00_ff_ff;
+const BLACK: u32 = 0x00_00_00_ff;
 
-const WHITE: u32 = 0xff_ff_ff_00;
+const WHITE: u32 = 0xff_ff_ff_ff;
+
+const TRANSPARENT: u32 = 0x00_00_00_00;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -39,7 +41,15 @@ pub fn main() {
     let mut small_rng = SmallRng::seed_from_u64(123456789);
 
     // Erstmal Gameframe zusammenbauen
-    let mut gameframe: Frame = Frame {
+    let mut boardframe: Frame = Frame {
+        width: SPIELFELDGROESSE.0,
+        height: SPIELFELDGROESSE.1,
+        bpp: 4,
+        data: vec![0u8; (SPIELFELDGROESSE.0 * SPIELFELDGROESSE.1 * 4) as usize],
+    };
+
+    // Player auf neuem Layer zusammenbauen
+    let mut playerframe: Frame = Frame {
         width: SPIELFELDGROESSE.0,
         height: SPIELFELDGROESSE.1,
         bpp: 4,
@@ -50,16 +60,18 @@ pub fn main() {
     let mut current_position = (SPIELFELDGROESSE.0/2, SPIELFELDGROESSE.1/2);
 
     // Feld Weiß füllen
-    gameframe.data.fill(0xff);
+    boardframe.data.fill(0xff);
 
     // Umrandung machen
-    set_border(RED, &mut gameframe);
+    set_border(RED, &mut boardframe);
 
     // Turtel platzieren
-    draw_turtel(BLACK, current_position, &mut gameframe);
+    draw_turtel(BLACK, current_position, &mut playerframe);
 
     // Ersten Gameframe printen
-    draw_picture(300, 200, &gameframe);
+    draw_picture(300, 200, &boardframe);
+    draw_picture(300, 200, &playerframe);
+
 
     kprintln!("Gameframe gemalt");
 
@@ -77,29 +89,43 @@ pub fn main() {
         // Tutel bewegen
         match direction {
             'w' => {
-                draw_turtel(WHITE, current_position, &mut gameframe);
-                current_position.1 -= 10;
-                draw_turtel(BLACK, current_position, &mut gameframe);
+                // In den Grenzen
+                if current_position.1 > 10 + 5 {
+                    draw_turtel(TRANSPARENT, current_position, &mut playerframe);
+                    current_position.1 -= 10;
+                    draw_turtel(BLACK, current_position, &mut playerframe);
+                }
             }
             'a' => {
-                draw_turtel(WHITE, current_position, &mut gameframe);
-                current_position.0 -= 10;
-                draw_turtel(BLACK, current_position, &mut gameframe);
+                // In den Grenzen
+                if current_position.0 > 10 + 5 {
+                    draw_turtel(TRANSPARENT, current_position, &mut playerframe);
+                    current_position.0 -= 10;
+                    draw_turtel(BLACK, current_position, &mut playerframe);
+                }
             }
             's' => {
-                draw_turtel(WHITE, current_position, &mut gameframe);
-                current_position.1 += 10;
-                draw_turtel(BLACK, current_position, &mut gameframe);
+                // In den Grenzen
+                if current_position.1 < SPIELFELDGROESSE.1 - (10 + 5) {
+                    draw_turtel(TRANSPARENT, current_position, &mut playerframe);
+                    current_position.1 += 10;
+                    draw_turtel(BLACK, current_position, &mut playerframe);
+                }
             }
             'd' => {
-                draw_turtel(WHITE, current_position, &mut gameframe);
-                current_position.0 += 10;
-                draw_turtel(BLACK, current_position, &mut gameframe);
+                // In den Grenzen
+                if current_position.0 < SPIELFELDGROESSE.0 - (10 + 5) {
+                    draw_turtel(TRANSPARENT, current_position, &mut playerframe);
+                    current_position.0 += 10;
+                    draw_turtel(BLACK, current_position, &mut playerframe);
+                }
             }
 
             ' ' => {
                 let rand_num = small_rng.next_u64();
-                draw_circle(rand_num % 50, GREEN, current_position, &mut gameframe);
+                let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
+                kprintln!("Random color: {:#x}", random_color);
+                draw_circle(rand_num % 50, random_color as u32, current_position, &mut boardframe);
             }
 
             _ => {
@@ -108,7 +134,8 @@ pub fn main() {
             }
         }
         // Gameframe aktuallisieren
-        draw_picture(300, 200, &gameframe);
+        draw_picture(300, 200, &boardframe);
+        draw_picture(300, 200, &playerframe);
     }
 
     // Shell wieder freigeben
