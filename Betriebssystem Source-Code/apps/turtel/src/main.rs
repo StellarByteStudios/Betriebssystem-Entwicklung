@@ -58,6 +58,9 @@ pub fn main() {
     // Position der Turtel
     let mut current_position = (SPIELFELDGROESSE.0 / 2, SPIELFELDGROESSE.1 / 2);
 
+    // Vorherige Position der Turtel
+    let mut last_possition = (SPIELFELDGROESSE.0 / 2, SPIELFELDGROESSE.1 / 2);
+
     // Feld Weiß füllen
     boardframe.data.fill(0xff);
 
@@ -123,12 +126,14 @@ pub fn main() {
                 let rand_num = small_rng.next_u64();
                 let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
                 kprintln!("Random color: {:#x}", random_color);
-                draw_circle(
-                    rand_num % 50,
+                /*draw_circle(
+                    (rand_num % 50) as u32,
                     random_color as u32,
                     current_position,
                     &mut boardframe,
-                );
+                );*/
+                draw_line(last_possition, current_position, random_color as u32, 5, &mut boardframe);
+                last_possition = current_position;
             }
 
             _ => {
@@ -154,7 +159,7 @@ fn set_color_on_pixel(color: u32, index: u32, frame: &mut Frame) {
     frame.data[i + 3] = color as u8; // A
 }
 
-fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame) {
+fn draw_circle(radius: u32, color: u32, position: (u32, u32), frame: &mut Frame) {
     let (cx, cy) = position;
 
     // quadratischer Bereich um den Kreis ablaufen
@@ -174,6 +179,36 @@ fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame)
         }
     }
 }
+
+
+fn draw_line(start: (u32, u32), end: (u32, u32), color: u32, thickness: u32, frame: &mut Frame) {
+    let (mut x0, mut y0) = (start.0 as i32, start.1 as i32);
+    let (x1, y1) = (end.0 as i32, end.1 as i32);
+
+    let dx = (x1 - x0).abs();
+    let dy = -(y1 - y0).abs();
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let mut err = dx + dy;
+
+    while x0 != x1 || y0 != y1 {
+        draw_circle(thickness / 2, color, (x0 as u32, y0 as u32), frame);
+
+        let e2 = 2 * err;
+        if e2 >= dy {
+            err += dy;
+            x0 += sx;
+        }
+        if e2 <= dx {
+            err += dx;
+            y0 += sy;
+        }
+    }
+
+    // Endpunkt nicht vergessen
+    draw_circle(thickness / 2, color, (x1 as u32, y1 as u32), frame);
+}
+
 
 fn draw_turtel(color: u32, position: (u32, u32), frame: &mut Frame) {
     // Strich von oben nach unten position.0 + (frame.width * (i - 3)) + position.1 -1
