@@ -3,10 +3,15 @@
 
 extern crate alloc;
 
-use usrlib::{gprint, gprintln};
-use usrlib::kernel::shell::shell_handler::{activate_shell, deactivate_shell};
-use usrlib::kernel::syscall::user_api::usr_getlastkey;
 use alloc::string::String;
+
+use usrlib::{
+    gprint, gprintln,
+    kernel::{
+        shell::shell_handler::{activate_shell, deactivate_shell},
+        syscall::user_api::usr_getlastkey,
+    },
+};
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -18,7 +23,7 @@ pub fn main() {
 
     loop {
         let key = usr_getlastkey() as u8 as char;
-    
+
         // exit Rechner Modus
         if key == 'e' {
             break;
@@ -26,20 +31,20 @@ pub fn main() {
 
         // Eingabe eine Formel (Enter)
         if key == '\r' {
-            if let Some((left, op, right)) = parse_expression(&input) {                
+            if let Some((left, op, right)) = parse_expression(&input) {
                 let result = calculate(left, op, right);
                 gprintln!(" = {}", result);
             } else {
-                gprintln!("Fehlerhafte Eingabe!");                
+                gprintln!("Fehlerhafte Eingabe!");
             }
             input.clear();
         } else {
             input.push(key);
-            gprint!("{}", key);            
+            gprint!("{}", key);
         }
     }
-   
-   activate_shell();
+
+    activate_shell();
 }
 
 fn parse_expression(expr: &String) -> Option<(i32, char, i32)> {
@@ -47,17 +52,14 @@ fn parse_expression(expr: &String) -> Option<(i32, char, i32)> {
 
     // Liste an Operatoren
     let operators = ['+', '-', '*', '/'];
-    
+
     // iteriere über chars um Operator zu finden
     for (i, c) in expr.char_indices() {
-        if operators.contains(&c) && i != 0 {            
-            let left_str = &expr[..i].trim();        
+        if operators.contains(&c) && i != 0 {
+            let left_str = &expr[..i].trim();
             let right_str = &expr[i + 1..].trim();
-            
-            if let (Ok(left), Ok(right)) = (
-                left_str.parse::<i32>(),
-                right_str.parse::<i32>()
-            ) {
+
+            if let (Ok(left), Ok(right)) = (left_str.parse::<i32>(), right_str.parse::<i32>()) {
                 return Some((left, c, right));
             }
         }

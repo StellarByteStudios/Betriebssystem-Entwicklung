@@ -5,9 +5,8 @@
 extern crate alloc;
 
 use alloc::vec;
-use rand::{Rng, SeedableRng};
-use rand::rngs::SmallRng;
-use rand::RngCore;
+
+use rand::{rngs::SmallRng, Rng, RngCore, SeedableRng};
 use usrlib::{
     self, gprintln,
     graphix::picturepainting::{animate::Frame, paint::draw_picture},
@@ -57,7 +56,7 @@ pub fn main() {
     };
 
     // Position der Turtel
-    let mut current_position = (SPIELFELDGROESSE.0/2, SPIELFELDGROESSE.1/2);
+    let mut current_position = (SPIELFELDGROESSE.0 / 2, SPIELFELDGROESSE.1 / 2);
 
     // Feld Weiß füllen
     boardframe.data.fill(0xff);
@@ -71,7 +70,6 @@ pub fn main() {
     // Ersten Gameframe printen
     draw_picture(300, 200, &boardframe);
     draw_picture(300, 200, &playerframe);
-
 
     kprintln!("Gameframe gemalt");
 
@@ -125,7 +123,12 @@ pub fn main() {
                 let rand_num = small_rng.next_u64();
                 let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
                 kprintln!("Random color: {:#x}", random_color);
-                draw_circle(rand_num % 50, random_color as u32, current_position, &mut boardframe);
+                draw_circle(
+                    rand_num % 50,
+                    random_color as u32,
+                    current_position,
+                    &mut boardframe,
+                );
             }
 
             _ => {
@@ -151,7 +154,6 @@ fn set_color_on_pixel(color: u32, index: u32, frame: &mut Frame) {
     frame.data[i + 3] = color as u8; // A
 }
 
-
 fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame) {
     let (cx, cy) = position;
 
@@ -162,7 +164,7 @@ fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame)
             let y = cy as i32 + dy;
 
             // Abstand zum Mittelpunkt berechnen (Pythagoras)
-            if dx*dx + dy*dy <= (radius * radius) as i32 {
+            if dx * dx + dy * dy <= (radius * radius) as i32 {
                 // Nur zeichnen, wenn (x, y) im Bild liegt
                 if x >= 0 && y >= 0 && (x as u32) < frame.width && (y as u32) < frame.height {
                     let index = xy_to_index(x as u32, y as u32);
@@ -175,26 +177,39 @@ fn draw_circle(radius: u64, color: u32, position: (u32, u32), frame: &mut Frame)
 
 fn draw_turtel(color: u32, position: (u32, u32), frame: &mut Frame) {
     // Strich von oben nach unten position.0 + (frame.width * (i - 3)) + position.1 -1
-    for i in 0u32..11{
-        set_color_on_pixel(color, xy_to_index(position.0 + (i - 5), position.1 -1), frame);
+    for i in 0u32..11 {
+        set_color_on_pixel(
+            color,
+            xy_to_index(position.0 + (i - 5), position.1 - 1),
+            frame,
+        );
         set_color_on_pixel(color, xy_to_index(position.0 + (i - 5), position.1), frame);
-        set_color_on_pixel(color, xy_to_index(position.0 + (i - 5), position.1 +1), frame);
+        set_color_on_pixel(
+            color,
+            xy_to_index(position.0 + (i - 5), position.1 + 1),
+            frame,
+        );
     }
 
     // Strich von links nach rechts
-    for i in 0u32..11{
-        set_color_on_pixel(color, xy_to_index(position.0 -1, position.1 + (i - 5)), frame);
+    for i in 0u32..11 {
+        set_color_on_pixel(
+            color,
+            xy_to_index(position.0 - 1, position.1 + (i - 5)),
+            frame,
+        );
         set_color_on_pixel(color, xy_to_index(position.0, position.1 + (i - 5)), frame);
-        set_color_on_pixel(color, xy_to_index(position.0  +1, position.1 + (i - 5)), frame);
+        set_color_on_pixel(
+            color,
+            xy_to_index(position.0 + 1, position.1 + (i - 5)),
+            frame,
+        );
     }
 }
 
-fn xy_to_index(x: u32, y:u32) -> u32 {
+fn xy_to_index(x: u32, y: u32) -> u32 {
     return y * SPIELFELDGROESSE.0 + x;
 }
-
-
-
 
 fn set_border(color: u32, gameframe: &mut Frame) {
     // Decke

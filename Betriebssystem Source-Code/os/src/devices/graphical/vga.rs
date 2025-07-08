@@ -126,9 +126,8 @@ impl VGA {
 
                 // Alphakanal:
                 if bpp == 4 {
-
                     // Unter Schwelle: nicht zeichnen
-                    if bitmap[idx] <= 0xFF/2 {
+                    if bitmap[idx] <= 0xFF / 2 {
                         idx = idx + 1;
                         continue;
                     }

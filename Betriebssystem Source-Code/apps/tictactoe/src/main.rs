@@ -3,20 +3,20 @@
 
 extern crate alloc;
 
-use usrlib::gprintln;
-use usrlib::kernel::shell::shell_handler::{activate_shell, deactivate_shell};
-use usrlib::kernel::syscall::user_api::usr_getlastkey;
+use usrlib::{
+    gprintln,
+    kernel::{
+        shell::shell_handler::{activate_shell, deactivate_shell},
+        syscall::user_api::usr_getlastkey,
+    },
+};
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
     deactivate_shell();
 
-    let mut board = [
-        ['1', '2', '3'],
-        ['4', '5', '6'],
-        ['7', '8', '9'],
-    ];
+    let mut board = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']];
 
     let mut round_count = 0;
     loop {
@@ -38,10 +38,20 @@ pub fn main() {
         match round_count % 2 {
             0 => gprintln!("Spieler 1 ist am Zug"),
             _ => gprintln!("Spieler 2 ist am Zug"),
-        }        
-                
-        gprintln!(" {} | {} | {} \n---+---+---\n {} | {} | {} \n---+---+---\n {} | {} | {}", 
-        board[0][0], board[0][1], board[0][2], board[1][0], board[1][1], board[1][2], board[2][0], board[2][1], board[2][2]);        
+        }
+
+        gprintln!(
+            " {} | {} | {} \n---+---+---\n {} | {} | {} \n---+---+---\n {} | {} | {}",
+            board[0][0],
+            board[0][1],
+            board[0][2],
+            board[1][0],
+            board[1][1],
+            board[1][2],
+            board[2][0],
+            board[2][1],
+            board[2][2]
+        );
 
         let key = usr_getlastkey() as u8;
 
@@ -50,16 +60,16 @@ pub fn main() {
             gprintln!("ungültige Eingabe");
             continue;
         }
-        
+
         // Index im Board bestimmen (0 bis 8)
         let pos = (key - b'1') as usize;
         let row = pos / 3;
         let col = pos % 3;
 
-        board[row][col] = if round_count % 2 == 0 { 'X' } else { 'O' };        
+        board[row][col] = if round_count % 2 == 0 { 'X' } else { 'O' };
 
-        round_count += 1;        
-    }    
+        round_count += 1;
+    }
 
     activate_shell();
 }
@@ -67,32 +77,27 @@ pub fn main() {
 fn check_winner(board: &[[char; 3]; 3]) -> Option<char> {
     // Zeilen prüfen
     for row in 0..3 {
-        if board[row][0] == board[row][1] &&
-           board[row][1] == board[row][2] {
+        if board[row][0] == board[row][1] && board[row][1] == board[row][2] {
             return Some(board[row][0]);
         }
     }
 
     // Spalten prüfen
     for col in 0..3 {
-        if board[0][col] == board[1][col] &&
-           board[1][col] == board[2][col] {
+        if board[0][col] == board[1][col] && board[1][col] == board[2][col] {
             return Some(board[0][col]);
         }
     }
 
     // Diagonale links oben ↘ rechts unten
-    if board[0][0] == board[1][1] &&
-       board[1][1] == board[2][2] {
+    if board[0][0] == board[1][1] && board[1][1] == board[2][2] {
         return Some(board[0][0]);
     }
 
     // Diagonale rechts oben ↙ links unten
-    if board[0][2] == board[1][1] &&
-       board[1][1] == board[2][0] {
+    if board[0][2] == board[1][1] && board[1][1] == board[2][0] {
         return Some(board[0][2]);
     }
 
     None
 }
-
