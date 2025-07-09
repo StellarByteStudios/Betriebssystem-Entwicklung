@@ -1,9 +1,16 @@
 \section{Zusammenfassung}
 
 \subsection{Herausforderungen und Probleme}
-    Eine der größten Herausforderung war es abzusprechen welche Syscalls neu hinzugefügt werden sollten. Auch hat jede Änderung an der Syscall-API größere Arbeiten im Kernel hervorgerufen. Außerdem wurde das Development der Userlib etwas verlangsamt, da man diese nur über das Internet mit seinem System synchronisiert hat. \newline
+    Eine der größten Herausforderung war es abzusprechen welche Syscalls neu hinzugefügt werden sollten, denn jede Änderung an der Syscall-API ist mit größeren Arbeiten im Kernel verbunden. Außerdem wurde das Development der Userlib etwas verlangsamt, da man diese nur über das Internet mit seinem System synchronisiert hat. Das heißt, jede Änderung in der Userlib musste erst hochgeladen werden, ohne dass der neue Code getestet werden konnte.
+
     \subsubsection{Probleme im eigenen System}
-        Es haben sich noch einige Probleme gezeigt, deren Ursprung noch in den vorhergegangenen Modulen liegt. Beispielsweise wurde die \verb|tar|-Datei bei Optimierungen durch den Kompiler während der Laufzeit überschrieben, wodurch der Code der Apps unbrauchbar wurde. \textcolor{red}{Hier fehlt noch}
+        Es haben sich noch einige Probleme gezeigt, deren Ursprung noch in den vorhergegangenen Modulen liegt. Beispielsweise wurde die \verb|tar|-Datei bei Optimierungen durch den Kompiler während der Laufzeit überschrieben, wodurch der Code der Apps unbrauchbar wurde. \newline
+        Außerdem gab es Probleme, wenn man auf die Thread-Queue im Scheduler zugreift. Das war vorher nur beim Thread-Wechsel nötig, aber da wir durch die Threads laufen, um sie auszugeben, wird von verschiedenen Stellen auf die Queue zugegriffen was zu Deadlocks geführt hat.
+
+
+    \subsubsection{Probleme der Userlib}
+        Aufgrund eigener Datentypen musste der Kernel auch auf die Userlib dependen. Das führte zu Dopplungen beim Allocator, Panic Handler und ähnliches. Daher musste die Userlib speziell mit Compile-Flags versehen werden, sodass der Kernel bestimmte Funktionen nicht aus der Userlib bekommt.
+
 
 \subsection{Lerneffekt}
     Wir mussten als Team Entscheidungen treffen wie die Userlib sich verändern soll. Dabei hat man einerseits die API Änderungen möglichst klein halten müssen. Dadurch hat man oft Syscalls für neue Aufgaben anders verwendet um die API nicht anpassen zu müssen. \newline

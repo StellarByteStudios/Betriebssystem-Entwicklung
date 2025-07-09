@@ -2,7 +2,7 @@
 Für die Apps wurde neben den neuen Syscalls in der Userlib auch noch eine Runtime und eine Environment bereit gestellt
 
 \subsection{Runtime}
-    Zuvor haben wir bei den Apps immer direkt die Main Methode direkt angesprungen. Das hatte zur Folge, dass wir einerseits das Set-Up des Allocators selber in der Main übernehmen mussten und das wir aus der \verb|Main|-Methode nicht zurückspringen durften, was heißt: Die Apps werden nicht beendet. Um diese Probleme zu umgehen wurde eine Runtime-Umgebung geschaffen. Diese hat eine \verb|Entry|-Methode die statt der \verb|Main|-Methode angesprungen wird. In dieser werden erst Initialisierungen wie das Anlegen des Heaps durchgeführt und danach die \verb|Main|-Methode aufgerufen. Wenn diese zurückkehrt, wird am Ende der \verb|Entry|-Methode der Prozess über einen Syscall beendet.
+    Zuvor haben wir bei den Apps immer direkt die \verb|Main|-Methode direkt angesprungen. Das hatte zur Folge, dass wir einerseits das Set-Up des Allocators selber in der Main übernehmen mussten und das wir aus der \verb|Main|-Methode nicht zurückspringen durften, was heißt: Die Apps werden nicht beendet. Um diese Probleme zu umgehen wurde eine Runtime-Umgebung geschaffen. Diese hat eine \verb|Entry|-Methode die statt der \verb|Main|-Methode angesprungen wird. In dieser werden erst Initialisierungen wie das Anlegen des Heaps durchgeführt und danach die \verb|Main|-Methode aufgerufen. Wenn diese zurückkehrt, wird am Ende der \verb|Entry|-Methode der Prozess über einen Syscall beendet.
 
 \subsection{Environment}
     Um vernünftige Shellfunktionen bereitzustellen brauchen wir auch Kommandozeilenargumente. Dazu müssen wir den Apps beim Starten Variablen übergeben können. Im Kernel wird beim Anlegen des App-Prozesses und dessen Mapping an eine feste Stelle im Speicher ein zusätzliches Mapping eingerichtet und die übergebenen Parameter dort gespeichert. Über einen Iterator kann die App dann auf diese Daten zugreifen. Es wurden Hilfsmethoden implementiert, um diese Argumente direkt als Vektor zu bekommen. Die Argumente werden als Strings übergeben.
@@ -11,6 +11,8 @@ Für die Apps wurde neben den neuen Syscalls in der Userlib auch noch eine Runti
         Oft hat eine Shell auch eine Möglichkeit Globale Variablen zu speichern. Diese können dann mit Namen angesprochen werden und anderen Apps übergeben werden. Diese Funktionalität wurde auch hinzugefügt.
         \paragraph{Variablen anlegen}
             Wird als Eingabe \verb|"env_put <key> <value>"| verwendet, wird der Wert von \verb|value| in eine Hashmap mithilfe von \verb|key| gespeichert. 
+        \paragraph{Variablen anzeigen}
+            Wird als Eingabe \verb|"env_dump"| verwendet, werden alle Werte, welche in der Hashmap gespeichert sind ausgegeben
         \paragraph{Umgebungsvariablen verwenden}
             Wird beim Parsen eines Commands ein \verb|$| gefunden wird der darauffolgende String als \verb|key| interpretiert. Wenn in der Hashmap eine entsprechende Variable gefunden wird, dann wird der \verb|key| durch den entsprechenden Wert ersetzt.
 
@@ -35,6 +37,6 @@ Für die Apps wurde neben den neuen Syscalls in der Userlib auch noch eine Runti
         \item \textbf{mandelbrot:} Berechnet live die Mandelbrotmenge
         \item \textbf{help:} Erklärung der Shell
         \item \textbf{keycatcher:} Testprogramm um Tastaturabfangen zu testen
-        \item \textbf{turtel:} Anfang einer ersten Grafischen Anwendung
+        \item \textbf{turtel:} Anfang einer ersten Grafischen Anwendung welche Tastatureingabe ausließt
     \end{itemize}
 

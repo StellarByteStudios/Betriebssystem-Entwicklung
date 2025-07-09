@@ -1,7 +1,7 @@
 \section{User-Library}
 
 \subsection{Bereits gegeben}
-    Im vorherigen Kurs ''Isolation und Schutz in Betriebssystemen'' wurde bereits mit Syscalls gearbeitet. Wir haben dort ein externes Rust-Projekt erstellt, welches die Syscalls abkapselt. Die Apps mussten nur noch diese User-Library importieren. \newline
+    Im vorherigen Kurs ''Isolation und Schutz in Betriebssystemen'' wurde bereits mit Syscalls gearbeitet. Wir haben dort ein externes Rust-Projekt erstellt \cite{usrlib-repo}, welches die Syscalls abkapselt. Die Apps mussten nur noch diese User-Library importieren. \newline
     Durch diese User-Library war das Grundgerüst gesetzt, jedoch war die User-Library nicht umfangreich genug um verschiedene Apps zu entwickeln.
     
 
@@ -53,8 +53,8 @@
 
 
     \subsubsection{Erweiterung der Syscall API}
-        Um noch mehr Funktionen des Kernels zu benutzten haben wir weitere Syscalls gebraucht. Diese gehen von kernel-prints über zeichnen von Bitmaps bis zum managen von Threads und Prozessen. \newline
-        Ein Ziel war es außerdem auch diese Syscalls mehr abzukapseln, sodass die Apps nur noch Übermethoden verwenden und nicht mehr die Syscalls direkt. So kann man die Komplexität des zusammenbauns verschiedener Syscalls für die Apps verstecken, da die Syscalls lediglich mit \verb|u64| als Datentyp arbeiten. \newline
+        Um noch mehr Funktionen des Kernels zu benutzten haben wir weitere Syscalls gebraucht. Diese gehen von kernel-prints über Zeichnen von Bitmaps bis zum managen von Threads und Prozessen. \newline
+        Ein Ziel war es außerdem auch diese Syscalls mehr abzukapseln, sodass die Apps nur noch Übermethoden verwenden und nicht mehr die Syscalls direkt. So kann man die Komplexität des Zusammenbauens verschiedener Syscalls für die Apps verstecken, da die Syscalls lediglich mit \verb|u64| als Datentyp arbeiten. \newline
         Neue Syscalls:
         \begin{itemize}
             \item thread/Prozessmanagement
