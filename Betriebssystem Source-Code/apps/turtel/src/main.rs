@@ -126,14 +126,18 @@ pub fn main() {
                 let rand_num = small_rng.next_u64();
                 let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
                 kprintln!("Random color: {:#x}", random_color);
-                /*draw_circle(
+                draw_line(last_possition, current_position, random_color as u32, 5, &mut boardframe);
+                last_possition = current_position;
+            }
+            'c' => {
+                let rand_num = small_rng.next_u64();
+                let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
+                draw_circle(
                     (rand_num % 50) as u32,
                     random_color as u32,
                     current_position,
                     &mut boardframe,
-                );*/
-                draw_line(last_possition, current_position, random_color as u32, 5, &mut boardframe);
-                last_possition = current_position;
+                );
             }
 
             _ => {
