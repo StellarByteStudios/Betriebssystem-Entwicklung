@@ -13,7 +13,7 @@ path = "src/main.rs"
 test = false
 
 [dependencies]
-usrlib = { git = "https://github.com/StellarByteStudios/hhuTOSuserlib", branch = "main" }
+usrlib = { path = "../../../hhuTOSuserlib"}
 rand = { version = "0.8.3", features = ["small_rng"], default-features = false }
 
 

@@ -64,10 +64,6 @@ impl LinkedListAllocator {
         assert!(size >= mem::size_of::<ListNode>());
 
         if addr < self.heap_start || addr + size > self.heap_end + 1 {
-            let mut temp = 0;
-
-            temp = temp + 1;
-
             kprint!("===! Fehlerhafter free! - ");
             kprintln!(
                 "Heap: [{:#x}  /  {:#x}]: \n Angegebener Block: Start {:#x}, Größe: {:#x}, Block-Ende: {:#x}",
