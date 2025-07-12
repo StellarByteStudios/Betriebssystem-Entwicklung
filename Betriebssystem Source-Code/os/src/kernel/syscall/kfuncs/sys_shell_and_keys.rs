@@ -1,7 +1,7 @@
 #[no_mangle]
-pub extern "C" fn sys_getlastkey() -> u64 {
+pub extern "C" fn sys_getlastkey() -> usize {
     let key: u8 = getch();
-    return key as u64;
+    return key as usize;
 }
 
 pub extern "C" fn sys_activate_shell() {

@@ -7,18 +7,18 @@ use crate::devices::{
 };
 
 #[no_mangle]
-pub extern "C" fn sys_get_systime() -> u64 {
-    return pit::get_systime();
+pub extern "C" fn sys_get_systime() -> usize {
+    return pit::get_systime() as usize;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_get_systime_intervall() -> u64 {
-    return pit::get_systime_intervall();
+pub extern "C" fn sys_get_systime_intervall() -> usize {
+    return pit::get_systime_intervall() as usize;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_get_screen_witdh() -> u64 {
-    return vga::get_res().0 as u64;
+pub extern "C" fn sys_get_screen_witdh() -> usize {
+    return vga::get_res().0 as usize;
 }
 
 #[no_mangle]

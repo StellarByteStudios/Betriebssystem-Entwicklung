@@ -10,55 +10,50 @@ use crate::{
 
 // = = Einfache ID getter = = //
 #[no_mangle]
-pub extern "C" fn sys_getpid() -> u64 {
+pub extern "C" fn sys_getpid() -> usize {
     let pid = scheduler::get_active_pid();
-    return pid as u64;
+    return pid;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_gettid() -> u64 {
+pub extern "C" fn sys_gettid() -> usize {
     let tid = scheduler::get_active_tid();
-    return tid as u64;
+    return tid;
 }
 
 // = = Beenden von Threads und Prozessen = = //
 #[no_mangle]
-pub extern "C" fn sys_exit_thread() -> u64 {
+pub extern "C" fn sys_exit_thread() {
     scheduler::exit_current_thread();
-    return 0;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_exit_process() -> u64 {
-    let pid = scheduler::get_active_pid() as u64;
+pub extern "C" fn sys_exit_process(){
+    let pid = scheduler::get_active_pid();
     kprintln!("exit_process number: {}", pid);
     process_handler::remove_process_by_pid(pid);
     loop {
         Scheduler::yield_cpu();
     }
-    return 0;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_kill_process(pid: u64) -> u64 {
+pub extern "C" fn sys_kill_process(pid: usize) {
     process_handler::remove_process_by_pid(pid);
-    Scheduler::kill_thread_with_pid(pid as usize);
+    Scheduler::kill_thread_with_pid(pid);
 
     // Speaker deaktivieren, falls der ncoh lief beim killen der App
     pcspk::speaker_off();
-
-    return 0;
 }
 
 #[no_mangle]
-pub extern "C" fn sys_show_threads() -> u64 {
+pub extern "C" fn sys_show_threads(){
     Scheduler::print_ready_queue();
-    return 0;
 }
 
 // = = Läd den Namen des Laufenden Prozess in den Buffer = = //
 #[no_mangle]
-pub extern "C" fn sys_read_process_name(buff: *mut u8, len: u64) -> u64 {
+pub extern "C" fn sys_read_process_name(buff: *mut u8, len: usize) -> usize {
     // Name laden
     let active_pid = scheduler::get_active_pid();
     let process_name = process_handler::get_app_name(active_pid);
@@ -84,5 +79,5 @@ pub extern "C" fn sys_read_process_name(buff: *mut u8, len: u64) -> u64 {
         }
     }
 
-    return name_length as u64;
+    return name_length;
 }

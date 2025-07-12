@@ -44,7 +44,7 @@ pub fn init_exited() {
 }
 
 // Prozess löschen
-pub fn remove_process_by_pid(pid: u64) {
+pub fn remove_process_by_pid(pid: usize) {
     unsafe {
         if EXITED_PROCESSES.is_none() {
             init_exited();
@@ -52,7 +52,7 @@ pub fn remove_process_by_pid(pid: u64) {
 
         // remove active process of active tree and insert in exited tree
         if let Some(ref mut processes) = PROCESSES {
-            let removed_proc = processes.remove(&(pid as usize));
+            let removed_proc = processes.remove(&(pid));
             if let Some(proc) = removed_proc {
                 EXITED_PROCESSES
                     .as_mut()
