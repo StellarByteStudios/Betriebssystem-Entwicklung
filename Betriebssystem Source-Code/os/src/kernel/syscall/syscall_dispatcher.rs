@@ -11,9 +11,8 @@
  *                  Michael Schoettner, 23.10.2024, modifiziert              *
  *****************************************************************************/
 use core::arch::{asm, naked_asm};
-
-use usrlib::kernel::syscall::NUM_SYSCALLS;
-
+use core::convert::TryFrom;
+use usrlib::kernel::syscall::systemcall::{SystemCall, NUM_SYSCALLS};
 use crate::kernel::{
     syscall,
     syscall::kfuncs::{
@@ -108,6 +107,163 @@ impl SyscallFuncTable {
 
 unsafe impl Send for SyscallFuncTable {}
 unsafe impl Sync for SyscallFuncTable {}
+
+
+
+// * GPT Funktionen * //
+#[no_mangle]
+pub unsafe extern "C" fn syscall_disp_new() {
+    let syscall_no: usize;
+    let arg1: usize;
+    let arg2: usize;
+    let arg3: usize;
+    let arg4: usize;
+    let arg5: usize;
+    let arg6: usize;
+
+    asm!(
+    "mov {}, rax",
+    "mov {}, rdi",
+    "mov {}, rsi",
+    "mov {}, rdx",
+    "mov {}, rcx",
+    "mov {}, r8",
+    "mov {}, r9",
+    out(reg) syscall_no,
+    out(reg) arg1,
+    out(reg) arg2,
+    out(reg) arg3,
+    out(reg) arg4,
+    out(reg) arg5,
+    out(reg) arg6,
+    );
+
+    let result = dispatch_syscall(syscall_no, arg1, arg2, arg3, arg4, arg5, arg6);
+
+    asm!("mov rax, {}", in(reg) result);
+}
+
+fn dispatch_syscall(
+    syscall_no: usize,
+    arg1: usize,
+    arg2: usize,
+    arg3: usize,
+    arg4: usize,
+    arg5: usize,
+    arg6: usize,
+) -> usize {
+    match SystemCall::try_from(syscall_no) {
+        Ok(SystemCall::HelloWorld) => {
+            sys_hello_world();
+            0
+        }
+
+        Ok(SystemCall::HelloWorldWithPrint) => {
+            sys_hello_world_print(arg1);
+            0
+        }
+
+        Ok(SystemCall::GetLastKey) => sys_getlastkey(),
+
+        Ok(SystemCall::GetCurrentThreadID) => sys_gettid(),
+
+        Ok(SystemCall::GetCurrentProcessID) => sys_getpid(),
+
+        Ok(SystemCall::GetCurrentProcessName) => sys_read_process_name(arg1 as *mut u8, arg2),
+
+        Ok(SystemCall::GetSystime) => sys_get_systime(),
+
+        Ok(SystemCall::GetScreenWidth) => sys_get_screen_witdh(),
+
+        Ok(SystemCall::MMapHeapSpace) => sys_mmap_heap_space(arg1, arg2),
+
+        Ok(SystemCall::ExitThread) => {
+            sys_exit_thread();
+            0
+        }
+
+        Ok(SystemCall::ExitProcess) => {
+            sys_exit_process();
+            0
+        }
+
+        Ok(SystemCall::KillProcess) => {
+            sys_kill_process(arg1);
+            0
+        }
+
+        Ok(SystemCall::DumpVMAsOfCurrentProcess) => {
+            sys_dump_vmas();
+            0
+        }
+
+        Ok(SystemCall::GraphicalPrint) => sys_graphical_print(arg1 as *const u8, arg2),
+
+        Ok(SystemCall::GraphicalPrintWithPosition) => sys_graphical_print_pos(arg1, arg2, arg3 as *const u8, arg4),
+
+        Ok(SystemCall::PaintPictureOnPos) => sys_paint_picture_on_pos(arg1, arg2, arg3, arg4, arg5, arg6 as *const u8),
+
+        Ok(SystemCall::KernelPrint) => sys_kernel_print(arg1 as *const u8, arg2),
+
+        Ok(SystemCall::PrintAppNames) => {
+            sys_print_apps();
+            0
+        }
+
+        Ok(SystemCall::PrintRunningThreads) => {
+            sys_show_threads();
+            0
+        }
+
+        Ok(SystemCall::PlaySongOnNoteList) => {
+            sys_play_song_by_notes(arg1 as *const u8, arg2);
+            0
+        }
+
+        Ok(SystemCall::DrawPixel) => {
+            sys_draw_pixel(arg1, arg2, arg3);
+            0
+        }
+
+        Ok(SystemCall::GetDateTime) => {
+            sys_get_datetime(arg1);
+            0
+        }
+
+        Ok(SystemCall::GetPitInterval) => sys_get_systime_intervall(),
+
+        Ok(SystemCall::ActivateShell) => {
+            sys_activate_shell();
+            0
+        }
+
+        Ok(SystemCall::DeactivateShell) => {
+            sys_deactivate_shell();
+            0
+        }
+
+        Err(_) => {
+            unsafe { syscall_abort(); }
+            0
+        }
+
+        _ => {
+            unsafe { syscall_abort(); }
+            0
+        }
+    }
+}
+
+
+
+
+// * * * * * * * * //
+
+
+
+
+
+
 
 /*****************************************************************************
  * Funktion:        syscall_disp                                             *
