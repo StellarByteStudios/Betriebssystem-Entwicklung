@@ -13,7 +13,8 @@ use alloc::boxed::Box;
 use core::sync::atomic::{AtomicU8, Ordering};
 
 use spin::Mutex;
-
+use usrlib::kernel::syscall::keyboard::KeyEvent;
+use usrlib::kernel::syscall::keyboard::KeyEvent::{KeyDown, NoEvent};
 use crate::kernel::cpu; // shortcut for key
 use crate::{
     devices::{cga, key},
@@ -35,6 +36,20 @@ pub fn key_hit() -> key::Key {
 // called from mylib/input.rs
 pub fn get_lastkey() -> u8 {
     return LAST_KEY.swap(0, Ordering::SeqCst);
+}
+
+pub fn get_last_keyevent() -> KeyEvent {
+    // Neuen Key Konsumieren
+    let new_key = LAST_KEY.swap(0, Ordering::SeqCst);
+
+    // Tatsächlich neues Event
+    if new_key > 0 {
+        return KeyDown(new_key);
+    }
+
+    // Keine neue Taste gerückt
+    return NoEvent;
+
 }
 
 // Global thread-safe access to keyboard
@@ -154,6 +169,7 @@ impl Keyboard {
                     }
                 }
                 _ => { // alle anderen Tasten
+                    //return true; // letzer Key soll noch im Speicher bleiben bei Release
                 }
             }
 
@@ -496,6 +512,11 @@ impl isr::ISR for KeyboardISR {
         let mut key: key::Key;
 
         key = key_hit();
+
+        // Keine Keys bei Release löschen
+        if key.get_ascii() == 0{
+            return
+        }
 
         // Den eingegebenen Buchstaben Speichern
         LAST_KEY.store(key.get_ascii(), Ordering::SeqCst);

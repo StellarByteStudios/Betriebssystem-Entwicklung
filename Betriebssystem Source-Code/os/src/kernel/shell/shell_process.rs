@@ -1,5 +1,5 @@
 use alloc::{boxed::Box, string::ToString, vec::Vec};
-
+use usrlib::kernel::syscall::keyboard::KeyEvent::NoEvent;
 use crate::{
     boot::appregion::AppRegion,
     kernel::{
@@ -9,6 +9,7 @@ use crate::{
     },
     utility::delay,
 };
+use crate::devices::keyboard::get_last_keyevent;
 
 // Statisches Feld, damit der Thread später darauf zugreifen kann
 static mut APP_LIST: Vec<AppRegion> = Vec::new();
@@ -23,9 +24,13 @@ pub extern "C" fn shell_thread_entry() {
         // Ist die Shell grade Aktiv?
         if shell_logic::get_active_status() {
             // Char laden
-            let c = input::getchar();
+            let c = get_last_keyevent();
+            // Wenn kein event weiter machen
+            if c == NoEvent {
+                continue;
+            }
             // Char abarbeiten
-            shell_logic::handle_keystroke(c);
+            shell_logic::handle_keystroke(c.as_char() as u8);
         }
     }
 }

@@ -1,7 +1,11 @@
+use usrlib::kernel::syscall::keyboard::KeyEvent;
+use crate::devices::keyboard::{get_last_keyevent, get_lastkey};
+use crate::kernel::shell::shell_logic;
+
 #[no_mangle]
 pub extern "C" fn sys_getlastkey() -> usize {
-    let key: u8 = getch();
-    return key as usize;
+    let key: KeyEvent = get_last_keyevent();
+    return key.into();
 }
 
 pub extern "C" fn sys_activate_shell() {
@@ -12,28 +16,3 @@ pub extern "C" fn sys_deactivate_shell() {
     shell_logic::deactivate_shell();
 }
 
-// Inportiert aus der alten Library
-use crate::{devices::keyboard, kernel::shell::shell_logic};
-
-const KEY_LF: u8 = 10;
-const KEY_CR: u8 = 13;
-
-pub fn getch() -> u8 {
-    let mut k: u8;
-
-    loop {
-        k = keyboard::get_lastkey();
-        if k != 0 {
-            break;
-        }
-    }
-    k
-}
-
-pub fn wait_for_return() {
-    loop {
-        if keyboard::get_lastkey() == KEY_LF {
-            break;
-        }
-    }
-}
