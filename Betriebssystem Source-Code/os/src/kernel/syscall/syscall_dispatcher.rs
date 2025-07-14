@@ -10,9 +10,13 @@
  * Autor:           Stefan Lankes, RWTH Aachen                               *
  *                  Michael Schoettner, 23.10.2024, modifiziert              *
  *****************************************************************************/
-use core::arch::{asm, naked_asm};
-use core::convert::TryFrom;
+use core::{
+    arch::{asm, naked_asm},
+    convert::TryFrom,
+};
+
 use usrlib::kernel::syscall::systemcall::{SystemCall, NUM_SYSCALLS};
+
 use crate::kernel::{
     syscall,
     syscall::kfuncs::{
@@ -108,9 +112,69 @@ impl SyscallFuncTable {
 unsafe impl Send for SyscallFuncTable {}
 unsafe impl Sync for SyscallFuncTable {}
 
+// * Eigener Enum Dispatcher * //
 
+/*
+fn get_syscall_function(syscall_no: usize) -> *const fn() {
+    match SystemCall::try_from(syscall_no) {
+        Ok(SystemCall::HelloWorld) => sys_hello_world as *const _,
+        Ok(SystemCall::HelloWorldWithPrint) => sys_hello_world_print as *const _,
+        Ok(SystemCall::GetLastKey) => sys_getlastkey as *const _,
+        Ok(SystemCall::GetCurrentThreadID) => sys_gettid as *const _,
+        Ok(SystemCall::GetCurrentProcessID) => sys_getpid as *const _,
+        Ok(SystemCall::GetCurrentProcessName) => sys_read_process_name as *const _,
+        Ok(SystemCall::GetSystime) => sys_get_systime as *const _,
+        Ok(SystemCall::GetScreenWidth) => sys_get_screen_witdh as *const _,
+        Ok(SystemCall::MMapHeapSpace) => sys_mmap_heap_space as *const _,
+        Ok(SystemCall::ExitThread) => sys_exit_thread as *const _,
+        Ok(SystemCall::ExitProcess) => sys_exit_process as *const _,
+        Ok(SystemCall::KillProcess) => sys_kill_process as *const _,
+        Ok(SystemCall::DumpVMAsOfCurrentProcess) => sys_dump_vmas as *const _,
+        Ok(SystemCall::GraphicalPrint) => sys_graphical_print as *const _,
+        Ok(SystemCall::GraphicalPrintWithPosition) => sys_graphical_print_pos as *const _,
+        Ok(SystemCall::PaintPictureOnPos) => sys_paint_picture_on_pos as *const _,
+        Ok(SystemCall::KernelPrint) => sys_kernel_print as *const _,
+        Ok(SystemCall::PrintAppNames) => sys_print_apps as *const _,
+        Ok(SystemCall::PrintRunningThreads) => sys_show_threads as *const _,
+        Ok(SystemCall::PlaySongOnNoteList) => sys_play_song_by_notes as *const _,
+        Ok(SystemCall::DrawPixel) => sys_draw_pixel as *const _,
+        Ok(SystemCall::GetDateTime) => sys_get_datetime as *const _,
+        Ok(SystemCall::GetPitInterval) => sys_get_systime_intervall as *const _,
+        Ok(SystemCall::ActivateShell) => sys_activate_shell as *const _,
+        Ok(SystemCall::DeactivateShell) => sys_deactivate_shell as *const _,
+        Err(_) => syscall_abort as *const _,
+        _ => syscall_abort as *const _,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn syscall_disp() {
+    // Syscallnummer holen
+    let mut syscall_no: usize;
+    let function: *const ();
+
+    // Syscallnummer holen (aus rax)
+    asm!(
+        "mov {}, rax",
+        out(reg) syscall_no,
+        options(nomem, nostack, preserves_flags)
+    );
+
+    // Funktionspointer holen
+    function = get_syscall_function(syscall_no) as *const ();
+
+    // Funktionsaufruf: Pointer in rax -> call rax
+    asm!(
+        "mov rax, {}",
+        "call rax",
+        "ret",
+        in(reg) function,
+    );
+}
+*/
 
 // * GPT Funktionen * //
+/*
 #[no_mangle]
 pub unsafe extern "C" fn syscall_disp_new() {
     let syscall_no: usize;
@@ -253,17 +317,9 @@ fn dispatch_syscall(
         }
     }
 }
-
-
-
+*/
 
 // * * * * * * * * //
-
-
-
-
-
-
 
 /*****************************************************************************
  * Funktion:        syscall_disp                                             *
@@ -277,9 +333,9 @@ fn dispatch_syscall(
 #[no_mangle]
 pub unsafe extern "C" fn syscall_disp() {
     naked_asm!(
-						"call [{syscall_functable}+8*rax]",
-						"ret",
-      syscall_functable = sym SYSCALL_FUNCTABLE);
+        "call [{syscall_functable}+8*rax]",
+        "ret",
+        syscall_functable = sym SYSCALL_FUNCTABLE);
 }
 
 /*****************************************************************************
