@@ -328,3 +328,50 @@ pub fn dump(mbi_ptr: u64) {
         kprintln!("   framebuffer {:?}", mb_fb);
     }
 }
+pub fn vdump(mbi_ptr: u64) {
+    let mb_info = unsafe { MultibootInfo::read(mbi_ptr) };
+    let flags = mb_info.flags;
+
+    vprintln!("Multiboot-Infos = {:x}", flags);
+    vprintln!("   flags = {:x}", flags);
+
+    // Allgemeine Speicherinfos
+    if flags & 0x1 != 0 {
+        let mem_lower = mb_info.mem_lower;
+        let mem_upper = mb_info.mem_upper;
+        vprintln!("   mem_lower = {} kB (memory below 1 MB)", mem_lower);
+        vprintln!("   mem_upper = {} kB (memory above 1 MB)", mem_upper);
+    }
+
+    // Genaue Informationen, welche Speicherbereiche genutzt werden koennen oder belegt sind
+    if flags & 0x40 != 0 {
+        let mmap_length = mb_info.mmap_length;
+        let mmap_addr = mb_info.mmap_addr;
+
+        vprintln!("   mmap_addr = 0x{:x}", mmap_addr);
+        vprintln!("   mmap_length = {} bytes ", mmap_length);
+        vprintln!(
+        "   mmap_entries = {} ",
+        mmap_length / size_of::<MmapEntry>() as u32
+    );
+        unsafe {
+            for i in 0..(mb_info.mmap_length / size_of::<MmapEntry>() as u32) {
+                let mmap_entry = &*((mb_info.mmap_addr as u64) as *const MmapEntry).add(i as usize);
+
+                vprintln!("      Entry {}: {:?}", i, mmap_entry);
+            }
+        }
+        vprintln!("      mmap types:");
+        vprintln!("              1 = available RAM");
+        vprintln!("              3 = usable, holding ACPI infos");
+        vprintln!("              4 = reserved");
+        vprintln!("              5 = defect memory");
+        vprintln!("              other numbers indicate reserved, unusable memory");
+        vprintln!("");
+    }
+    // Framebuffer-Infos
+    if flags & 0x1000 != 0 {
+        let mb_fb: MultibootFramebuffer = mb_info.framebuffer;
+        vprintln!("   framebuffer {:?}", mb_fb);
+    }
+}

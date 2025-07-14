@@ -94,6 +94,11 @@ impl PfListAllocator {
 
     // Funktion um bei der erstellung die Neuen Blocks inzuzufügen
     pub unsafe fn init_free_block(&mut self, addr: usize, size: usize) {
+        if size < PAGE_FRAME_SIZE{
+            kprintln!("Memory Block too small: Skiped");
+            return;
+        }
+
         // Heap_start anpassen
         if self.heap_start > addr {
             self.heap_start = addr;
