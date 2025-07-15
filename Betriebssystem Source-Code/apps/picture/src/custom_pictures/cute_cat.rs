@@ -1,5 +1,4 @@
-use usrlib::graphix::picturepainting::animate::Frame;
-
+use usrlib::graphix::picturepainting::pictures::frame::Frame;
 pub fn get_cute_cat() -> Frame {
     return Frame {
         width: WIDTH,

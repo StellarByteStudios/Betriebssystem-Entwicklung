@@ -1,4 +1,4 @@
-use usrlib::graphix::picturepainting::animate::Frame;
+use usrlib::graphix::picturepainting::pictures::frame::Frame;
 
 pub fn get_orion() -> Frame {
     return Frame {
