@@ -29,9 +29,12 @@ use crate::kernel::{
             sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
             sys_kernel_print, sys_print_apps,
         },
-        sys_shell_and_keys::{sys_activate_shell, sys_deactivate_shell, sys_getlastkey},
+        sys_shell_and_keys::{
+            sys_activate_shell, sys_clear_screen, sys_deactivate_shell, sys_getlastkey,
+        },
         sys_simple_getter::{
-            sys_get_datetime, sys_get_screen_witdh, sys_get_systime, sys_get_systime_intervall,
+            sys_get_datetime, sys_get_screen_height, sys_get_screen_witdh, sys_get_systime,
+            sys_get_systime_intervall,
         },
         sys_thread_process_management::{
             sys_exit_process, sys_exit_thread, sys_getpid, sys_gettid, sys_kill_process,
@@ -80,6 +83,7 @@ impl SyscallFuncTable {
                 //
                 sys_get_systime as *const _,
                 sys_get_screen_witdh as *const _,
+                sys_get_screen_height as *const _,
                 //
                 sys_mmap_heap_space as *const _,
                 //
@@ -91,6 +95,7 @@ impl SyscallFuncTable {
                 sys_graphical_print as *const _,
                 sys_graphical_print_pos as *const _,
                 sys_paint_picture_on_pos as *const _,
+                sys_clear_screen as *const _,
                 //
                 sys_kernel_print as *const _,
                 sys_print_apps as *const _,
@@ -143,7 +148,7 @@ fn get_syscall_function(syscall_no: usize) -> *const fn() {
         Ok(SystemCall::ActivateShell) => sys_activate_shell as *const _,
         Ok(SystemCall::DeactivateShell) => sys_deactivate_shell as *const _,
         Err(_) => syscall_abort as *const _,
-        _ => syscall_abort as *const _,
+        _ => sys_call_not_implemented as *const _,
     }
 }
 
@@ -312,7 +317,7 @@ fn dispatch_syscall(
         }
 
         _ => {
-            unsafe { syscall_abort(); }
+            unsafe { sys_call_not_implemented(); }
             0
         }
     }

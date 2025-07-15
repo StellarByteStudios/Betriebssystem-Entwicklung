@@ -22,6 +22,11 @@ pub extern "C" fn sys_get_screen_witdh() -> usize {
 }
 
 #[no_mangle]
+pub extern "C" fn sys_get_screen_height() -> usize {
+    return vga::get_res().1 as usize;
+}
+
+#[no_mangle]
 pub extern "C" fn sys_get_datetime(buff: usize) {
     let time = get_current_time();
     let date = get_current_date();

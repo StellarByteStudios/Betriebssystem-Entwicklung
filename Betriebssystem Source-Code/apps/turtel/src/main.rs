@@ -11,8 +11,8 @@ use usrlib::{
     self, gprintln,
     graphix::picturepainting::{animate::Frame, paint::draw_picture},
     kernel::{
-        shell::shell_handler::{activate_shell, deactivate_shell},
-        syscall::user_api::usr_getlastkey,
+        shell::shell_handler::{activate_shell, clear_screen, deactivate_shell, get_screen_size},
+        syscall::keyboard::{get_new_key_event, KeyEvent::NoEvent},
     },
     kprintln,
 };
@@ -33,6 +33,13 @@ const TRANSPARENT: u32 = 0x00_00_00_00;
 pub fn main() {
     // Shell deaktivieren
     deactivate_shell();
+
+    // Bildschirm aufräumen
+    clear_screen(true);
+
+    // Bildschirmgröße speichern
+
+    let (screen_height, screen_width) = get_screen_size();
 
     gprintln!("Du kanns jetzt richtig ein Keyboard benutzten. \"q\" zum beenden");
 
@@ -71,17 +78,35 @@ pub fn main() {
     draw_turtel(BLACK, current_position, &mut playerframe);
 
     // Ersten Gameframe printen
-    draw_picture(300, 200, &boardframe);
-    draw_picture(300, 200, &playerframe);
+    draw_picture(
+        (screen_height / 2) as usize - (SPIELFELDGROESSE.0 / 2) as usize,
+        (screen_width / 2) as usize - (SPIELFELDGROESSE.1 / 2) as usize,
+        &boardframe,
+    );
+    draw_picture(
+        (screen_height / 2) as usize - (SPIELFELDGROESSE.0 / 2) as usize,
+        (screen_width / 2) as usize - (SPIELFELDGROESSE.1 / 2) as usize,
+        &playerframe,
+    );
 
     kprintln!("Gameframe gemalt");
 
     loop {
         // Key holen
-        let direction = usr_getlastkey() as u8 as char;
+        let keyevent = get_new_key_event();
+
+        // Nichts wurde gedrückt
+        if keyevent == NoEvent {
+            continue;
+        }
+
+        let direction = keyevent.as_char();
 
         // Exit
         if direction == 'q' {
+            // Bildschirm aufräumen
+            clear_screen(false);
+
             gprintln!("App wird beendent");
             break;
         }
@@ -126,7 +151,13 @@ pub fn main() {
                 let rand_num = small_rng.next_u64();
                 let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
                 kprintln!("Random color: {:#x}", random_color);
-                draw_line(last_possition, current_position, random_color as u32, 5, &mut boardframe);
+                draw_line(
+                    last_possition,
+                    current_position,
+                    random_color as u32,
+                    5,
+                    &mut boardframe,
+                );
                 last_possition = current_position;
             }
             'c' => {
@@ -146,8 +177,16 @@ pub fn main() {
             }
         }
         // Gameframe aktuallisieren
-        draw_picture(300, 200, &boardframe);
-        draw_picture(300, 200, &playerframe);
+        draw_picture(
+            (screen_height / 2) as usize - (SPIELFELDGROESSE.0 / 2) as usize,
+            (screen_width / 2) as usize - (SPIELFELDGROESSE.1 / 2) as usize,
+            &boardframe,
+        );
+        draw_picture(
+            (screen_height / 2) as usize - (SPIELFELDGROESSE.0 / 2) as usize,
+            (screen_width / 2) as usize - (SPIELFELDGROESSE.1 / 2) as usize,
+            &playerframe,
+        );
     }
 
     // Shell wieder freigeben
@@ -184,7 +223,6 @@ fn draw_circle(radius: u32, color: u32, position: (u32, u32), frame: &mut Frame)
     }
 }
 
-
 fn draw_line(start: (u32, u32), end: (u32, u32), color: u32, thickness: u32, frame: &mut Frame) {
     let (mut x0, mut y0) = (start.0 as i32, start.1 as i32);
     let (x1, y1) = (end.0 as i32, end.1 as i32);
@@ -212,7 +250,6 @@ fn draw_line(start: (u32, u32), end: (u32, u32), color: u32, thickness: u32, fra
     // Endpunkt nicht vergessen
     draw_circle(thickness / 2, color, (x1 as u32, y1 as u32), frame);
 }
-
 
 fn draw_turtel(color: u32, position: (u32, u32), frame: &mut Frame) {
     // Strich von oben nach unten position.0 + (frame.width * (i - 3)) + position.1 -1
