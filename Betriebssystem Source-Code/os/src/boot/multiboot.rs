@@ -351,9 +351,9 @@ pub fn vdump(mbi_ptr: u64) {
         vprintln!("   mmap_addr = 0x{:x}", mmap_addr);
         vprintln!("   mmap_length = {} bytes ", mmap_length);
         vprintln!(
-        "   mmap_entries = {} ",
-        mmap_length / size_of::<MmapEntry>() as u32
-    );
+            "   mmap_entries = {} ",
+            mmap_length / size_of::<MmapEntry>() as u32
+        );
         unsafe {
             for i in 0..(mb_info.mmap_length / size_of::<MmapEntry>() as u32) {
                 let mmap_entry = &*((mb_info.mmap_addr as u64) as *const MmapEntry).add(i as usize);

@@ -28,7 +28,7 @@ pub extern "C" fn sys_exit_thread() {
 }
 
 #[no_mangle]
-pub extern "C" fn sys_exit_process(){
+pub extern "C" fn sys_exit_process() {
     let pid = scheduler::get_active_pid();
     kprintln!("exit_process number: {}", pid);
     process_handler::remove_process_by_pid(pid);
@@ -47,7 +47,7 @@ pub extern "C" fn sys_kill_process(pid: usize) {
 }
 
 #[no_mangle]
-pub extern "C" fn sys_show_threads(){
+pub extern "C" fn sys_show_threads() {
     Scheduler::print_ready_queue();
 }
 

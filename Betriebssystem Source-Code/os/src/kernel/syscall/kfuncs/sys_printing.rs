@@ -65,7 +65,12 @@ pub extern "C" fn sys_graphical_print(buff: *const u8, len: usize) -> usize {
 }
 
 #[no_mangle]
-pub extern "C" fn sys_graphical_print_pos(x: usize, y: usize, buff: *const u8, len: usize) -> usize {
+pub extern "C" fn sys_graphical_print_pos(
+    x: usize,
+    y: usize,
+    buff: *const u8,
+    len: usize,
+) -> usize {
     // Fehlerabfrage
     if buff.is_null() || len == 0 {
         return 1;

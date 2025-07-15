@@ -1,7 +1,10 @@
 use alloc::{boxed::Box, string::ToString, vec::Vec};
+
 use usrlib::kernel::syscall::keyboard::KeyEvent::NoEvent;
+
 use crate::{
     boot::appregion::AppRegion,
+    devices::keyboard::get_last_keyevent,
     kernel::{
         processes::process_handler::create_fresh_process,
         shell::{input, shell_logic},
@@ -9,7 +12,6 @@ use crate::{
     },
     utility::delay,
 };
-use crate::devices::keyboard::get_last_keyevent;
 
 // Statisches Feld, damit der Thread später darauf zugreifen kann
 static mut APP_LIST: Vec<AppRegion> = Vec::new();
