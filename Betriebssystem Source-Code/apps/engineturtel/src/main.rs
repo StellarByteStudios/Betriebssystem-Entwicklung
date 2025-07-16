@@ -81,9 +81,37 @@ pub fn main() {
 
     // Ersten Gameframe printen
     for game_layer in game_layers.iter() {
-        game_layer.paint(print_position)
+        game_layer.paint(&print_position)
     }
 
+    // Haupt Gameloop
+    game_loop(
+        &mut game_layers,
+        &mut small_rng,
+        &mut current_position,
+        &mut last_position,
+        &print_position,
+        &turtel_sprite,
+        &SPIELFELDGROESSE,
+    );
+
+    // Bildschirm aufräumen
+    clear_screen(false);
+    gprintln!("App wird beendent");
+
+    // Shell wieder freigeben
+    activate_shell();
+}
+
+fn game_loop(
+    game_layers: &mut [GameFrameLayer],
+    rand: &mut SmallRng,
+    current_position: &mut Position,
+    last_position: &mut Position,
+    print_position: &Position,
+    turtel_sprite: &Frame,
+    field_size: &(u32, u32),
+) {
     loop {
         // Key holen
         let keyevent = get_new_key_event();
@@ -97,11 +125,7 @@ pub fn main() {
 
         // Exit
         if direction == 'q' {
-            // Bildschirm aufräumen
-            clear_screen(false);
-
-            gprintln!("App wird beendent");
-            break;
+            return;
         }
 
         // = Gameloop = //
@@ -111,13 +135,13 @@ pub fn main() {
                 // In den Grenzen
                 if current_position.get_y() > 10 + 5 {
                     game_layers[2].delete_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                     current_position.shift(Velocity::new(0f32, -10f32));
                     game_layers[2].draw_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                 }
             }
@@ -125,13 +149,13 @@ pub fn main() {
                 // In den Grenzen
                 if current_position.get_x() > 10 + 5 {
                     game_layers[2].delete_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                     current_position.shift(Velocity::new(-10f32, 0f32));
                     game_layers[2].draw_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                 }
             }
@@ -139,13 +163,13 @@ pub fn main() {
                 // In den Grenzen
                 if (current_position.get_y() as u32) < SPIELFELDGROESSE.1 - (10 + 5) {
                     game_layers[2].delete_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone()  - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                     current_position.shift(Velocity::new(0f32, 10f32));
                     game_layers[2].draw_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                 }
             }
@@ -153,13 +177,13 @@ pub fn main() {
                 // In den Grenzen
                 if (current_position.get_x() as u32) < SPIELFELDGROESSE.0 - (10 + 5) {
                     game_layers[2].delete_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                     current_position.shift(Velocity::new(10f32, 0f32));
                     game_layers[2].draw_sprite_on_position(
-                        &(current_position - Position::new(5, 5)),
-                        &mut turtel_sprite,
+                        &(current_position.clone() - Position::new(5, 5)),
+                        turtel_sprite,
                     );
                 }
             }
@@ -167,10 +191,10 @@ pub fn main() {
             ' ' => {
                 let random_color = Color::random_color();
                 game_layers[0].draw_line(&last_position, &current_position, &random_color, 5);
-                last_position = current_position;
+                *last_position = current_position.clone();
             }
             'c' => {
-                let rand_num = small_rng.next_u64();
+                let rand_num = rand.next_u64();
                 let random_color = Color::random_color();
                 game_layers[0].draw_circle(
                     &current_position,
@@ -189,104 +213,4 @@ pub fn main() {
             game_layer.paint(print_position)
         }
     }
-
-    // Shell wieder freigeben
-    activate_shell();
 }
-
-/*
-fn game_loop(
-    game_layers: &mut [GameFrameLayer],
-    rand: &mut SmallRng,
-    current_position: &mut Position,
-    last_position: &mut Position,
-    print_position: &Position,
-    turtel_sprite: &mut Frame,
-    field_size: &(usize, usize),
-) {
-    loop {
-        // Key holen
-        let keyevent = get_new_key_event();
-
-        // Nichts wurde gedrückt
-        if keyevent == NoEvent {
-            continue;
-        }
-
-        let direction = keyevent.as_char();
-
-        // Exit
-        if direction == 'q' {
-            // Bildschirm aufräumen
-            clear_screen(false);
-
-            gprintln!("App wird beendent");
-            break;
-        }
-
-        // = Gameloop = //
-        // Tutel bewegen
-        match direction {
-            'w' => {
-                // In den Grenzen
-                if current_position.get_x() > 10 + 5 {
-                    game_layers[2].delete_sprite_on_position(current_position, turtel_sprite);
-                    current_position.shift(Velocity::new(-10f32, 0f32));
-                    game_layers[2].draw_sprite_on_position(current_position, turtel_sprite);
-                }
-            }
-            'a' => {
-                // In den Grenzen
-                if current_position.get_y() > 10 + 5 {
-                    game_layers[2].delete_sprite_on_position(current_position, turtel_sprite);
-                    current_position.shift(Velocity::new(0f32, -10f32));
-                    game_layers[2].draw_sprite_on_position(current_position, turtel_sprite);
-                }
-            }
-            's' => {
-                // In den Grenzen
-                if current_position.get_y() as usize < field_size.1 - (10 + 5) {
-                    game_layers[2].delete_sprite_on_position(current_position, turtel_sprite);
-                    current_position.shift(Velocity::new(-10f32, 0f32));
-                    game_layers[2].draw_sprite_on_position(current_position, turtel_sprite);
-                }
-            }
-            'd' => {
-                // In den Grenzen
-                if current_position.get_x() as usize < field_size.get(0) - (10 + 5) {
-                    game_layers[2].delete_sprite_on_position(current_position, turtel_sprite);
-                    current_position.shift(Velocity::new(-10f32, 0f32));
-                    game_layers[2].draw_sprite_on_position(current_position, turtel_sprite);
-                }
-            }
-
-            ' ' => {
-                let rand_num = rand.next_u64();
-                //let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
-                //kprintln!("Random color: {:#x}", random_color);
-                game_layers[0].draw_line(last_position, current_position, &GREEN, 5);
-                last_position = current_position;
-            }
-            'c' => {
-                let rand_num = rand.next_u64();
-                let random_color = ((rand_num & 0xff_ff_ff) << 8) | 0xFF;
-                draw_circle(
-                    (rand_num % 50) as u32,
-                    random_color as u32,
-                    current_position,
-                    &mut boardframe,
-                );
-            }
-
-            _ => {
-                // Falsche Richtung. Es passiert garnix
-                kprintln!("Invalid direction: {}", direction);
-            }
-        }
-        // Gameframe aktuallisieren
-        for game_layer in game_layers.iter() {
-            game_layer.paint(print_position)
-        }
-    }
-}
-*/
