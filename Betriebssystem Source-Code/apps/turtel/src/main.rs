@@ -9,14 +9,13 @@ use alloc::vec;
 use rand::{rngs::SmallRng, Rng, RngCore, SeedableRng};
 use usrlib::{
     self, gprintln,
-    graphix::picturepainting::{paint::draw_picture},
+    graphix::picturepainting::{paint::draw_picture, pictures::frame::Frame},
     kernel::{
         shell::shell_handler::{activate_shell, clear_screen, deactivate_shell, get_screen_size},
         syscall::keyboard::{get_new_key_event, KeyEvent::NoEvent},
     },
     kprintln,
 };
-use usrlib::graphix::picturepainting::pictures::frame::Frame;
 
 const SPIELFELDGROESSE: (u32, u32) = (300, 200);
 

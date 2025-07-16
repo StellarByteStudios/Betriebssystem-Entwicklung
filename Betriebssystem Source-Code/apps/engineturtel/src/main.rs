@@ -8,21 +8,20 @@ use rand::{rngs::SmallRng, RngCore, SeedableRng};
 use usrlib::{
     self,
     gameengine::{
-        color::{BLACK, CYAN, GREEN, ORANGE, WHITE},
+        color::{Color, BLACK, ORANGE, WHITE},
         draw_functions,
         gameframelayer::GameFrameLayer,
         position::Position,
         velocity::Velocity,
     },
     gprintln,
-    graphix::picturepainting::{pictures::frame::Frame},
+    graphix::picturepainting::pictures::frame::Frame,
     kernel::{
         shell::shell_handler::{activate_shell, clear_screen, deactivate_shell, get_screen_size},
         syscall::keyboard::{get_new_key_event, KeyEvent::NoEvent},
     },
     kprintln,
 };
-use usrlib::gameengine::color::Color;
 
 const SPIELFELDGROESSE: (u32, u32) = (300, 200);
 
@@ -75,14 +74,15 @@ pub fn main() {
     let mut turtel_sprite = Frame::new(11, 11);
     draw_functions::draw_cross(&BLACK, &Position::new(5, 5), &mut turtel_sprite);
 
-
-    game_layers[2].draw_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+    game_layers[2].draw_sprite_on_position(
+        &(current_position - Position::new(5, 5)),
+        &mut turtel_sprite,
+    );
 
     // Ersten Gameframe printen
     for game_layer in game_layers.iter() {
         game_layer.paint(print_position)
     }
-
 
     loop {
         // Key holen
@@ -110,38 +110,61 @@ pub fn main() {
             'w' => {
                 // In den Grenzen
                 if current_position.get_y() > 10 + 5 {
-                    game_layers[2].delete_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].delete_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                     current_position.shift(Velocity::new(0f32, -10f32));
-                    game_layers[2].draw_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].draw_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                 }
             }
             'a' => {
                 // In den Grenzen
                 if current_position.get_x() > 10 + 5 {
-                    game_layers[2].delete_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].delete_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                     current_position.shift(Velocity::new(-10f32, 0f32));
-                    game_layers[2].draw_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].draw_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                 }
             }
             's' => {
                 // In den Grenzen
                 if (current_position.get_y() as u32) < SPIELFELDGROESSE.1 - (10 + 5) {
-                    game_layers[2].delete_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].delete_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                     current_position.shift(Velocity::new(0f32, 10f32));
-                    game_layers[2].draw_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].draw_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                 }
             }
             'd' => {
                 // In den Grenzen
                 if (current_position.get_x() as u32) < SPIELFELDGROESSE.0 - (10 + 5) {
-                    game_layers[2].delete_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].delete_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                     current_position.shift(Velocity::new(10f32, 0f32));
-                    game_layers[2].draw_sprite_on_position(&(current_position - Position::new(5, 5)), &mut turtel_sprite);
+                    game_layers[2].draw_sprite_on_position(
+                        &(current_position - Position::new(5, 5)),
+                        &mut turtel_sprite,
+                    );
                 }
             }
 
             ' ' => {
-                let rand_num = small_rng.next_u64();
                 let random_color = Color::random_color();
                 game_layers[0].draw_line(&last_position, &current_position, &random_color, 5);
                 last_position = current_position;
@@ -149,7 +172,11 @@ pub fn main() {
             'c' => {
                 let rand_num = small_rng.next_u64();
                 let random_color = Color::random_color();
-                game_layers[0].draw_circle(&current_position, (rand_num % 50) as u32, &random_color);
+                game_layers[0].draw_circle(
+                    &current_position,
+                    (rand_num % 50) as u32,
+                    &random_color,
+                );
             }
 
             _ => {
