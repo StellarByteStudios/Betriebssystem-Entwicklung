@@ -4,96 +4,124 @@
 
 extern crate alloc;
 
-use rand::{rngs::SmallRng, RngCore, SeedableRng};
+mod startup;
+
+use alloc::{vec, vec::Vec};
+
+use rand::{RngCore, SeedableRng};
 use usrlib::{
     self,
     gameengine::{
-        color::{Color, BLACK, ORANGE, WHITE},
-        draw_functions,
+        directions::Direction::{Down, Left, Right, Up},
         gameframelayer::GameFrameLayer,
         position::Position,
-        velocity::Velocity,
     },
     gprintln,
-    graphix::picturepainting::pictures::frame::Frame,
     kernel::{
-        shell::shell_handler::{activate_shell, clear_screen, deactivate_shell, get_screen_size},
+        shell::shell_handler::{activate_shell, clear_screen},
         syscall::keyboard::{get_new_key_event, KeyEvent::NoEvent},
     },
     kprintln,
+    utility::delay::delay,
 };
 
-const SPIELFELDGROESSE: (u32, u32) = (300, 200);
+use crate::startup::{build_field, construct_ball_object, construct_border_objects};
+
+const SPIELFELDGROESSE: (usize, usize) = (800, 500);
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
-    // Shell deaktivieren
-    deactivate_shell();
+    // Spielfeld initialisieren
+    let (mut game_layers, game_print_position): ([GameFrameLayer; 2], Position) =
+        build_field(SPIELFELDGROESSE);
+    gprintln!("Layer angelegt");
 
-    // Bildschirm aufräumen
-    clear_screen(false);
+    // Ränder holen
+    let borders = construct_border_objects(SPIELFELDGROESSE);
 
-    // Bildschirmgröße speichern
-    let (screen_height, screen_width) = get_screen_size();
+    // Ball holen
+    let mut ball = construct_ball_object(SPIELFELDGROESSE);
 
-    gprintln!("Du kanns jetzt richtig ein Keyboard benutzten. \"q\" zum beenden");
+    gprintln!("Objekte angelegt");
 
-    // Zufallszahl
-    let mut small_rng = SmallRng::seed_from_u64(123456789);
-
-    // Erstmal Gameframe zusammenbauen
-    let mut game_layers: [GameFrameLayer; 3] = [
-        GameFrameLayer::new(SPIELFELDGROESSE.0 as usize, SPIELFELDGROESSE.1 as usize), // Layer 0 ist das Painting Layer
-        GameFrameLayer::new(SPIELFELDGROESSE.0 as usize, SPIELFELDGROESSE.1 as usize), // Layer 1 ist das Layer für Umrandung
-        GameFrameLayer::new(SPIELFELDGROESSE.0 as usize, SPIELFELDGROESSE.1 as usize), // Layer 2 ist der Spieler
-    ];
-
-    // Position zum printen der Frames
-    let print_position = Position::new(
-        ((screen_height / 2) as u32 - (SPIELFELDGROESSE.0 / 2)) as i32,
-        ((screen_width / 2) as u32 - SPIELFELDGROESSE.1 / 2) as i32,
-    );
-
-    // Position der Turtel
-    let mut current_position: Position =
-        Position::new(SPIELFELDGROESSE.0 as i32 / 2, SPIELFELDGROESSE.1 as i32 / 2);
-
-    // Vorherige Position der Turtel
-    let mut last_position: Position =
-        Position::new(SPIELFELDGROESSE.0 as i32 / 2, SPIELFELDGROESSE.1 as i32 / 2);
-
-    gprintln!("Vor Fill Frame");
-    // Feld Weiß füllen
-    game_layers[0].fill_frame(&WHITE);
-
-    // Umrandung machen
-    game_layers[1].draw_frame_border(&ORANGE);
-
-    // Turtel platzieren
-    let mut turtel_sprite = Frame::new(11, 11);
-    draw_functions::draw_cross(&BLACK, &Position::new(5, 5), &mut turtel_sprite);
-
-    game_layers[2].draw_sprite_on_position(
-        &(current_position - Position::new(5, 5)),
-        &mut turtel_sprite,
-    );
+    // Ball in 1 Layer packen
+    ball.print_on_game_layer(&mut game_layers[1]);
 
     // Ersten Gameframe printen
-    for game_layer in game_layers.iter() {
-        game_layer.paint(&print_position)
-    }
+    //for game_layer in game_layers.iter() {
+    //    game_layer.paint(&game_print_position)
+    //}
+    GameFrameLayer::paint_layers(&game_layers, &game_print_position);
 
     // Haupt Gameloop
-    game_loop(
-        &mut game_layers,
-        &mut small_rng,
-        &mut current_position,
-        &mut last_position,
-        &print_position,
-        &turtel_sprite,
-        &SPIELFELDGROESSE,
-    );
+    //gprintln!("Loop geht los");
+
+    loop {
+        // Key holen
+        let keyevent = get_new_key_event();
+
+        // Nichts wurde gedrückt
+        if keyevent != NoEvent {
+            let direction = keyevent.as_char();
+
+            // Exit
+            if direction == 'q' {
+                break;
+            }
+        }
+
+        // Kolisionen Checken
+        for border in borders.iter() {
+            // Kolision holen
+            let colision = ball.check_collision(border);
+
+            // Wenn es eine gab richtung ändern
+            if colision.is_some() {
+                let direction = colision.unwrap();
+
+                //kprintln!("Collision: {:?}", border);
+
+                match direction.as_str() {
+                    "North" => {
+                        let mut new_velocity = ball.get_velocity();
+                        new_velocity.bounce_on(Up);
+                        ball.set_new_velocity(&new_velocity);
+                        kprintln!("Ball bounce up");
+                    }
+                    "South" => {
+                        let mut new_velocity = ball.get_velocity();
+                        new_velocity.bounce_on(Down);
+                        ball.set_new_velocity(&new_velocity);
+                        kprintln!("Ball bounce Down");
+                    }
+
+                    "East" => {
+                        let mut new_velocity = ball.get_velocity();
+                        new_velocity.bounce_on(Left);
+                        ball.set_new_velocity(&new_velocity);
+                        kprintln!("Ball bounce Left");
+                    }
+                    "West" => {
+                        let mut new_velocity = ball.get_velocity();
+                        new_velocity.bounce_on(Right);
+                        ball.set_new_velocity(&new_velocity);
+                        kprintln!("Ball bounce Right");
+                    }
+                    _ => {} // Alle anderen ignorieren
+                }
+            }
+        }
+
+        // Bewegung des Balls
+        ball.visual_tick(&mut game_layers[1]);
+
+        // Ersten Gameframe printen
+        //for game_layer in game_layers.iter() {
+        //    game_layer.paint(&game_print_position)
+        //}
+        GameFrameLayer::paint_layers(&game_layers, &game_print_position);
+    }
 
     // Bildschirm aufräumen
     clear_screen(false);
@@ -103,6 +131,7 @@ pub fn main() {
     activate_shell();
 }
 
+/*
 fn game_loop(
     game_layers: &mut [GameFrameLayer],
     rand: &mut SmallRng,
@@ -214,3 +243,4 @@ fn game_loop(
         }
     }
 }
+*/

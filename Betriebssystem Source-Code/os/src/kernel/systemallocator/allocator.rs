@@ -19,7 +19,13 @@
 */
 use alloc::{alloc::Layout, string::String};
 
-use crate::{cpu, kernel::systemallocator::list::LinkedListAllocator};
+use crate::{
+    cpu,
+    kernel::{
+        cpu::{disable_int, disable_int_nested, enable_int},
+        systemallocator::list::LinkedListAllocator,
+    },
+};
 
 pub const HEAP_START: usize = 0x500000;
 
@@ -41,7 +47,11 @@ pub fn init(heap_start: usize, heap_size: usize) {
              Compiler generates code calling this function.
 */
 pub fn alloc(layout: Layout) -> *mut u8 {
-    unsafe { ALLOCATOR.lock().alloc(layout) }
+    disable_int();
+    let block = unsafe { ALLOCATOR.lock().alloc(layout) };
+    enable_int();
+
+    return block;
 }
 
 /**
@@ -49,7 +59,9 @@ pub fn alloc(layout: Layout) -> *mut u8 {
              Compiler generates code calling this function.
 */
 pub fn dealloc(ptr: *mut u8, layout: Layout) {
+    disable_int();
     unsafe { ALLOCATOR.lock().dealloc(ptr, layout) }
+    enable_int();
 }
 
 /**

@@ -1,0 +1,24 @@
+[package]
+edition = "2018"
+name = "ByteOS_pong"
+version = "0.1.1"
+authors = [
+    "Michael Schöttner <michael.schoettner@hhu.de>",
+    "Carsten Krollmann <cakro105@hhu.de>",
+]
+
+[lib]
+crate-type = ["staticlib"]
+path = "src/main.rs"
+test = false
+
+[dependencies]
+usrlib = { path = "../../../hhuTOSuserlib"}
+rand = { version = "0.8.3", features = ["small_rng"], default-features = false }
+
+
+[profile.development]
+panic = "abort"
+
+[profile.production]
+panic = "abort"

@@ -22,7 +22,7 @@ use core::{
 use crate::{
     consts::PAGE_FRAME_SIZE,
     kernel::{
-        cpu,
+        cpu::{self, disable_int, disable_int_nested, enable_int, enable_int_nested},
         systemallocator::allocator::{align_down, align_up, Locked},
     },
 };
@@ -332,10 +332,15 @@ impl PfListAllocator {
 // Trait required by the Rust runtime for heap allocations
 unsafe impl GlobalAlloc for Locked<PfListAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        self.lock().alloc(layout) as *mut u8
+        let e = disable_int_nested();
+        let block = self.lock().alloc(layout) as *mut u8;
+        enable_int_nested(e);
+        return block;
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        let e = disable_int_nested();
         self.lock().dealloc(ptr, layout);
+        enable_int_nested(e);
     }
 }

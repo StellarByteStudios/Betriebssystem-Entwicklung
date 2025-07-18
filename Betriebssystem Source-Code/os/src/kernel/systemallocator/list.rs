@@ -15,7 +15,7 @@ use alloc::{
 use core::{mem, ptr};
 
 use crate::kernel::{
-    cpu,
+    cpu::{self, disable_int_nested, enable_int_nested},
     systemallocator::{
         allocator::{align_up, Locked},
         listnode::ListNode,
@@ -215,10 +215,15 @@ impl LinkedListAllocator {
 // Trait required by the Rust runtime for heap allocations
 unsafe impl GlobalAlloc for Locked<LinkedListAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        self.lock().alloc(layout)
+        let e = disable_int_nested();
+        let block = self.lock().alloc(layout);
+        enable_int_nested(e);
+        return block;
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        let e = disable_int_nested();
         self.lock().dealloc(ptr, layout);
+        enable_int_nested(e);
     }
 }
