@@ -1,20 +1,15 @@
 use alloc::string::String;
 
-use rand::{rngs::SmallRng, RngCore, SeedableRng};
 use usrlib::{
     gameengine::{
-        color::{BLACK, GREEN, WHITE, YELLOW},
+        color::{BLACK, WHITE},
         gameframelayer::GameFrameLayer,
         gameobject::{GameObject, GameObjectFactory},
         position::Position,
-        velocity::Velocity,
     },
     gprintln,
     graphix::picturepainting::pictures::frame::Frame,
-    kernel::{
-        shell::shell_handler::{clear_screen, deactivate_shell, get_screen_size},
-        syscall::user_api::usr_get_systime,
-    },
+    kernel::shell::shell_handler::{clear_screen, deactivate_shell, get_screen_size},
 };
 
 const SEED: u64 = 42;
@@ -87,31 +82,6 @@ pub fn construct_border_objects(field_size: (usize, usize)) -> [GameObject; 4] {
 
     return [north_border, south_border, east_border, west_border];
 }
-
-//pub fn construct_player_object() -> GameObject {}
-
-pub fn construct_ball_object(field_size: (usize, usize)) -> GameObject {
-    // Richtung des Geschwindikeitsvektors zufällig
-    let mut random = SmallRng::seed_from_u64(usr_get_systime());
-    let direction = Velocity::new(random.next_u32() as f32, random.next_u32() as f32);
-    let direction_normalized = direction.normalize() * 20u32;
-
-    // Ball Frame erzeugen
-    let mut ball_sprite = Frame::new(10, 10);
-    ball_sprite.fill_frame(&YELLOW);
-
-    return GameObjectFactory::new()
-        .set_name(String::from("Ball"))
-        .set_position(&Position::new(
-            (field_size.0 / 2) as i32,
-            (field_size.1 / 2) as i32,
-        ))
-        .set_rectangle_collider(10, 10)
-        .set_velocity(direction_normalized)
-        .set_sprite(ball_sprite)
-        .create();
-}
-
 
 pub fn construct_player_object() -> GameObject {
     // Sprite für Spieler erzeugen
