@@ -35,7 +35,8 @@ use crate::enemy::{construct_enemy_object, enemy_control_tick};
 
 const SPIELFELDGROESSE: (usize, usize) = (650, 400);
 
-pub const PLAYERSIZE: usize = 70;
+const PLAYERSIZE: usize = 70;
+const BALLSPEED: usize = 15;
 
 #[link_section = ".main"]
 #[no_mangle]

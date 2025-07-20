@@ -15,18 +15,15 @@ use usrlib::{
     kprintln,
 };
 
-use crate::{
-    score::Score,
-    sounds::{play_point_scored, play_simple_collision},
-};
+use crate::{score::Score, sounds::{play_point_scored, play_simple_collision}, BALLSPEED, PLAYERSIZE};
 
 pub fn construct_ball_object(field_size: (usize, usize)) -> GameObject {
     // Richtung des Geschwindikeitsvektors zufällig (Gewicht seitlich)
     let mut random = SmallRng::seed_from_u64(usr_get_systime());
     let x = random.gen_range(-1.0..=1.0);
     let y = random.gen_range(-1.0..=1.0) / 2f32;
-    let direction = Velocity::new(x, y as f32);
-    let direction_normalized = direction.normalize() * 15u32;
+    let direction = Velocity::new(x, y);
+    let direction_normalized = direction.normalize() * BALLSPEED as u32;
 
     // Ball Frame erzeugen
     let mut ball_sprite = Frame::new(10, 10);
@@ -102,10 +99,28 @@ pub fn check_ball_collision_with_borders(
 pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObject) {
     let player_colision = ball.check_collision(&player);
     if player_colision.is_some() {
+        // Geschwindigkeit umdrehen
         let mut new_velocity = ball.get_velocity();
         new_velocity.bounce_on(Left);
+        // Umgedrehten x-wert holen
+        let x_velocity = new_velocity.get_x();
+
+        // Berechne Abstand von Spielerzentrum auf Y-Achse
+        let ball_mid_y = ball.get_position().get_y() + 5; // 5 = halbe Ballhöhe
+        let player_mid_y = player.get_position().get_y() + (PLAYERSIZE / 2) as i32;
+
+        let axis_diff = (ball_mid_y - player_mid_y) as f32;
+        let max_offset = (PLAYERSIZE / 2) as f32;
+
+        // Y-Richtung anpassen (je nach Position des Aufpralls)
+        let normalized = (axis_diff / max_offset).clamp(-1.0, 1.0);
+        let y_velocity = normalized * x_velocity.abs();
+
+        // Optional: normieren, um gleichbleibende Geschwindigkeit zu garantieren
+        let new_velocity = Velocity::new(x_velocity, y_velocity).normalize() * BALLSPEED as u32;
+
+
         ball.set_new_velocity(&new_velocity);
-        kprintln!("Ball Hit Player");
         play_simple_collision()
     }
 }
@@ -120,8 +135,7 @@ pub fn reset_ball(
     let x = random.gen_range(-1.0..=1.0);
     let y = random.gen_range(-1.0..=1.0) / 2f32;
     let direction = Velocity::new(x, y as f32);
-    let direction_normalized = direction.normalize() * 15u32;
-
+    let direction_normalized = direction.normalize() * BALLSPEED as u32;
     ball.set_new_velocity(&direction_normalized);
     ball.visual_move(
         game_frame_layer,
