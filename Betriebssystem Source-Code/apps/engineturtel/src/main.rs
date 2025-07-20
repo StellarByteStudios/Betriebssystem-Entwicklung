@@ -208,9 +208,8 @@ fn game_loop(
                 kprintln!("Invalid direction: {}", direction);
             }
         }
+
         // Gameframe aktuallisieren
-        for game_layer in game_layers.iter() {
-            game_layer.paint(print_position)
-        }
+        GameFrameLayer::paint_layers(game_layers, &print_position);
     }
 }
