@@ -103,6 +103,7 @@ pub fn check_ball_collision_with_borders(
 pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObject) {
     let player_colision = ball.check_collision(&player);
     if player_colision.is_some() {
+
         // Geschwindigkeit umdrehen
         let mut new_velocity = ball.get_velocity();
         new_velocity.bounce_on(Left);
@@ -135,9 +136,13 @@ pub fn reset_ball(
 ) {
     // Richtung des Geschwindikeitsvektors zufällig (Gewicht seitlich)
     let mut random = SmallRng::seed_from_u64(usr_get_systime());
-    let x = random.gen_range(-1.0..=1.0);
-    let y = random.gen_range(-1.0..=1.0) / 2f32;
-    let direction = Velocity::new(x, y as f32);
+    //let x = random.gen_range(-1.0..=1.0);
+    let mut x = 0.0;
+    while abs(x) < 0.5 {
+        x = random.gen_range(-1.0..=1.0);
+    }
+    let y = random.gen_range(-1.0..=1.0);
+    let direction = Velocity::new(x, y);
     let direction_normalized = direction.normalize() * BALLSPEED as u32;
     ball.set_new_velocity(&direction_normalized);
     ball.visual_move(
