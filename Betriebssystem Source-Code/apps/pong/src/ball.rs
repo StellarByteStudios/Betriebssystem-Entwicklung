@@ -14,7 +14,7 @@ use usrlib::{
     kernel::syscall::user_api::usr_get_systime,
     kprintln,
 };
-
+use usrlib::utility::mathadditions::math::abs;
 use crate::{
     score::Score,
     sounds::{play_point_scored, play_simple_collision},
@@ -77,18 +77,12 @@ pub fn check_ball_collision_with_borders(
                 }
 
                 "East" => {
-                    let mut new_velocity = ball.get_velocity();
-                    new_velocity.bounce_on(Left);
-                    ball.set_new_velocity(&new_velocity);
                     kprintln!("Score for Player");
                     play_point_scored();
                     score.score_player();
                     reset_ball(ball, game_frame_layer, field_size);
                 }
                 "West" => {
-                    let mut new_velocity = ball.get_velocity();
-                    new_velocity.bounce_on(Right);
-                    ball.set_new_velocity(&new_velocity);
                     kprintln!("Score for Enemy");
                     play_point_scored();
                     score.score_enemy();
@@ -105,6 +99,13 @@ pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObje
     if player_colision.is_some() {
 
         // Geschwindigkeit umdrehen
+        let mut ball_velocity = ball.get_velocity();
+        let mut x_velocity = ball_velocity.get_x().abs(); // Spielerfall
+
+        if player.get_name() == "Enemy" {
+            x_velocity = ball_velocity.get_x().abs() * -1f32;
+        }
+
         let mut new_velocity = ball.get_velocity();
         new_velocity.bounce_on(Left);
         // Umgedrehten x-wert holen
