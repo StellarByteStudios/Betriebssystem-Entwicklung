@@ -11,6 +11,7 @@ use usrlib::{
     graphix::picturepainting::pictures::frame::Frame,
     kernel::shell::shell_handler::{clear_screen, deactivate_shell, get_screen_size},
 };
+use crate::PLAYERSIZE;
 
 const SEED: u64 = 42;
 
@@ -85,13 +86,13 @@ pub fn construct_border_objects(field_size: (usize, usize)) -> [GameObject; 4] {
 
 pub fn construct_player_object() -> GameObject {
     // Sprite für Spieler erzeugen
-    let mut player_sprite = Frame::new(10, 70);
+    let mut player_sprite = Frame::new(10, PLAYERSIZE as u32);
     player_sprite.fill_frame(&WHITE);
 
     return GameObjectFactory::new()
         .set_name(String::from("Player 1"))
         .set_position(&Position::new(20, 40))
-        .set_rectangle_collider(20, 70)
+        .set_rectangle_collider(20, PLAYERSIZE)
         .set_sprite(player_sprite)
         .create();
 }

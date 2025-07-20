@@ -1,6 +1,6 @@
 use alloc::string::String;
 
-use rand::{prelude::SmallRng, Rng, RngCore, SeedableRng};
+use rand::{prelude::SmallRng, Rng, SeedableRng};
 use usrlib::{
     gameengine::{
         color::YELLOW,

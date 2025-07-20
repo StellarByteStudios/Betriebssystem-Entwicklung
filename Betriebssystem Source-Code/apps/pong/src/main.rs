@@ -35,6 +35,8 @@ use crate::enemy::{construct_enemy_object, enemy_control_tick};
 
 const SPIELFELDGROESSE: (usize, usize) = (650, 400);
 
+pub const PLAYERSIZE: usize = 70;
+
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
@@ -163,7 +165,7 @@ fn player_bounds_check(player: &mut GameObject) {
         return;
     }
     // Genze nach unten
-    if player.get_position().get_y() > (SPIELFELDGROESSE.1 - 90) as i32 {
+    if player.get_position().get_y() >= (SPIELFELDGROESSE.1 - PLAYERSIZE - 10) as i32 {
         player.set_new_velocity(&Velocity::new(0f32, -10f32));
     }
 }

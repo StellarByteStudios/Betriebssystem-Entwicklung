@@ -4,16 +4,17 @@ use usrlib::gameengine::gameobject::{GameObject, GameObjectFactory};
 use usrlib::gameengine::position::Position;
 use usrlib::gameengine::velocity::Velocity;
 use usrlib::graphix::picturepainting::pictures::frame::Frame;
+use crate::PLAYERSIZE;
 
 pub fn construct_enemy_object(field_size: (usize, usize)) -> GameObject {
     // Sprite für Spieler erzeugen
-    let mut player_sprite = Frame::new(10, 70);
+    let mut player_sprite = Frame::new(10, PLAYERSIZE as u32);
     player_sprite.fill_frame(&WHITE);
 
     return GameObjectFactory::new()
         .set_name(String::from("Enemy"))
         .set_position(&Position::new((field_size.0 - 31) as i32, 40))
-        .set_rectangle_collider(20, 70)
+        .set_rectangle_collider(20, PLAYERSIZE)
         .set_sprite(player_sprite)
         .create();
 }
