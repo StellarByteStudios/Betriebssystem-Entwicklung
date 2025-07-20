@@ -106,11 +106,6 @@ pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObje
             x_velocity = ball_velocity.get_x().abs() * -1f32;
         }
 
-        let mut new_velocity = ball.get_velocity();
-        new_velocity.bounce_on(Left);
-        // Umgedrehten x-wert holen
-        let x_velocity = new_velocity.get_x();
-
         // Berechne Abstand von Spielerzentrum auf Y-Achse
         let ball_mid_y = ball.get_position().get_y() + 5; // 5 = halbe Ballhöhe
         let player_mid_y = player.get_position().get_y() + (PLAYERSIZE / 2) as i32;
