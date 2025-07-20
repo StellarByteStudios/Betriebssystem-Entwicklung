@@ -58,16 +58,16 @@ pub fn check_ball_collision_with_borders(
 
             match partner.as_str() {
                 "North" => {
-                    let mut new_velocity = ball.get_velocity();
-                    new_velocity.bounce_on(Up);
-                    ball.set_new_velocity(&new_velocity);
+                    let old_velocity = ball.get_velocity();
+                    let new_y_speed = old_velocity.get_y().abs();
+                    ball.set_new_velocity(&Velocity::new(old_velocity.get_x(), new_y_speed));
                     kprintln!("Ball bounce up");
                     play_simple_collision();
                 }
                 "South" => {
-                    let mut new_velocity = ball.get_velocity();
-                    new_velocity.bounce_on(Down);
-                    ball.set_new_velocity(&new_velocity);
+                    let old_velocity = ball.get_velocity();
+                    let new_y_speed = old_velocity.get_y().abs() * -1f32;
+                    ball.set_new_velocity(&Velocity::new(old_velocity.get_x(), new_y_speed));
                     kprintln!("Ball bounce Down");
                     play_simple_collision();
                 }

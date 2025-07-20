@@ -60,25 +60,25 @@ pub fn construct_border_objects(field_size: (usize, usize)) -> [GameObject; 4] {
     let north_border = GameObjectFactory::new()
         .set_name(String::from("North"))
         .set_position(&Position::new(0, 0))
-        .set_rectangle_collider(field_size.0, 20)
+        .set_rectangle_collider(field_size.0, 15)
         .create();
 
     let south_border = GameObjectFactory::new()
         .set_name(String::from("South"))
-        .set_position(&Position::new(0, (field_size.1 - 20) as i32))
-        .set_rectangle_collider(field_size.0, 20)
+        .set_position(&Position::new(0, (field_size.1 - 15) as i32))
+        .set_rectangle_collider(field_size.0, 15)
         .create();
 
     let east_border = GameObjectFactory::new()
         .set_name(String::from("East"))
-        .set_position(&Position::new((field_size.0 - 20) as i32, 0))
-        .set_rectangle_collider(20, field_size.1)
+        .set_position(&Position::new((field_size.0 - 15) as i32, 0))
+        .set_rectangle_collider(15, field_size.1)
         .create();
 
     let west_border = GameObjectFactory::new()
         .set_name(String::from("West"))
         .set_position(&Position::new(0, 0))
-        .set_rectangle_collider(20, field_size.1)
+        .set_rectangle_collider(15, field_size.1)
         .create();
 
     return [north_border, south_border, east_border, west_border];
