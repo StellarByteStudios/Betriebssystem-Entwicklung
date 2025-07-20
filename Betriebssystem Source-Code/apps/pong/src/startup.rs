@@ -11,6 +11,7 @@ use usrlib::{
     graphix::picturepainting::pictures::frame::Frame,
     kernel::shell::shell_handler::{clear_screen, deactivate_shell, get_screen_size},
 };
+
 use crate::PLAYERSIZE;
 
 const SEED: u64 = 42;
@@ -24,8 +25,6 @@ pub fn build_field(field_size: (usize, usize)) -> ([GameFrameLayer; 2], Position
 
     // Bildschirmgröße speichern
     let (screen_width, screen_height) = get_screen_size();
-
-    gprintln!("Du kanns jetzt richtig ein Keyboard benutzten. \"q\" zum beenden");
 
     // Erstmal Gameframe zusammenbauen
     let mut game_layers: [GameFrameLayer; 2] = [

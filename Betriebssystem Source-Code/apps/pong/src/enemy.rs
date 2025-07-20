@@ -1,9 +1,15 @@
 use alloc::string::String;
-use usrlib::gameengine::color::WHITE;
-use usrlib::gameengine::gameobject::{GameObject, GameObjectFactory};
-use usrlib::gameengine::position::Position;
-use usrlib::gameengine::velocity::Velocity;
-use usrlib::graphix::picturepainting::pictures::frame::Frame;
+
+use usrlib::{
+    gameengine::{
+        color::WHITE,
+        gameobject::{GameObject, GameObjectFactory},
+        position::Position,
+        velocity::Velocity,
+    },
+    graphix::picturepainting::pictures::frame::Frame,
+};
+
 use crate::PLAYERSIZE;
 
 pub fn construct_enemy_object(field_size: (usize, usize)) -> GameObject {
@@ -24,13 +30,13 @@ pub fn enemy_control_tick(enemy: &mut GameObject, ball: &GameObject) {
     let ball_position = ball.get_position();
 
     // Ball ist höher
-    if ball_position.get_y() < enemy.get_position().get_y() -5 {
+    if ball_position.get_y() < enemy.get_position().get_y() - 5 {
         enemy.set_new_velocity(&Velocity::new(0f32, -10f32));
         return;
     }
 
     // Ball ist tiefer
-    if ball_position.get_y() > enemy.get_position().get_y() +75 {
+    if ball_position.get_y() > enemy.get_position().get_y() + 75 {
         enemy.set_new_velocity(&Velocity::new(0f32, 10f32));
         return;
     }

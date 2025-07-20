@@ -5,10 +5,10 @@
 extern crate alloc;
 
 mod ball;
+mod enemy;
 mod score;
 mod sounds;
 mod startup;
-mod enemy;
 
 use ball::construct_ball_object;
 use rand::{RngCore, SeedableRng};
@@ -20,18 +20,18 @@ use usrlib::{
     },
     gprintln,
     kernel::{
-        shell::shell_handler::{activate_shell, clear_screen},
+        shell::shell_handler::{activate_shell, clear_screen, deactivate_shell},
         syscall::keyboard::{get_new_key_event, KeyEvent::NoEvent},
     },
-    kprintln,
+    kprint, kprintln,
 };
 
 use crate::{
     ball::{check_ball_collision_with_borders, check_ball_collision_with_player},
+    enemy::{construct_enemy_object, enemy_control_tick},
     score::Score,
     startup::{build_field, construct_border_objects, construct_player_object},
 };
-use crate::enemy::{construct_enemy_object, enemy_control_tick};
 
 const SPIELFELDGROESSE: (usize, usize) = (650, 400);
 
@@ -44,7 +44,9 @@ pub fn main() {
     // Spielfeld initialisieren
     let (mut game_layers, game_print_position): ([GameFrameLayer; 2], Position) =
         build_field(SPIELFELDGROESSE);
-    gprintln!("Layer angelegt");
+    kprintln!("Layer angelegt");
+
+    print_startup_infos();
 
     // Ränder holen
     let borders = construct_border_objects(SPIELFELDGROESSE);
@@ -61,7 +63,7 @@ pub fn main() {
     // Leeren Score
     let mut play_score = Score::new();
 
-    gprintln!("Objekte angelegt");
+    kprintln!("Objekte angelegt");
 
     // Ball und Spieler in 1 Layer packen
     ball.print_on_game_layer(&mut game_layers[1]);
@@ -161,7 +163,7 @@ fn check_input(player: &mut GameObject) -> bool {
 
 fn player_bounds_check(player: &mut GameObject) {
     // Grenze nach oben
-    if player.get_position().get_y() <=10 {
+    if player.get_position().get_y() <= 10 {
         player.set_new_velocity(&Velocity::new(0f32, 10f32));
         return;
     }
@@ -169,4 +171,11 @@ fn player_bounds_check(player: &mut GameObject) {
     if player.get_position().get_y() >= (SPIELFELDGROESSE.1 - PLAYERSIZE - 10) as i32 {
         player.set_new_velocity(&Velocity::new(0f32, -10f32));
     }
+}
+
+fn print_startup_infos() {
+    gprintln!("Willkommen zum Klassiker schlecht hin: Pong!");
+    gprintln!("Du kannst hier gegen einen Computergegner spielen mit den klassischen Regeln");
+    gprintln!("Steuerung: \"w\" und \"s\" zum änder der eignen Richtung und \"q\" wenn du das Spiel beenden moechtest");
+    gprintln!("Viel Spass");
 }

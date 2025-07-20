@@ -15,7 +15,11 @@ use usrlib::{
     kprintln,
 };
 
-use crate::{score::Score, sounds::{play_point_scored, play_simple_collision}, BALLSPEED, PLAYERSIZE};
+use crate::{
+    score::Score,
+    sounds::{play_point_scored, play_simple_collision},
+    BALLSPEED, PLAYERSIZE,
+};
 
 pub fn construct_ball_object(field_size: (usize, usize)) -> GameObject {
     // Richtung des Geschwindikeitsvektors zufällig (Gewicht seitlich)
@@ -118,7 +122,6 @@ pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObje
 
         // Optional: normieren, um gleichbleibende Geschwindigkeit zu garantieren
         let new_velocity = Velocity::new(x_velocity, y_velocity).normalize() * BALLSPEED as u32;
-
 
         ball.set_new_velocity(&new_velocity);
         play_simple_collision()
