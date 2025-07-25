@@ -12,6 +12,7 @@ use usrlib::{
         syscall::user_api::usr_getlastkey,
     },
 };
+use usrlib::kernel::syscall::keyboard::get_last_key;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -22,7 +23,7 @@ pub fn main() {
     let mut input = String::new();
 
     loop {
-        let key = usr_getlastkey() as u8 as char;
+        let key = get_last_key();
 
         // exit Rechner Modus
         if key == 'e' {
