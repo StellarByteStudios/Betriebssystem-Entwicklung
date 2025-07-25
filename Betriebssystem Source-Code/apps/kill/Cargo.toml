@@ -13,8 +13,7 @@ path = "src/main.rs"
 test = false
 
 [dependencies]
-usrlib = { path = "../../../hhuTOSuserlib"}
-
+usrlib = { git = "https://github.com/StellarByteStudios/hhuTOSuserlib", branch = "game-engine" }
 
 [profile.development]
 panic = "abort"
