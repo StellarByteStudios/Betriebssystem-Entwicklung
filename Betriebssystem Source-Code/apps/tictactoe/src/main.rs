@@ -7,7 +7,7 @@ use usrlib::{
     gprintln,
     kernel::{
         shell::shell_handler::{activate_shell, deactivate_shell},
-        syscall::user_api::usr_getlastkey,
+        syscall::{keyboard::get_last_key, user_api::usr_getlastkey},
     },
 };
 
@@ -53,16 +53,16 @@ pub fn main() {
             board[2][2]
         );
 
-        let key = usr_getlastkey() as u8;
+        let key = get_last_key();
 
         // ist die Eingabe eine Zahl?
-        if key < b'1' || key > b'9' {
+        if key < '1' || key > '9' {
             gprintln!("ungültige Eingabe");
             continue;
         }
 
         // Index im Board bestimmen (0 bis 8)
-        let pos = (key - b'1') as usize;
+        let pos = (key as u8 - b'1') as usize;
         let row = pos / 3;
         let col = pos % 3;
 

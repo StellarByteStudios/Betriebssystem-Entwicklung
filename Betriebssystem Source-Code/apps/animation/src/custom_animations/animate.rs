@@ -1,9 +1,8 @@
 use usrlib::{
     gprintln,
-    graphix::picturepainting::{ paint::draw_picture},
+    graphix::picturepainting::{paint::draw_picture, pictures::frame::Frame},
     utility::delay::delay,
 };
-use usrlib::graphix::picturepainting::pictures::frame::Frame;
 
 pub fn animate_blue_flame(x: u32, y: u32) {
     // Bilder laden

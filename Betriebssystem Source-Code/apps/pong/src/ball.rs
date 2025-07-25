@@ -13,8 +13,9 @@ use usrlib::{
     graphix::picturepainting::pictures::frame::Frame,
     kernel::syscall::user_api::usr_get_systime,
     kprintln,
+    utility::mathadditions::math::abs,
 };
-use usrlib::utility::mathadditions::math::abs;
+
 use crate::{
     score::Score,
     sounds::{play_point_scored, play_simple_collision},
@@ -97,7 +98,6 @@ pub fn check_ball_collision_with_borders(
 pub fn check_ball_collision_with_player(ball: &mut GameObject, player: &GameObject) {
     let player_colision = ball.check_collision(&player);
     if player_colision.is_some() {
-
         // Geschwindigkeit umdrehen
         let mut ball_velocity = ball.get_velocity();
         let mut x_velocity = ball_velocity.get_x().abs(); // Spielerfall
