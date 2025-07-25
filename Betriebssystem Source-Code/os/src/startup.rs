@@ -20,29 +20,33 @@
 // Nach Rust Update
 #![allow(static_mut_refs)]
 
+use alloc::{boxed::Box, string::ToString, vec, vec::Vec};
 use core::{panic::PanicInfo, ptr};
 
-use crate::boot::multiboot::PhysRegion;
-use crate::kernel::logger;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use alloc::{boxed::Box, string::ToString, vec};
 use boot::{appregion, multiboot};
 use consts::{KERNEL_HEAP_SIZE, PAGE_FRAME_SIZE, TEMP_HEAP_SIZE};
-use devices::graphical::fonts::font_8x8;
-use devices::graphical::{graphic_console_printer, vga};
-use devices::{cga, keyboard::Keyboard, pit};
+use devices::{
+    cga,
+    graphical::{fonts::font_8x8, graphic_console_printer, vga},
+    keyboard::Keyboard,
+    pit,
+};
 use kernel::{
-    allocator::{self},
     cpu, interrupts,
     paging::{
         frames::{self, dump_kernal_frames, dump_user_frames, pf_alloc, pf_free},
         pages,
     },
     syscall,
-    threads::{self, scheduler::Scheduler, idle_thread, thread::Thread},
+    systemallocator::allocator,
+    threads::{self, idle_thread, scheduler::Scheduler, thread::Thread},
 };
 use log::info;
-use crate::kernel::threads::scheduler;
+
+use crate::{
+    boot::{appregion::AppRegion, multiboot::PhysRegion},
+    kernel::{logger, paging::physical_addres::PhysAddr, shell::shell_process, threads::scheduler},
+};
 
 extern crate alloc;
 
@@ -252,31 +256,37 @@ fn print_frames_with_headline(headline: &str) {
 pub extern "C" fn kmain(mbi: u64) {
     kprintln!("kmain");
 
+    kprintln!("-- Noch vor dem Init. MBI-Pointer: {:#x}\n", mbi);
+
     // Alles Wichtige Initialisieren
     init_all(mbi);
-    
 
     // Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler registrieren
     scheduler::spawn_kernel();
 
-    // Apps aus initrd.tar extrahieren
-    let opt_apps = appregion::get_apps_from_tar(mbi);
+    // TODO: Wenn auskommentiert sehr wilde ausgabe
+    kprintln!("-- Nach Spawn kernel. MBI-Pointer: {:#x}\n", mbi);
 
-    // Prozesse mit je einem Thread fuer alle Apps erzeugen & im Scheduler registrieren
-    match opt_apps {
-        None => kprintln!("No apps found."),
-        Some(mut apps) => {
-            kprintln!("Found following apps in 'initrd': {:?}", apps);
-            // Prozesse fuer alle Apps erzeugen
-            loop {
-                let app = apps.pop();
-                if app.is_none() {
-                    break;
-                }
-                scheduler::spawn(app.unwrap());
-            }
-        }
+    // Apps aus initrd.tar extrahieren
+    let opt_apps: Option<Vec<AppRegion>> = appregion::get_apps_from_tar(mbi);
+
+    // Wurde was geladen?
+    if opt_apps.is_none() {
+        kprintln!("!=!=!=!=!=!=!=!=!=!=!=!=!=!=! No apps found !=!=!=!=!=!=!=!=!=!=!=!=!=!=!");
+        // Dauerloop
+        loop {}
     }
+
+    // Environment Test
+    usrlib::kernel::runtime::env_variables::env_insert("Hello", "Super Toller Inhalt");
+    usrlib::kernel::runtime::env_variables::env_insert("python", "/usr/local/bin/python");
+    usrlib::kernel::runtime::env_variables::env_insert(
+        "pirates",
+        "Has s sdf f fgd d saas   Has s sdf f fgd d sas    Has s sfg g ghu u hghs    sdf f g hs   sfd d sas",
+    );
+
+    // Schellprogramm starten
+    shell_process::spawn_shell_process(opt_apps.clone().unwrap());
 
     // Scheduler starten & Interrupts erlauben
     Scheduler::schedule();
@@ -289,4 +299,10 @@ pub extern "C" fn kmain(mbi: u64) {
 fn panic(info: &PanicInfo) -> ! {
     kprintln!("Panic: {}", info);
     loop {}
+}
+
+// Dummy-Main Methode wegen der Dependency von Usrlib
+#[no_mangle]
+pub fn main() {
+    kprintln!("Should never be reached");
 }

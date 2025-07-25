@@ -3,7 +3,6 @@
 ######################################
 
 [env]
-#APP_IMAGE = "hello.bin"
 KERNEL_IMAGE = "kernel.elf"
 ISO = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/${CARGO_MAKE_PROJECT_NAME}.iso"
 BOOTLOADER_DIRECTORY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/loader"
@@ -12,11 +11,8 @@ OBJCOPY = { source = "${CARGO_MAKE_RUST_TARGET_OS}", default_value = "objcopy", 
 SOUND = { source = "${CARGO_MAKE_RUST_TARGET_OS}", default_value = "id=snd0,driver=pa", mapping = { "macos" = "coreaudio,id=snd0" } }
 KERNEL = "${BOOTLOADER_DIRECTORY}/isofiles/boot/${KERNEL_IMAGE}"
 RAW_TAR_IMAGE = "${BOOTLOADER_DIRECTORY}/isofiles/boot/initrd.tar"
-#APP_ELF = "${BOOTLOADER_DIRECTORY}/isofiles/hello.elf"
-#APP_BIN = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps/${APP_IMAGE}"
 APPS_ELF_FOLDER = "${BOOTLOADER_DIRECTORY}/isofiles/boot/apps"
 APPS_BIN_FOLDER = "${APPS_ELF_FOLDER}/bin"
-
 
 
 ######################################
@@ -34,6 +30,8 @@ args = [
     "${SOUND}",
     "-machine",
     "pcspk-audiodev=snd0",
+    "-m",
+    "3192",
 ]
 dependencies = ["iso"]
 
@@ -50,6 +48,8 @@ args = [
     "pcspk-audiodev=snd0",
     "-s",
     "-S",
+    "-m",
+    "3192",
 ]
 dependencies = ["iso", "gdb-echo-for-vscode"]
 
@@ -87,7 +87,6 @@ command = "mkdir"
 args = ["-p", "${APPS_BIN_FOLDER}"]
 
 
-
 ######################################
 # Bootloader tasks
 ######################################
@@ -118,22 +117,12 @@ dependencies = ["remove-images", "remove-bins", "remove-elfs"]
 
 [tasks.remove-images]
 command = "rm"
-args = [
-    "-f",
-    "${KERNEL}",
-    "${RAW_TAR_IMAGE}",
-]
+args = ["-f", "${KERNEL}", "${RAW_TAR_IMAGE}"]
 
 [tasks.remove-bins]
 command = "rm"
-args = [
-    "-rf",
-    "${APPS_BIN_FOLDER}",
-]
+args = ["-rf", "${APPS_BIN_FOLDER}"]
 
 [tasks.remove-elfs]
 command = "rm"
-args = [
-    "-rf",
-    "${APPS_ELF_FOLDER}",
-]
+args = ["-rf", "${APPS_ELF_FOLDER}"]

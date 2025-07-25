@@ -1,0 +1,99 @@
+######################################
+# Environment variables
+######################################
+
+[env.development]
+CARGO_CFG_TARGET_FAMILY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/ByteOS.json"
+BUILD_DIRECTORY = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/ByteOS/debug"
+CARGO_BUILD_OPTION = "--lib"
+
+[env.production]
+CARGO_CFG_TARGET_FAMILY = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/ByteOS.json"
+BUILD_DIRECTORY = "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/ByteOS/release"
+CARGO_BUILD_OPTION = "--release"
+
+[env]
+APP_NAME = "pic"
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+RUST_TARGET_PATH = "${CARGO_MAKE_WORKING_DIRECTORY}"
+SOURCE_DIRECTORY = "${CARGO_MAKE_WORKING_DIRECTORY}/src"
+LINKER_FILE = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/loader/appLinker.x86_64-elf-ld"
+RUST_OBJECT = "${BUILD_DIRECTORY}/lib${CARGO_MAKE_PROJECT_NAME}.a"
+APP_ELF = "${APPS_ELF_FOLDER}/${APP_NAME}.elf"
+APP_BIN = "${APPS_BIN_FOLDER}/${APP_NAME}.bin"
+
+
+######################################
+# Build tasks
+######################################
+
+# default task
+[tasks.default]
+alias = "link"
+
+# 
+# Compiling Rust sources
+#
+[tasks.compile]
+command = "cargo"
+args = [
+    "build",
+    "-Z",
+    "build-std=core,alloc",
+    "-Z",
+    "build-std-features=compiler-builtins-mem",
+    "--target",
+    "${CARGO_CFG_TARGET_FAMILY}",
+    "${CARGO_BUILD_OPTION}",
+]
+condition = { files_modified = { input = [
+    # The kernel shall be recompiled of any of the input (source) files is newer than the output file
+    "${CARGO_MAKE_WORKING_DIRECTORY}/Cargo.toml",
+    "${SOURCE_DIRECTORY}/**/*.rs",
+], output = [
+    # Compiled output file
+    "${BUILD_DIRECTORY}/lib${CARGO_MAKE_PROJECT_NAME}*",
+] } }
+
+
+# 
+# Linking 
+#
+[tasks.linkelf]
+command = "${LINKER}"
+args = ["-n", "-T", "${LINKER_FILE}", "-o", "${APP_ELF}", "${RUST_OBJECT}"]
+dependencies = ["compile"]
+condition = { files_modified = { input = [
+    # The input files of tasks.link are the output file of tasks.compile and all asm build tasks
+    "${BUILD_DIRECTORY}/lib${CARGO_MAKE_PROJECT_NAME}*",
+], output = [
+    # The output file is the linked application
+    "${APP_ELF}",
+] } }
+
+
+[tasks.link]
+command = "${OBJCOPY}"
+args = [
+    "-O",
+    "binary",
+    "${APP_ELF}",
+    "${APP_BIN}",
+    "--set-section-flags",
+    ".bss=alloc,load,contents",
+]
+dependencies = ["linkelf"]
+
+
+######################################
+# Cleanup tasks
+######################################
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+dependencies = ["remove-kernel"]
+
+[tasks.remove-kernel]
+command = "rm"
+args = ["-f", "${KERNEL}"]

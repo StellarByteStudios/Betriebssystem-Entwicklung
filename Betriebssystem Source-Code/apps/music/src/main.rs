@@ -1,49 +1,90 @@
 #![no_std]
+#![no_main]
 #![allow(unused_variables)] // avoid warnings
 
 extern crate alloc;
 
-use core::panic::PanicInfo;
-use core::str::from_utf8_unchecked;
-use usrlib;
-use usrlib::graphix::picturepainting::animate::animate_charmander;
-use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
-use usrlib::kernel::syscall::SongID;
-use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_play_song, usr_read_process_name};
-use usrlib::print_setpos;
+mod play;
+mod songs;
+
+mod live;
+
+use usrlib::{
+    self, gprintln,
+    kernel::runtime::environment::args_as_vec,
+    music::{note::Note, player::play_notes},
+};
+
+use crate::{
+    live::liveplayer,
+    play::player,
+    songs::{
+        daftpunk::AERODYNAMIC, doom::DOOM, entchen::ENTCHEN, nintendo::MARIO, nyancat::NYANCAT,
+        starwars::STARWARS_IMPERIAL, tetris::TETRIS,
+    },
+};
+
+const SONGS: &'static [&'static str] = &[
+    "nyancat",
+    "starwars",
+    "mario",
+    "aerodynamics",
+    "tetris",
+    "entchen",
+    "doom",
+];
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
+    // Laden der Argumente
+    let args = args_as_vec();
 
-    const BUFFERLENGH: usize = 255;
+    if args.len() < 2 {
+        gprintln!("Nicht genug argumente um Position und Animation auszuwaehlen");
+        return;
+    }
 
-    // Daten holen
-    let pid = usr_get_pid();
-    let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
-    let actual_name: &str = unsafe {
-        from_utf8_unchecked(
-            namebuffer
-                .as_slice()
-                .split(|&b| b == 0)
-                .next()
-                .unwrap_or(&[]),
-        )
-    };
+    let note_slice: &[Note];
+
+    // Raussuchen welche Animation gemeint wird
+    match args.get(1).unwrap().to_ascii_lowercase().as_str() {
+        "cat" | "nyancat" => note_slice = NYANCAT,
+        "starwars" | "imperial" => note_slice = STARWARS_IMPERIAL,
+        "mario" => note_slice = MARIO,
+        "aerodynamics" | "aero" => note_slice = AERODYNAMIC,
+        "tetris" => note_slice = TETRIS,
+        "entchen" | "allemeineentchen" => note_slice = ENTCHEN,
+        "doom" => note_slice = DOOM,
+        // Dynamischer Player
+        "play" | "player" => {
+            player::play_args(args);
+            return;
+        }
+        // gibt eine Liste aller Songs aus
+        "song" | "songs" => {
+            gprintln!("Folgende Songs sind abspielbar: ");
+            for song in SONGS {
+                gprintln!("    - {}", song);
+            }
+            return;
+        }
+        // gibt eine Liste aller Songs aus
+        "live" => {
+            gprintln!("Du kannst jetzt live Spielen ");
+            liveplayer::play_live();
+            return;
+        }
+        // Fehlerfall
+        _ => {
+            gprintln!("Song not avaiable... :(");
+            return;
+        } // nicht registriert
+    }
 
     // Ausgabe
-    print_setpos!(50, 15, "Name: {}; pid: {}", actual_name, pid);
+    gprintln!("Playing song: \"{}\"", args.get(1).unwrap().as_str());
 
-    usr_play_song(SongID::super_mario as u64);
-
-    loop {}
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
+    // Musik abspielen
+    play_notes(note_slice);
 }

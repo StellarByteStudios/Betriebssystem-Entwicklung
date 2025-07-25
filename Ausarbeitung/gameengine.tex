@@ -1,0 +1,48 @@
+\section{Game Engine}
+    Nach Ende des Semesters habe ich nochmals einem Motivationsschub bekommen, die Userlib um eine Game-Engine zu erweitern. Dieser Part ist alleine auf mich zurückzuführen und es gab keine weiteren Absprachen mit meinem Teamkollegen.
+
+\subsection{Grundidee}
+    Die Gameengine soll grundlegende Funktionen bereitstellen und die entsprechenden Syscalls abkapseln. Dadurch wäre es möglich plattformunabhängig Spiele und ähnliches zu entwickeln. 
+
+\subsection{Funktionen}
+    Die Gameengine hat 3 grundlegende Funktionalitäten. 
+    \begin{itemize}
+        \item Visuelle Darstellung (Sprites, Zeichenfunktionen, Framebuffer)
+        \item Manipulation und Transformation (Bewegen von Objekten)
+        \item Hitboxen (Interaktion zwischen Objekten)
+    \end{itemize}
+    
+    \subsubsection{visuelle Darstellung}
+        Die \underline{visuelle Darstellung} war grundlegend schon gegeben, da wir bereits Bilder als Bitmap an den Kernel übergeben können. Da drumherum wurde ein System gebaut mit einigen Zeichenfunktionen für Linien und Kreise, sowie Frame-Layers auf denen einzelne Sprites abgebildet werden können. Diese Layer werden dann für die Ausgabe zu einem einzigen Frame gemerged und dann an den Kernel übergeben. Das mergen vor dem Syscall verhindert Flackern.
+
+    \subsubsection{Manipulation und Transformation}
+        Für die \underline{Manipulation} von Objekten wurden weitere Structs \verb|Position| und \verb|Velocity| hinzugefügt. Gameobjects haben dadurch die Möglichkeit sich frei auf dem Bildschirm zu bewegen. Man kann einen ''Tick'' ausführen um einfach die Position nach der Geschwindigkeit zu verändern, oder man kann direkt die Position manipulieren.
+        Es gibt die Möglichkeit dies auch direkt Visuell zu machen, also die Sprites im Frame zu verschieben.
+
+    \subsubsection{Hitboxen}
+        Die \underline{Hitbox} ist als \verb|Trait-Object| implementiert. Dadurch kann das Struct \verb|GameObject| eine beliebige Hitbox haben. Aktuell gibt es in der Gameengine Rechtecke und Kreise als Hitbox. Das \verb|Trait-Object| gewährleistet, dass man von beliebigen Hitboxen ausrechnen kann, ob sie sich überschneiden. So können Kollisionen zwischen Objekten bestimmt werden.
+
+    \subsubsection{Game-Object}
+        Alle diese Eigenschaften sind in einem Struct \verb|GameObject| miteinander verknüpft. In der Regel legt man also \verb|GameObjects| an und packt die in einen \verb|GameFrameLayer| (Kapselung der Bitmaps). Dann kann man all die Funktionen von oben benutzen.
+
+\subsection{Probleme}
+    Eines der größten Probleme war, dass der Syscall um die Tastatur auszulesen immer auf die nächste Tastatureingabe gewartet hat. Dadurch konnten Anwendungen nicht einfach weiterlaufen bis zur nächsten Tastatureingabe. Dies wurde durch ein Buffer im Kernen umgangen. Gibt es eine Eingabe wird diese im Buffer gespeichert. Fragt ein Syscall diesen ab, wird der gespeicherte \verb|Char| konsumiert und der Buffer geleert. Wird ein leerer Buffer angefragt, bekommt man im Syscall keine Eingabe zurück, aber die App läuft weiter. So kann die App asynchron zur Tastatureingabe laufen. \newline
+
+    Auch eine Hürde war, dass Spieleentwickung und eben auch Funktionen von Gameengines inherent Objektorientiert sind, Rust jedoch nicht. Daher musste oft getrickst werden mit Struct Impls und Trait-Objekten wie z.b. die Hitbox.
+
+
+\subsection{Spiele}
+    Es wurden zwei Apps auf Basis der Gameengine entwickelt. Sie sollen die Funktionen und Möglichkeiten zeigen. 
+
+
+    \subsubsection{Pong}
+        Ein Klassiker aus der Arcade-Zeit, gut um die grundlegenden Funktionen der Gameengine zu zeigen.
+        Es gibt ein Spielfeld mit zwei Spielern, die sich hoch- und runterbewegen können. Während der rechte Spieler von Computer selbst gesteuert wird, kann man den linken Spieler mit \verb|W| und \verb|S| nach oben und unten bewegen. 
+        Der Ball bewegt sich am Anfang zufällig in eine Richtung (Dies zeigt die asynchrone Bewegung) und prallt von den Wänden ab was die Kollisionsabfrage zeigt. Erreicht der Ball eine der Seitenwände gibt es dementsprechend einen Punkt und der Ball startet wieder in der Mitte. Je nach Aufprallposition wird der Ball in eine andere Richtung gelenkt
+
+
+    \subsubsection{Turtel-Grafics}
+        Ein klassisches Beispiel um Grafik-Funktionalitäten zu demonstrieren sind sogenannte \verb|Turtel-Graphics|. Grob ist es die Möglichkeit Linien zu ziehen und daraus Bilder zu malen.
+        Ich habe diese Idee verwendet um einige Teile der Game-Engine zu testen.
+
+        \underline{Steuerung:} man kann mit \verb|WASD| das Kreuz steuern. Mit der \verb|Leertaste| kann man eine Linie von dem vorhergegangenen Punkt zum aktuellen ziehen und mit \verb|C| kann man zufällig große Kreise erzeugen.

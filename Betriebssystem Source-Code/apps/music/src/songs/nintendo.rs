@@ -1,0 +1,2396 @@
+use usrlib::music::note::Note;
+
+pub const MARIO: &[Note] = &[
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 600,
+    },
+    Note {
+        frequency: 0,
+        duration: 600,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 329,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 466,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 329,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 466,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 736,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 907,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1587,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 1046,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 907,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 739,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 622,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1247,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1417,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1247,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 329,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 466,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 329,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 466,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1247,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1247,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1417,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 1247,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 880,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 783,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 392,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 396,
+    },
+    Note {
+        frequency: 415,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 440,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 566,
+    },
+    Note {
+        frequency: 493,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 226,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 56,
+    },
+    Note {
+        frequency: 698,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 659,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 587,
+        duration: 113,
+    },
+    Note {
+        frequency: 0,
+        duration: 113,
+    },
+    Note {
+        frequency: 523,
+        duration: 113,
+    },
+];

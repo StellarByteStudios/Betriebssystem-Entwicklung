@@ -1,0 +1,40 @@
+\section{Apps}
+Für die Apps wurde neben den neuen Syscalls in der Userlib auch noch eine Runtime und eine Environment bereit gestellt
+
+\subsection{Runtime}
+    Zuvor haben wir bei den Apps immer direkt die Main Methode direkt angesprungen. Das hatte zur Folge, dass wir einerseits das Set-Up des Allocators selber in der Main übernehmen mussten und das wir aus der \verb|Main|-Methode nicht zurückspringen durften, was heißt: Die Apps werden nicht beendet. Um diese Probleme zu umgehen wurde eine Runtime-Umgebung geschaffen. Diese hat eine \verb|Entry|-Methode die statt der \verb|Main|-Methode angesprungen wird. In dieser werden erst Initialisierungen wie das Anlegen des Heaps durchgeführt und danach die \verb|Main|-Methode aufgerufen. Wenn diese zurückkehrt, wird am Ende der \verb|Entry|-Methode der Prozess über einen Syscall beendet.
+
+\subsection{Environment}
+    Um vernünftige Shellfunktionen bereitzustellen brauchen wir auch Kommandozeilenargumente. Dazu müssen wir den Apps beim Starten Variablen übergeben können. Im Kernel wird beim Anlegen des App-Prozesses und dessen Mapping an eine feste Stelle im Speicher ein zusätzliches Mapping eingerichtet und die übergebenen Parameter dort gespeichert. Über einen Iterator kann die App dann auf diese Daten zugreifen. Es wurden Hilfsmethoden implementiert, um diese Argumente direkt als Vektor zu bekommen. Die Argumente werden als Strings übergeben.
+    
+    \subsubsection{Globale Environment-Variablen}
+        Oft hat eine Shell auch eine Möglichkeit Globale Variablen zu speichern. Diese können dann mit Namen angesprochen werden und anderen Apps übergeben werden. Diese Funktionalität wurde auch hinzugefügt.
+        \paragraph{Variablen anlegen}
+            Wird als Eingabe \verb|"env_put <key> <value>"| verwendet, wird der Wert von \verb|value| in eine Hashmap mithilfe von \verb|key| gespeichert. 
+        \paragraph{Umgebungsvariablen verwenden}
+            Wird beim Parsen eines Commands ein \verb|$| gefunden wird der darauffolgende String als \verb|key| interpretiert. Wenn in der Hashmap eine entsprechende Variable gefunden wird, dann wird der \verb|key| durch den entsprechenden Wert ersetzt.
+
+\subsection{Implementierte Apps}
+    Liste implementierter Apps:
+    \begin{itemize}
+        \item \textbf{hello:} Beispielprogramm (Aus ISO-S)
+        \item \textbf{extracounter:} Beispielprogramm (Aus ISO-S)
+        \item \textbf{animation:} Kann einige vorgefertigte Animationen an gegeben Positionen abspielen
+        \item \textbf{music:} Umfangreiche App für den PC-Speaker\begin{itemize}
+            \item Vorgefertigte Stücke abspielen
+            \item Abspielen von übergebenem Parameter (true und key Modus)
+            \item Live spielen durch Abfangen von Tastatur
+        \end{itemize}
+        \item \textbf{echo:} Gibt die Eingegebenen Argumente zurück
+        \item \textbf{threads:} Listet alle laufenden Threads auf
+        \item \textbf{apps:} Listet alle verfügbaren Apps auf
+        \item \textbf{kill:} Nimmt eine ProzessID und beendet diesen Prozess
+        \item \textbf{datetime:} Printet aktuelles Datum und Zeit über die RTC in \verb|"dd:MM:YY   HH:mm:ss"|
+        \item \textbf{uptime:} Printet die aktuelle Uptime in \verb|"HH:mm:ss"|
+        \item \textbf{picture:} Vorgefertigte Bilder ausgeben
+        \item \textbf{mandelbrot:} Berechnet live die Mandelbrotmenge
+        \item \textbf{help:} Erklärung der Shell
+        \item \textbf{keycatcher:} Testprogramm um Tastaturabfangen zu testen
+        \item \textbf{turtel:} Anfang einer ersten Grafischen Anwendung
+    \end{itemize}
+

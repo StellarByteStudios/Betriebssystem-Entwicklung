@@ -6,24 +6,28 @@
    ║ Autor:  Michael Schoettner, 11.06.2024                                  ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use crate::boot::appregion::AppRegion;
-use crate::consts;
-use crate::consts::USER_CODE_VM_START;
-use crate::devices::cga;
-use crate::kernel::cpu;
-use crate::kernel::paging::frames::pf_alloc;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::pages::PageTable;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process;
-use crate::kernel::threads::scheduler;
-use crate::kernel::threads::stack;
-use alloc::boxed::Box;
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::fmt;
-use core::mem::transmute;
-use x86_64::registers::control::Cr3;
+use alloc::{boxed::Box, string::String, vec::Vec};
+use core::{fmt, mem::transmute};
+
+use usrlib::kernel::runtime::environment::USER_SPACE_ENV_START;
+
+use crate::{
+    boot::appregion::AppRegion,
+    consts,
+    consts::USER_CODE_VM_START,
+    devices::cga,
+    kernel::{
+        cpu,
+        paging::{
+            frames::pf_alloc,
+            pages,
+            pages::{pg_mmap_user_environment, PageTable},
+            physical_addres::PhysAddr,
+        },
+        processes::process_handler,
+        threads::{scheduler, stack},
+    },
+};
 
 // Diese Funktionen sind in 'thread.asm'
 extern "C" {
@@ -39,14 +43,15 @@ extern "C" {
 
 // Verwaltungsstruktur fuer einen Thread
 #[repr(C)]
+#[derive(Clone)]
 pub struct Thread {
     pub pid: usize, // Zu welchem Prozess gehört dieser Thread
     pub tid: usize,
-    
+
     is_kernel_thread: bool,
     pml4_addr: PhysAddr, // Einstieg in die Seitentabellen
     old_rsp0: u64,       // letzter genutzter Stackeintrag im Kernel-Stack
-                         // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
+    // der User-Stack-Ptr. wird auto. durch die Hardware gesichert
     user_stack: Box<stack::Stack>,   // Speicher fuer den User-Stack
     kernel_stack: Box<stack::Stack>, // Speicher fuer den Kernel-Stack
 
@@ -78,7 +83,7 @@ impl Thread {
         let new_tid = scheduler::next_thread_id();
 
         // PML4 aus Prozess laden
-        let process_pml4 = process::get_pml4_address_by_pid(process_id);
+        let process_pml4 = process_handler::get_pml4_address_by_pid(process_id);
 
         let my_kernel_stack =
             stack::Stack::new_mapped_stack(process_id, consts::STACK_SIZE, true, process_pml4);
@@ -104,29 +109,8 @@ impl Thread {
         return threadobj;
     }
 
-    // Neuen Thread anlegen
-    pub fn new(my_pid: usize, process_pml4: PhysAddr,  myentry: extern "C" fn(), kernel_thread: bool) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, String::from("Nameless"), Vec::new());
-    }
-
-    /*
-     * Erwerterung für Name und Args
-     */
     /**
-       Description: Create new Thread (Mit Args!)
-    */
-    pub fn new_with_args(
-        my_pid: usize,
-        myentry: extern "C" fn(),
-        kernel_thread: bool,
-        thread_name: String,
-        my_args: Vec<String>,
-    ) -> Box<Thread> {
-        return Thread::internal_new(myentry, kernel_thread, my_pid, thread_name, my_args);
-    }
-
-    /**
-       Description: Create new Thread (mit Name)
+       Threadkonstruktor mit Threadname
     */
     pub fn new_name(
         my_pid: usize,
@@ -139,12 +123,70 @@ impl Thread {
 
     // Thread fuer eine App anlegen
     // Hier wird der Code & BSS eingemappt & ein Thread mit eigenem Adressraum erzeugt
-    pub fn new_app_thread(app: AppRegion, pid: usize) -> Box<Thread> {
+    pub fn new_app_thread(app: AppRegion, pid: usize, args: &Vec<String>) -> Box<Thread> {
         // Entry-Thread konvertieren
         let thread_entry = unsafe { transmute::<usize, extern "C" fn()>(USER_CODE_VM_START) };
 
         let app_thread =
-            Self::internal_new(thread_entry, false, pid, app.file_name.clone(), Vec::new());
+            Self::internal_new(thread_entry, false, pid, args[0].clone(), args.clone());
+
+        // ============ NEU! Environment ============ //
+        // Gesammten Speicherplatz für die Argumente berechnen
+        let args_size = args.iter().map(|arg| arg.len()).sum::<usize>();
+
+        // Startadresse
+        let env_virt_start = USER_SPACE_ENV_START;
+        let env_size = args_size;
+
+        // Mappen der Environment im App-Space
+        // Startadresse im Virtuellen Adressraum
+        kprintln!("--------------- Lege Mapping für Environment an");
+        let phys_addr_of_env = pg_mmap_user_environment(pid, env_virt_start, env_size);
+
+        // Aufbauen von argc und argv im Userspace
+        // Im ersten Eintrag steht die Anzahl der Argumente
+        let argc_phys: *mut usize = phys_addr_of_env.as_mut_ptr::<usize>();
+        // Pointer einer pro Element in den Args
+        let argv_phys = (phys_addr_of_env.raw() + size_of::<usize>() as u64) as *mut *mut u8;
+
+        // Alle Argumente zum pointer kopieren
+        unsafe {
+            // Anzahl der Argumente in den Speicher schreiben
+            argc_phys.write(args.len());
+
+            // Physische Startadresse der Environment-Variablen
+            // (args.len()) weil davor ja nur die Pointer sind und dannach die Echten Inhalte kommen
+            let args_begin_phys = argv_phys.offset(args.len() as isize).cast::<u8>();
+            // Virtuelle Startadresse der Environment-Variablen
+            let args_begin_virt = env_virt_start
+                + size_of::<usize>() // Feld mit Anzahl Einträge
+                + ((args.len()) * size_of::<usize>()); // Platz für die Pointer
+
+            // Pointer auf Anfang des Namens im Eingabearray speichern
+            argv_phys.write(args_begin_virt as *mut u8);
+
+            // Index, wo das nächste Argument hin geht?
+            let mut offset = 1;
+
+            // Restlichen Argumente kopieren
+            for (i, arg) in args.iter().enumerate() {
+                // An welche physische Adresse wird das Argument geschrieben
+                let target_address = args_begin_phys.add(offset);
+
+                // Den String roh in den Speicher schreiben
+                target_address.copy_from(arg.as_bytes().as_ptr(), arg.len());
+                target_address.add(arg.len()).write(0); // null-terminieren für den String
+
+                // Pointer auf neue das Argument in unser Array schreiben
+                argv_phys
+                    .add(i)
+                    .write((args_begin_virt + offset) as *mut u8);
+
+                // Offset neu berechnen
+                offset += arg.len() + 1;
+            }
+        }
+        // ============  ============ //
 
         // App-Image mappen
         pages::pg_mmap_user_app(pid, app_thread.pml4_addr, app);
@@ -248,20 +290,21 @@ impl Thread {
             *sp0 = 0x00DEAD00 as u64; // dummy Ruecksprungadresse
 
             // Nun sichern wir noch alle Register auf dem Stack
-            *sp0.offset(-1) = 0b0000_0000_0010_1011;    // SS Register (Segment Selector)
-                                                              // 15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
-            *sp0.offset(-2) = sp3 as u64;               // ESP
-            *sp0.offset(-3) = 512 + 2;                  // EFLAGS 
-            *sp0.offset(-4) = 0b0000_0000_0010_0011;    // CS 
-                                                              //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-1) = 0b0000_0000_0010_1011; // SS Register (Segment Selector)
+                                                     // 15-3 Bit Index in GDT = *Data*/Code? = 5 = 0b101 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
+            *sp0.offset(-2) = sp3 as u64; // ESP
+            *sp0.offset(-3) = 512 + 2; // EFLAGS
+            *sp0.offset(-4) = 0b0000_0000_0010_0011; // CS
+                                                     //15-3 Bit Index in GDT = Data/*Code*? = 4 = 0b100 | 1Bit TI = GDT = 0| 2Bit PrivLevel = 3 = 0b11
             *sp0.offset(-5) = consts::USER_CODE_VM_START as u64;
-            
-            *sp0.offset(-6) = object as u64;            // RDI
+            //*sp0.offset(-5) = (*object).entry as u64;
+
+            *sp0.offset(-6) = object as u64; // RDI
 
             // Zum Schluss speichern wir den Zeiger auf den zuletzt belegten
             // Eintrag auf dem Stack in 'rsp0'. Daruber gelangen wir in
             // _thread_kernel_start an die noetigen Register
-            self.old_rsp0 = (sp0 as u64) - (8 * 6);           // aktuellen Stack-Zeiger speichern
+            self.old_rsp0 = (sp0 as u64) - (8 * 6); // aktuellen Stack-Zeiger speichern
         }
     }
 
@@ -308,7 +351,7 @@ impl PartialEq for Thread {
 // Notwendig, falls wir die Ready-Queue ausgeben moechten
 impl fmt::Display for Thread {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.tid)
+        write!(f, "[{}, ID:{}, PID:{}]", self.name, self.tid, self.pid)
     }
 }
 
@@ -323,12 +366,13 @@ impl fmt::Display for Thread {
 pub extern "C" fn kickoff_kernel_thread(object: *mut Thread) {
     unsafe {
         kprintln!(
-            "kickoff_kernel_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}",
+            "kickoff_thread, tid={}, old_rsp0 = {:x}, is_kernel_thread: {}, pagetable-addres: 0x{:x}, name={}, args={:?}",
             (*object).tid,
             (*object).old_rsp0,
             (*object).is_kernel_thread,
             (*object).pml4_addr.0,
             (*object).name,
+            (*object).args,
         );
     }
 

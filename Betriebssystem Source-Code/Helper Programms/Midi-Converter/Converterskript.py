@@ -5,10 +5,14 @@ from mido import MidiFile
 
 def main():
 
+    # Name des Songs
+    songname = "NyanCat"
     # Pfad zum Midi-File
     pathToMedi = "Midifiles/NyanCat.mid"
     # Pfad zur Ausgabe-Datei
-    pathToMethod = "MidiOutput/NyanCat.txt"
+    pathToMethod = f"MidiOutput/{songname}Slice.txt"
+
+
 
     # Speed-Faktor
     #bpm = 100
@@ -19,6 +23,8 @@ def main():
     # Midi Convertieren
     notes_and_rests = midi_to_frequencies_durations_and_rests(midifile, speedFactor)
 
+    rustslice = generate_rust_note_slice(songname, notes_and_rests)
+    """
     # Frequenzen in Methoden-Format schreiben
     formatedMethod = "pub fn nyancat() {\n"
 
@@ -43,50 +49,29 @@ def main():
 
     
     formatedMethod +="}\n"
-
+    """
 
     # Neue Methodenaufrufe als Datei speichern
     with open(pathToMethod, 'w') as file:
-        file.write(formatedMethod)
+        file.write(rustslice)
     
-    print(f"{formatedMethod}")
+    print(f"{rustslice}")
     #for item in notes_and_rests:
     #    print(item)
     #print(f"{notes_and_rests}")
 
-    """
-    # Midi-File einlesen
-    midifile = MidiFile(pathToMedi)
-    # Midi Convertieren
-    notes_and_rests = midi_to_frequencies_durations_and_rests(midifile)
-
-    # Frequenzen in Methoden-Format schreiben
-    formatedMethod = "pub fn starwars_imperial() {\n"
-
-    for item in notes_and_rests:
-        # Schauen ob es eine Pause ist
-        if item[0] == 'rest':
-            # Ist die Pause zu kurz wird sie weg gelassen
-            if int(item[1]) >= 10:
-                formatedMethod += f"    delay({int(item[1]-10)});\n"
-        else:
-            if int(item[1]) >= 10:
-                formatedMethod += f"    play({item[0]:.2f}, {int(item[1]-10)});\n"
-            else:
-                formatedMethod += f"    play({item[0]:.2f}, 10);\n"
-
-    
-    formatedMethod +="}\n"
-
-
-    """
-
-
-
-
     return
 
 
+# Wandelt die Items direkt in das Slice um
+def generate_rust_note_slice(name, note_tuples):
+    name_upper = name.upper()
+    rust = f"pub const {name_upper}: &[Note] = &[\n"
+    for freq, dur in note_tuples:
+        freq_int = 0 if freq == 'rest' else int(round(freq))
+        rust += f"    Note {{ frequency: {freq_int}, duration: {int(dur)} }},\n"
+    rust += "];\n"
+    return rust
 
 
 # Define the function to convert MIDI note numbers to frequencies

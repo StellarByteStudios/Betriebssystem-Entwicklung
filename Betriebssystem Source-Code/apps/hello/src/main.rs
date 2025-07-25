@@ -1,21 +1,20 @@
 #![no_std]
+#![no_main]
 #![allow(unused_variables)] // avoid warnings
 
 extern crate alloc;
 
 use alloc::boxed::Box;
 
-use core::panic::PanicInfo;
-use core::str::from_utf8_unchecked;
-use usrlib;
-use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
-use usrlib::kernel::syscall::user_api::{
-    usr_dump_active_vmas, usr_get_pid, usr_play_song, usr_read_process_name,
+use usrlib::{
+    self,
+    kernel::syscall::{
+        process_management::get_process_name,
+        user_api::{usr_dump_active_vmas, usr_get_pid},
+    },
+    print_setpos,
+    utility::{delay::delay, mathadditions::fibonacci::calculate_fibonacci_rec},
 };
-use usrlib::kernel::syscall::SongID;
-use usrlib::print_setpos;
-use usrlib::utility::delay::delay;
-use usrlib::utility::mathadditions::fibonacci::calculate_fibonacci_rec;
 
 #[link_section = ".main"]
 #[no_mangle]
@@ -23,39 +22,22 @@ pub fn main() {
     // VMAs Ausgeben
     usr_dump_active_vmas();
 
-    // Allokator initialisieren
-    let pid: usize = usr_get_pid() as usize;
-
-    init(pid, HEAP_SIZE);
-
     // Allokator benutzen
     let alloc_box: Box<u64> = Box::new(6);
 
     // Counter starten
     let mut i: u64 = 0;
     loop {
-        const BUFFERLENGH: usize = 255;
-
         // Daten holen
-        let pid = usr_get_pid();
-        let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-        usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
-        let actual_name: &str = unsafe {
-            from_utf8_unchecked(
-                namebuffer
-                    .as_slice()
-                    .split(|&b| b == 0)
-                    .next()
-                    .unwrap_or(&[]),
-            )
-        };
+        let pid = usr_get_pid() as usize;
+        let actual_name = get_process_name();
 
         // Ausgabe
         print_setpos!(10, 30, "Name: {}; pid: {}", actual_name, pid);
         print_setpos!(10, 31, "Counter {}", i);
 
-        let add_summand: u64 = 1000;
-        //let add_summand: u64 = 0;
+        //let add_summand: u64 = 1000;
+        let add_summand: u64 = 0;
 
         // Fibonacci berechnen
         let fibonacci_value = calculate_fibonacci_rec(i + add_summand);
@@ -75,12 +57,4 @@ pub fn main() {
         // kurz warten
         delay(10);
     }
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
 }

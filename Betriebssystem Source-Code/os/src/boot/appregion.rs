@@ -1,11 +1,16 @@
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
 use core::{fmt, slice};
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
 use tar_no_std::TarArchiveRef;
+
 use super::multiboot::MultibootInfo;
+use crate::kernel::paging::{pages::where_physical_address, physical_addres::PhysAddr};
 
 // Beschreibt eine App, die separat vom Kernel compiliert wurde
+#[derive(Clone)]
 pub struct AppRegion {
     pub start: u64,
     pub end: u64,
@@ -24,7 +29,7 @@ impl fmt::Debug for AppRegion {
 
 #[derive(Clone, Copy)]
 #[repr(C, packed)]
-struct ModEntry {
+pub struct ModEntry {
     pub start: u32,
     pub end: u32,
     pub string: u32,
@@ -67,17 +72,17 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
 
     // Infos holen
     let app_count: u32 = multiboot_info.mods_count;
+    let app_addr: u32 = multiboot_info.mods_addr;
+
     let tar_mod_entry: ModEntry =
         unsafe { *((multiboot_info.mods_addr as *const usize) as *const ModEntry) };
     let tar_start: u64 = tar_mod_entry.start as u64;
     let tar_end: u64 = tar_mod_entry.end as u64;
-    
-    kprintln!("!MULTIBOOT INFO !");
-    kprintln!("Mod-Count: {}, Tar-Start {:#x}, Tar-End: {:#x}", app_count, tar_start, tar_end);
 
     // Daten aus dem Archiv als rohen Memory-Slice schreiben
-    let tar_data: &[u8] = unsafe { slice::from_raw_parts(tar_start as *const u8, (tar_end - tar_start) as usize) };
-    
+    let tar_data: &[u8] =
+        unsafe { slice::from_raw_parts(tar_start as *const u8, (tar_end - tar_start) as usize) };
+
     // Archiv aus dem Slice erstellen
     let archive: TarArchiveRef = TarArchiveRef::new(tar_data);
 
@@ -88,15 +93,26 @@ pub fn get_apps_from_tar(mbi_ptr: u64) -> Option<Vec<AppRegion>> {
     if entries.len() < 1 {
         return None;
     }
-    
+
     // Entries in Apps verwandeln
     let mut apps: Vec<AppRegion> = Vec::new();
     for entry in entries {
         let filename = entry.filename().as_str().to_string();
         let app_start_address = entry.data().as_ptr() as u64;
         let app_end_address = entry.data().as_ptr() as u64 + entry.data().len() as u64;
-        
-        apps.push(AppRegion {start: app_start_address, end: app_end_address, file_name: filename});
+
+        kprintln!(
+            "------ App hinzugefügt: {}, start: {:#x}, end: {:#x}",
+            filename.as_str(),
+            app_start_address,
+            app_end_address
+        );
+
+        apps.push(AppRegion {
+            start: app_start_address,
+            end: app_end_address,
+            file_name: filename,
+        });
     }
 
     return Some(apps);

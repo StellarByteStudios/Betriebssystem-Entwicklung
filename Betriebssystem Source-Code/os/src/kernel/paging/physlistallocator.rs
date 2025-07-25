@@ -8,11 +8,6 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use super::super::allocator::{align_up, Locked};
-use crate::{
-    consts::PAGE_FRAME_SIZE,
-    kernel::{allocator::align_down, cpu},
-};
 use alloc::{
     alloc::{GlobalAlloc, Layout},
     string::String,
@@ -22,6 +17,14 @@ use core::{
     mem,
     ops::Deref,
     ptr::{self, null, null_mut},
+};
+
+use crate::{
+    consts::PAGE_FRAME_SIZE,
+    kernel::{
+        cpu::{self, disable_int, disable_int_nested, enable_int, enable_int_nested},
+        systemallocator::allocator::{align_down, align_up, Locked},
+    },
 };
 
 /**
@@ -91,6 +94,11 @@ impl PfListAllocator {
 
     // Funktion um bei der erstellung die Neuen Blocks inzuzufügen
     pub unsafe fn init_free_block(&mut self, addr: usize, size: usize) {
+        if size < PAGE_FRAME_SIZE {
+            kprintln!("Memory Block too small: Skiped");
+            return;
+        }
+
         // Heap_start anpassen
         if self.heap_start > addr {
             self.heap_start = addr;
@@ -138,7 +146,7 @@ impl PfListAllocator {
 
         // Adresse alignen
         let aligned_address = align_up(addr, PAGE_FRAME_SIZE);
-        
+
         let cuted_size_unaligned: usize = size - (aligned_address - addr);
         let cuted_size: usize = align_down(cuted_size_unaligned, PAGE_FRAME_SIZE);
 
@@ -189,7 +197,7 @@ impl PfListAllocator {
 
         // Pointer auf 'addr' of Type ListNode
         let node_ptr = aligned_address as *mut ListNode;
-        
+
         // copy content of new ListeNode to 'addr'
         node_ptr.write(node);
 
@@ -294,7 +302,6 @@ impl PfListAllocator {
     }
 
     pub unsafe fn alloc(&mut self, layout: Layout) -> *mut u64 {
-
         // perform layout adjustments
         let (size, align) = PfListAllocator::size_align(layout);
         let ret_ptr: *mut u64;
@@ -325,10 +332,15 @@ impl PfListAllocator {
 // Trait required by the Rust runtime for heap allocations
 unsafe impl GlobalAlloc for Locked<PfListAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        self.lock().alloc(layout) as *mut u8
+        let e = disable_int_nested();
+        let block = self.lock().alloc(layout) as *mut u8;
+        enable_int_nested(e);
+        return block;
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        let e = disable_int_nested();
         self.lock().dealloc(ptr, layout);
+        enable_int_nested(e);
     }
 }

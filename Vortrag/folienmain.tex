@@ -1,0 +1,204 @@
+% !TeX TXS-program:compile = txs:///pdflatex/[--shell-escape]
+
+\pdfoptionpdfminorversion=5
+\documentclass[27pt, aspectratio=169, t ,hyperref={pdfpagelabels=false}]{beamer}
+\usepackage{pgfpages}
+%\setbeameroption{show notes on second screen=right}
+
+
+
+\mode<presentation> {
+    \usetheme{HHUD}
+    \setbeamercovered{invisible}
+}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xmpmulti}
+\usepackage{multicol}
+\usepackage{icomma}
+\usepackage{csquotes}
+\usepackage{listings}
+%\usepackage{minted} % Funktioniert grade noch nicht 
+\usepackage[backend=biber,style=numeric,url=false]{biblatex}
+
+\bibliography{references.bib}
+% If you want to exclude the appendix from the frame counter you have to use the appendixnumberbeamer package. But be aware that the current version causes a problem with the frame counter.
+\usepackage{appendixnumberbeamer}
+
+%% Die folgenden Zeilen können auskommentiert werden, um vor jedem Kapitel eine Gliederungsfolie einzufügen
+% \AtBeginSection[] {
+%   \begin{frame}<beamer>
+%     \thispagestyle{empty}
+%     \frametitle{Gliederung}
+%     \vspace{-5mm}
+%     \tableofcontents[currentsection]
+%   \end{frame}
+% }
+
+\usebackgroundtemplate{\includegraphics[width=\paperwidth]{fig/Vorlagen/background_cd_2020}}
+
+\newcommand{\backgroundNormal}{\usebackgroundtemplate{
+    \includegraphics[width=\paperwidth]{fig/Vorlagen/background_cd_2020}}}
+\newcommand{\backgroundTitle}{\usebackgroundtemplate{
+    \includegraphics[width=\paperwidth]{fig/Vorlagen/background_heine}}}
+\newcommand{\backgroundEmpty}{\usebackgroundtemplate{
+    \includegraphics[width=\paperwidth]{fig/Vorlagen/background_empty}}}
+    
+\setlength{\leftmargini}{9pt}
+\setbeamersize{text margin left=25pt,text margin right=25pt} 
+\setbeamertemplate{itemize/enumerate subbody end}{\vspace{.5\baselineskip}}
+
+% =============== Meta-Daten =============== %
+\title{Betriessystementwicklung:\\Shell-Implementierung und plattformunabhängige Apps}
+\author{Carsten Krollmann}
+\date{9.7.2025}
+\institute{Institut für Informatik\\Heinrich-Heine-Universität Düsseldorf}
+\subject{Informatik}
+
+%
+% Hier beginnt das Dokument
+%
+
+
+% =============== Eigene Präambel-Befehle =============== %
+% Kopieren von Folien, wenn nur Bilder sich ändern
+\usepackage{clipboard}
+
+
+% Darstellung von Pseudocode
+\usepackage{algorithm}
+\usepackage{algpseudocode} 
+
+% Darstellung der Tabelle
+\usepackage{booktabs}
+
+% Footnotes auf Seite ganz nach unten schieben
+\usepackage[bottom]{footmisc}
+
+% anzeigen von Unicode
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    columns=fullflexible,
+    breaklines=true,
+    tabsize=4
+}
+
+
+% Graphendarstellung
+\usepackage{tikz}
+\usetikzlibrary{intersections, 
+  arrows.meta, 
+  positioning, 
+  shapes.geometric, 
+  decorations.pathmorphing,
+  calc
+}
+
+\usepackage{enumitem}% bessere aufzählungen
+% Standartaufzählung wieder verwenden
+\setlist[itemize,1]{label=\textbullet}
+\setlist[itemize,2]{label=--}
+\setlist[itemize,3]{label=$\ast$}
+
+
+% Schriftgröße der Zitierungen
+% fontsize{x}{y} gibt x pt Schriftgröße und y pt Zeilenabstand
+\renewcommand{\footcite}[1]{%
+  \footnote{%
+    \fontsize{6}{8}\selectfont%
+    \fullcite{#1}%
+  }%
+}
+
+% Counter gegen Footnote duplicates
+\newcounter{fnnumber} 
+
+
+% Gedankenblasen-Makro
+\newcommand{\gedankenblase}[6]{%
+  \begin{scope}
+    \small
+    % Hauptblase
+    \draw[fill=#4!60, draw=#5, thick] (#1,#2) ellipse (2cm and 1cm);
+    \node at (#1,#2) {\parbox{3cm}{\centering #3}};
+    % Punkte nach unten
+    \draw[fill=#4!50, draw=#5] (#1+1*#6,#2-1.15) circle (0.2cm);
+    \draw[fill=#4!30, draw=#5] (#1+1.3*#6,#2-1.5) circle (0.1cm);
+  \end{scope}
+}
+
+
+% ===============    =============== %
+
+
+
+\begin{document}
+
+\backgroundTitle
+  \begin{frame}
+    \thispagestyle{empty}
+    \begin{columns}
+    \column{0.4\paperwidth}
+    {
+    \footnotesize
+    \color{hhuBlau}
+    \put(20,-200){\insertdate}
+    
+    }
+    \column{0.6\paperwidth}
+    
+    \color{hhuBlau}
+    \LARGE \inserttitle\\[\baselineskip]
+    
+    \large \insertauthor
+    \end{columns}
+  \end{frame}
+  \backgroundNormal
+
+
+  \begin{frame}
+    \thispagestyle{empty}
+    \frametitle{Gliederung}
+    \vspace{-5mm}
+    \tableofcontents
+  \end{frame}
+
+  % % % % % % % % % % Ab hier werden die LaTeX-Dateien der einzelnen Abschnitte eingefügt % % % % % % % % % %
+
+  \input{intro.tex}
+
+  \input{library.tex}
+
+  \input{shellfunctions.tex}
+
+  \input{apps.tex}
+
+  \input{demo.tex}
+
+
+  
+  %\printbibliography
+
+  
+  \appendix
+  % anhang mit Quellenverzeichniss
+  \input{appendix.tex}
+
+
+
+  
+
+  % % % % % % % % % % Ende der eingefügten LaTeX-Dateien % % % % % % % % % %
+
+\end{document}
+
+%
+% Hier endet das Dokument
+%

@@ -8,8 +8,8 @@
 */
 
 use core::arch::asm;
-use x86_64::instructions::interrupts;
-use x86_64::instructions::port::Port;
+
+use x86_64::instructions::{interrupts, port::Port};
 
 //
 // Schreibe 1 Byte an den gegebenen Port

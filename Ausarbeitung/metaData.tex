@@ -1,0 +1,25 @@
+% 
+% Metainformationen zur Abgabe
+% 
+
+% Anonymisiert? wenn nein auf false umstellen
+\newboolean{anonym}
+\setboolean{anonym}{false}  % Set the boolean to true or false
+
+% Name des Moduls
+\newcommand{\moduleTitle}{Betriebssystem Entwicklung}
+% Unterschrift des Übungsblatte
+\newcommand{\exerciseTitle}{Userlib als Schnittstelle\\Unabhängige App-Entwicklung}
+
+% Vorname und Name des Studenten
+\newcommand{\excerciseAuthor}{Carsten Krollmann}
+\newcommand{\excerciseAuthorID}{295 245 7}
+
+% Betreuer des Studenten
+\newcommand{\moduleFaculty}{Lehrstuhl für Betriebssysteme}
+\newcommand{\supervisor}{Univ-Prof. Dr. Michael Schöttner}
+
+% Aktuelles Datum
+\newdateformat{monthyeardate}{%
+  \monthname[\THEMONTH], \THEYEAR}
+\newcommand{\monthtoday}{\monthyeardate\today}

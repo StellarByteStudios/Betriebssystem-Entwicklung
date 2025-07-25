@@ -58,7 +58,7 @@ pub fn forbid(irq: u32) {
 
     // Neuen Status Zusammensetzen
     let new_stat: u8 = old_stat | small_irq;
-    
+
     // Neuen Status im Pic Speichern
     cpu::outb(PIC_IMR1, new_stat);
 }

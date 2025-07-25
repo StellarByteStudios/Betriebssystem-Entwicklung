@@ -1,7 +1,7 @@
 ENTRY(_start)
 
 SECTIONS {
-    . = 1M;   /* load at address 1MB */
+    . = 1M;   /* load kernel at 1 MiB */
 
     ___KERNEL_DATA_START__ = .;
 
@@ -11,19 +11,21 @@ SECTIONS {
         *(_multiboot_header)
     }
 
-    .text :
+    .text ALIGN (4K) :
     {
         *(.text*)
     }
 
-   .bss : 
+   .bss ALIGN (4K) :
     {
       ___BSS_START__ = .;
-      *(".bss")
-      *(".bss.*")
+      *(".bss*")
       ___BSS_END__ = .;
     }
 
+    .data ALIGN (4K) :
+    {
+        *(.data*)
+    }
     ___KERNEL_DATA_END__ = .;
-
 }

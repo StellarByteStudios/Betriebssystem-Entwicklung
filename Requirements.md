@@ -1,5 +1,5 @@
 # Requirements für das Betriebssysteme-Seminar
-Voraussichtliche Kooperation von Carsten Krollmann und Moritz Reifer
+Voraussichtliche Kooperation von Carsten Krollmann und Moritz Riefer
 
 ## Grober Plan
 - Jeder arbeitet in seinem eigenen System

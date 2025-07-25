@@ -1,0 +1,10 @@
+\section{Zusammenfassung}
+
+\subsection{Herausforderungen und Probleme}
+    Eine der größten Herausforderung war es abzusprechen welche Syscalls neu hinzugefügt werden sollten. Auch hat jede Änderung an der Syscall-API größere Arbeiten im Kernel hervorgerufen. Außerdem wurde das Development der Userlib etwas verlangsamt, da man diese nur über das Internet mit seinem System synchronisiert hat. \newline
+    \subsubsection{Probleme im eigenen System}
+        Es haben sich noch einige Probleme gezeigt, deren Ursprung noch in den vorhergegangenen Modulen liegt. Beispielsweise wurde die \verb|tar|-Datei bei Optimierungen durch den Compiler während der Laufzeit überschrieben, wodurch der Code der Apps unbrauchbar wurde. Auch gibt es noch Fehler bei der Queue im Scheduler. Dies führt leider ab und an dazu, dass die Queue beim Thread-Wechsel in einem Spinlock landet, oder es unvorhergesehene Pagefaults gibt. Bisher konnte ich nicht herausfinden, wo das Problem lag.
+
+\subsection{Lerneffekt}
+    Wir mussten als Team Entscheidungen treffen wie die Userlib sich verändern soll. Dabei hat man einerseits die API Änderungen möglichst klein halten müssen. Dadurch hat man oft Syscalls für neue Aufgaben anders verwendet um die API nicht anpassen zu müssen. \newline
+    Bei der Entwicklung der Apps hat man viel über Hardware-Nahe Entwicklung gelernt, da durch die \verb|#[no_std]| Umgebung viele Funktionen nicht verfügbar waren, sodass man diese selber Implementieren musste. Das geht von mathematische Funktionen wie \verb|cos, ln| bis hin zum Berechnen und Platzieren von Pixeln.

@@ -1,5 +1,24 @@
 [workspace]
 resolver = "2"
 
-#members = ["usrlib", "os", "apps/hello"]
-members = ["os", "apps/hello", "apps/extracounter", "apps/animation", "apps/music"]
+members = ["os",
+    "apps/hello",
+    "apps/extracounter",
+    "apps/animation",
+    "apps/music",
+    "apps/echo",
+    "apps/threads",
+    "apps/apps",
+    "apps/kill",
+    "apps/datetime",
+    "apps/uptime",
+    "apps/picture",
+    "apps/mandelbrot",
+    "apps/help",
+    "apps/keycatcher",
+    "apps/turtel",
+    "apps/engineturtel",
+    "apps/calc",
+    "apps/tictactoe",
+    "apps/pong",
+]

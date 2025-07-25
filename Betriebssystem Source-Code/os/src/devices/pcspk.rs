@@ -9,57 +9,18 @@
 */
 #![allow(dead_code)]
 
-use crate::kernel::{cpu, threads::scheduler::Scheduler};
+use alloc::vec::Vec;
+
+use usrlib::music::note::Note;
 
 use super::pit;
+use crate::kernel::{cpu, threads::scheduler::Scheduler};
 
 // Ports
 const PORT_CTRL: u16 = 0x43;
 const PORT_DATA0: u16 = 0x40;
 const PORT_DATA2: u16 = 0x42;
 const PORT_PPI: u16 = 0x61;
-
-// Frequency of musical notes
-// (Our OS does not really support floating point. The numbers will be converted to u32 in 'play')
-const C0: f32 = 130.81;
-const C0X: f32 = 138.59;
-const D0: f32 = 146.83;
-const D0X: f32 = 155.56;
-const E0: f32 = 164.81;
-const F0: f32 = 174.61;
-const F0X: f32 = 185.00;
-const G0: f32 = 196.00;
-const G0X: f32 = 207.65;
-const A0: f32 = 220.00;
-const A0X: f32 = 233.08;
-const B0: f32 = 246.94;
-
-const C1: f32 = 261.63;
-const C1X: f32 = 277.18;
-const D1: f32 = 293.66;
-const D1X: f32 = 311.13;
-const E1: f32 = 329.63;
-const F1: f32 = 349.23;
-const F1X: f32 = 369.99;
-const G1: f32 = 391.00;
-const G1X: f32 = 415.30;
-const A1: f32 = 440.00;
-const A1X: f32 = 466.16;
-const B1: f32 = 493.88;
-
-const C2: f32 = 523.25;
-const C2X: f32 = 554.37;
-const D2: f32 = 587.33;
-const D2X: f32 = 622.25;
-const E2: f32 = 659.26;
-const F2: f32 = 698.46;
-const F2X: f32 = 739.99;
-const G2: f32 = 783.99;
-const G2X: f32 = 830.61;
-const A2: f32 = 880.00;
-const A2X: f32 = 923.33;
-const B2: f32 = 987.77;
-const C3: f32 = 1046.50;
 
 /**
  Description: Play musical note with given frequency for given time. \
@@ -80,6 +41,24 @@ pub fn play(f: f32, d: u32) {
     delay(d);
 
     speaker_off();
+}
+
+pub fn play_notes(notes: Vec<Note>) {
+    // Einfach alle Noten nacheinander abspielen
+    for note in notes {
+        play_note(note);
+    }
+}
+
+fn play_note(note: Note) {
+    // Ist es nur ein Delay?
+    if note.frequency == 0 {
+        delay(note.duration);
+        return;
+    }
+
+    // Ansonsten Note abspielen
+    play(note.frequency as f32, note.duration);
 }
 
 /**
@@ -1185,7 +1164,7 @@ pub fn super_mario() {
     // Händisch Ton eingefügt
     //delay(1247);
     delay(600);
-    play(G1, 113);
+    play(391.00, 113);
     delay(600);
 
     play(523.25, 113);

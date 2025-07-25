@@ -12,20 +12,26 @@
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
 
-use crate::consts;
-use crate::devices::kprint;
-use crate::kernel::interrupts::isr;
-use crate::kernel::paging::pages;
-use crate::kernel::paging::pages::where_physical_address;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process;
-use crate::kernel::threads::scheduler;
-use crate::kernel::{cpu, interrupts};
-use crate::utility::delay::delay;
 use alloc::{boxed::Box, vec::Vec};
-use core::arch::asm;
-use core::sync::atomic::{AtomicUsize, Ordering};
+use core::{
+    arch::asm,
+    sync::atomic::{AtomicUsize, Ordering},
+};
+
 use x86_64::registers::control::{Cr2, Cr3};
+
+use crate::{
+    consts,
+    devices::kprint,
+    kernel::{
+        cpu, interrupts,
+        interrupts::isr,
+        paging::{pages, pages::where_physical_address, physical_addres::PhysAddr},
+        processes::process_handler,
+        threads::scheduler,
+    },
+    utility::delay::delay,
+};
 
 pub const INT_VEC_TIMER: usize = 32;
 pub const INT_VEC_KEYBOARD: usize = 33;
@@ -235,7 +241,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     let active_pid = scheduler::get_active_pid();
     //let active_process = process::get_process_by_id(active_pid);
     let active_process = unsafe {
-        process::PROCESSES
+        process_handler::PROCESSES
             .as_mut()
             .unwrap()
             .get_mut(&active_pid)
@@ -243,7 +249,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     };
 
     // Der Active Prozess gibt hier nur Müll raus
-    kprintln!("Aktiven Prozess geholt: {:?}", active_process);
+    kprintln!("Aktiven Prozess Name: {:?}", active_process.file_name);
     //kprintln!("---- Dump VMAs");
     //active_process.dump_vmas();
     //kprintln!("---- ----");
@@ -251,7 +257,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     // Addresse prüfen
     let is_part_of_stack = active_process.is_address_neighbour_page_of_stack(fault_address);
 
-    kprintln!("Part of stack?: {:#}", is_part_of_stack);
+    //kprintln!("Part of stack?: {:#}", is_part_of_stack);
 
     //delay(10);
 
@@ -259,7 +265,7 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
     if is_part_of_stack {
         // PML4 Adresse holen
         //let pml4_addr = Cr3::read().0.start_address().as_u64();
-        let pml4_addr = process::get_pml4_address_by_pid(active_pid).raw();
+        let pml4_addr = process_handler::get_pml4_address_by_pid(active_pid).raw();
         //kprintln!("PML4 Adresse geholt: {:#x}", pml4_addr);
         // Stack erweitern
         let success =
@@ -269,12 +275,12 @@ pub extern "C" fn int_pagefault(error_code: u64, cs: u16, rip: u64) {
 
         // hat es funktioniert?
         if success {
-            kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
-            where_physical_address(PhysAddr::new(pml4_addr), fault_address);
+            //kprintln!("Gebe Mapping der Faultadresse {:#x} aus:", fault_address);
+            //where_physical_address(PhysAddr::new(pml4_addr), fault_address);
 
             // Aufräumen
             cpu::enable_int_nested(nested);
-            kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
+            //kprintln!("= = = = = Beende Pagefault = = = = =\n\n");
             //cpu::enable_int();
             // CR3 aktuallisieren für den TLB flush
             //let cr3 = Cr3::read().0.start_address().as_u64();

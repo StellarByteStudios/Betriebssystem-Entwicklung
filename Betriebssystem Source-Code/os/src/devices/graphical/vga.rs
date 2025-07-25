@@ -124,8 +124,15 @@ impl VGA {
                 b = bitmap[idx];
                 idx = idx + 1;
 
-                // Alphakanal überspringen?
+                // Alphakanal:
                 if bpp == 4 {
+                    // Unter Schwelle: nicht zeichnen
+                    if bitmap[idx] <= 0xFF / 2 {
+                        idx = idx + 1;
+                        continue;
+                    }
+
+                    // Ansonsten normal weiter machen
                     idx = idx + 1;
                 }
 
@@ -179,9 +186,7 @@ impl VGA {
                     *(ptr as *mut u8) = ((col >> 16) & 0xFF) as u8;
                 }
             }
-            _ => {
-                
-            }
+            _ => {}
         }
     }
 

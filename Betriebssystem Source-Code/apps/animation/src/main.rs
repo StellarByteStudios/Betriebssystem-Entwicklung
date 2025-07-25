@@ -1,53 +1,58 @@
 #![no_std]
+#![no_main]
 #![allow(unused_variables)] // avoid warnings
 
 extern crate alloc;
 
-use core::panic::PanicInfo;
-use core::str::from_utf8_unchecked;
-use usrlib;
-use usrlib::graphix::picturepainting::animate::animate_charmander;
-use usrlib::kernel::allocator::allocator::{init, HEAP_SIZE};
-use usrlib::kernel::syscall::user_api::{usr_get_pid, usr_read_process_name};
-use usrlib::print_setpos;
+use usrlib::{
+    self, gprintln,
+    graphix::picturepainting::animate::{animate_blink, animate_charmander},
+    kernel::runtime::environment::args_as_vec,
+};
+
+mod custom_animations;
 
 #[link_section = ".main"]
 #[no_mangle]
 pub fn main() {
-    // Allokator initialisieren
-    let pid: usize = usr_get_pid() as usize;
+    // Laden der Argumente
+    let args = args_as_vec();
 
-    init(pid, HEAP_SIZE);
+    if args.len() < 4 {
+        gprintln!("Nicht genug argumente um Position und Animation auszuwaehlen");
+        return;
+    }
 
-    const BUFFERLENGH: usize = 255;
+    // Parsen der Position'
+    let x_result = args.get(1).unwrap().parse::<u32>();
+    let y_result = args.get(2).unwrap().parse::<u32>();
 
-    // Daten holen
-    let pid = usr_get_pid();
-    let mut namebuffer: [u8; BUFFERLENGH] = [0; BUFFERLENGH];
-    usr_read_process_name(namebuffer.as_mut_ptr(), BUFFERLENGH as u64) as usize;
-    let actual_name: &str = unsafe {
-        from_utf8_unchecked(
-            namebuffer
-                .as_slice()
-                .split(|&b| b == 0)
-                .next()
-                .unwrap_or(&[]),
-        )
-    };
+    // War das Parsen erfolgreich
+    if x_result.is_err() || y_result.is_err() {
+        gprintln!(
+            "Die Koordinaten muessen eine richtige Zahl sein. Deine Eingabe: {:?}, {:?}",
+            args.get(1),
+            args.get(2)
+        );
+        return;
+    }
 
-    // Ausgabe
-    print_setpos!(50, 36, "Name: {}; pid: {}", actual_name, pid);
+    let x = x_result.clone().unwrap();
+    let y = y_result.clone().unwrap();
 
-    // Animation
-    animate_charmander(500, 400);
+    // Ist die Zahl sinnvoll
+    if x > 1280 || x < 0 || y > 720 || y < 0 {
+        gprintln!("Keine sinnvolle Position x in [0, 1280]; y in [0, 720]");
+        return;
+    }
 
-    loop {}
-}
-
-/*
-* Panic Handler
-*/
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    loop {}
+    // Raussuchen welche Animation gemeint wird
+    match args.get(3).unwrap().as_str() {
+        "flame" | "Flame" | "blueflame" | "BlueFlame" => {
+            custom_animations::animate::animate_blue_flame(x, y)
+        }
+        "charmander" | "Charmander" | "pokemon" | "Pokemon" => animate_charmander(x, y),
+        "blink" | "blinking" | "Blink" => animate_blink(x, y),
+        _ => gprintln!("Animation not avaiable... :("), // nicht registriert
+    }
 }

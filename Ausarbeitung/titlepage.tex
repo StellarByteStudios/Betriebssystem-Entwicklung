@@ -1,0 +1,35 @@
+\pdfbookmark[0]{Titelseite}{Front Page}
+\begin{titlepage}
+    \centering
+    \includegraphics[width=10cm]{fig/Titelseite/Logo_HHU_+Name_horizontal_4c_+Safezone.pdf}\\
+
+    \vfill
+    \Huge
+    \moduleTitle{}\\*[40pt]
+    %\exerciseTitle{}\\*[40pt]
+    \normalsize
+
+    
+    \huge
+    \exerciseTitle{}\\[0.25em]
+    \normalsize
+    von\\
+    \Large
+    \ifthenelse{\boolean{anonym}}
+    {Anonyme/-r Autor/-in}  % true
+    {\excerciseAuthor{}}       % false
+    \\
+
+    \vfill
+
+
+    vorgelegt\\[5mm]
+    \supervisor{}\\
+    \moduleFaculty{}\\
+    Heinrich-Heine-Universität Düsseldorf\\[0.5cm]
+
+    am\\
+    %\DTMmonthname{\thesissubmissionmonth} \thesissubmissionyear{}\\[0.5cm]
+    \monthtoday{}\\[0.5cm]
+
+\end{titlepage}

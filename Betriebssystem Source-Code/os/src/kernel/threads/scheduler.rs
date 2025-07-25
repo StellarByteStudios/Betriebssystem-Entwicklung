@@ -7,17 +7,25 @@
    ║ Autor:  Michael Schoettner, HHU, 14.6.2024                              ║
    ╚═════════════════════════════════════════════════════════════════════════╝
 */
-use alloc::boxed::Box;
-use alloc::string::ToString;
-use core::ptr;
-use core::sync::atomic::AtomicUsize;
+use alloc::{
+    boxed::Box,
+    string::{String, ToString},
+    vec::Vec,
+};
+use core::{ptr, ptr::null_mut, sync::atomic::AtomicUsize};
+
 use spin::Mutex;
-use crate::boot::appregion::AppRegion;
-use crate::devices::cga;
-use crate::kernel::cpu;
-use crate::kernel::paging::physical_addres::PhysAddr;
-use crate::kernel::processes::process::create_fresh_process;
-use crate::kernel::threads::{scheduler, idle_thread, thread, queue::Queue};
+
+use crate::{
+    boot::appregion::AppRegion,
+    devices::cga,
+    kernel::{
+        cpu,
+        paging::physical_addres::PhysAddr,
+        processes::process_handler::create_fresh_process,
+        threads::{idle_thread, queue::Queue, scheduler, thread, thread::Thread},
+    },
+};
 
 static THREAD_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
@@ -43,8 +51,15 @@ pub fn get_active_pid() -> usize {
         active_pid = (*active).pid;
     }
     cpu::enable_int_nested(irq);
-    
+
     return active_pid;
+}
+
+/**
+   Threads beenden
+*/
+pub fn exit_current_thread() {
+    Scheduler::exit()
 }
 
 /**
@@ -62,22 +77,20 @@ pub fn get_active() -> Box<thread::Thread> {
 }
 
 /*****************************************************************************
-     * Funktion:        spawn_kernel                                             *
-     *---------------------------------------------------------------------------*
-     * Beschreibung:    Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler *
-     *                  registrieren.                                            *
-     *****************************************************************************/
+ * Funktion:        spawn_kernel                                             *
+ *---------------------------------------------------------------------------*
+ * Beschreibung:    Kernel-Prozess mit Idle-Thread erzeugen und im Scheduler *
+ *                  registrieren.                                            *
+ *****************************************************************************/
 pub fn spawn_kernel() {
-
     // Neuen Prozess anlegen
-    let idle_pid =  create_fresh_process("Idle-Prozess");
+    let idle_pid = create_fresh_process("Idle-Prozess");
 
     // Idle-Thread mit Pid anleggen
     let idle_thread = idle_thread::init(idle_pid);
 
     // Thread dem Scheduler geben
     Scheduler::ready(idle_thread);
-
 }
 
 /*****************************************************************************
@@ -88,13 +101,12 @@ pub fn spawn_kernel() {
  *                                                                           *
  * Parameter:       app    Code-Image fuer den neuen Prozess                 *
  *****************************************************************************/
-pub fn spawn(app: AppRegion) {
-    
+pub fn spawn_app(app: AppRegion, args: Vec<String>) {
     // Neuen Prozess anlegen
-    let new_pid =  create_fresh_process(app.file_name.as_str());
+    let new_pid = create_fresh_process(app.file_name.as_str());
 
     // Idle-Thread mit Pid anleggen
-    let new_app_thread = thread::Thread::new_app_thread(app, new_pid);
+    let new_app_thread = thread::Thread::new_app_thread(app, new_pid, &args);
 
     // Thread dem Scheduler geben
     Scheduler::ready(new_app_thread);
@@ -158,10 +170,42 @@ impl Scheduler {
         SCHEDULER.lock().ready_queue.enqueue(that);
     }
 
+    pub fn print_ready_queue() {
+        vprintln!("{}", SCHEDULER.lock().ready_queue);
+    }
+    pub fn kill_thread_with_pid(pid: usize) {
+        // Idlethread nicht killen
+        if pid == 0 {
+            return;
+        }
+
+        // Scheduler locken
+        let mut sched = SCHEDULER.lock();
+
+        // Referenz auf ready Queue
+        let queue: &mut Queue<Box<Thread>> = &mut sched.ready_queue;
+
+        // Neue Queue mit den übrigen Threads
+        let mut temp_queue = Queue::new();
+
+        // Durch alle Threads durchgehen
+        while let Some(thread) = queue.dequeue() {
+            if thread.pid == pid {
+                // Thread nicht wieder hinzugefügt
+            } else {
+                temp_queue.enqueue(thread);
+            }
+        }
+
+        // Ready Queue mit neu befüllten queue überschreiben
+        *queue = temp_queue;
+    }
+
     /**
-        Description: Calling thread terminates. Scheduler switches to next thread.
-                     (The thread terminating is not in the ready queue.)
+    Description: Calling thread terminates. Scheduler switches to next thread.
+                 (The thread terminating is not in the ready queue.)
     */
+
     pub fn exit() {
         // Get next thread from ready queue
         let next = SCHEDULER.lock().ready_queue.dequeue();
@@ -214,8 +258,12 @@ impl Scheduler {
     */
     pub fn kill(tokill_tid: usize) -> bool {
         // Threadmaske erzeugen um remove gut zu benutzten
-        let dummy_thread: Box<thread::Thread> =
-            thread::Thread::new(tokill_tid, PhysAddr::new(0), Self::dummy_thread_function, false);
+        let dummy_thread: Box<thread::Thread> = thread::Thread::new_name(
+            tokill_tid,
+            Self::dummy_thread_function,
+            false,
+            "Dummy-Thread".to_string(),
+        );
 
         // Thread löschen
         let success: bool = SCHEDULER.lock().ready_queue.remove(dummy_thread);
@@ -268,5 +316,4 @@ impl Scheduler {
         // Interrupts werden in Thread_switch in thread.asm wieder zugelassen
         //
     }
-
 }

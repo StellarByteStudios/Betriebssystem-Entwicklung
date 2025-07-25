@@ -1,6 +1,7 @@
 // Serielle Schnittstelle
-use crate::kernel::cpu;
 use core::fmt;
+
+use crate::kernel::cpu;
 
 pub struct ComPort {
     base_addr: u16, // Port-Adresse des Ports

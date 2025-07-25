@@ -10,31 +10,44 @@
  * Autor:           Stefan Lankes, RWTH Aachen                               *
  *                  Michael Schoettner, 23.10.2024, modifiziert              *
  *****************************************************************************/
-use core::arch::{asm, naked_asm};
-
-use crate::kernel::syscall;
-use crate::kernel::syscall::kfuncs::{
-    sys_get_systime::sys_get_systime,
-    sys_getlastkey::sys_getlastkey,
-    sys_gettid::sys_gettid,
-    sys_graphical_print::sys_graphical_print,
-    sys_graphical_print_pos::sys_graphical_print_pos,
-    sys_hello_world::sys_hello_world,
-    sys_hello_world_print::sys_hello_world_print,
-    sys_read::sys_read,
-    sys_write::sys_write,
-    sys_get_screen_width::sys_get_screen_witdh,
-    sys_getpid::sys_getpid,
-    sys_read_process_name::sys_read_process_name,
-    sys_mmap_heap_space::sys_mmap_heap_space,
-    sys_paint_picture_on_pos::sys_paint_picture_on_pos,
-    sys_play_song::sys_play_song,
+use core::{
+    arch::{asm, naked_asm},
+    convert::TryFrom,
 };
-use crate::kernel::syscall::kfuncs::sys_dump_vmas::sys_dump_vmas;
+
+use usrlib::kernel::syscall::systemcall::{SystemCall, NUM_SYSCALLS};
+
+use crate::kernel::{
+    syscall,
+    syscall::kfuncs::{
+        sys_call_not_implemented::sys_call_not_implemented,
+        sys_dump_vmas::sys_dump_vmas,
+        sys_mmap_heap_space::sys_mmap_heap_space,
+        sys_music::sys_play_song_by_notes,
+        sys_paint_picture_on_pos::{sys_draw_pixel, sys_paint_picture_on_pos},
+        sys_printing::{
+            sys_graphical_print, sys_graphical_print_pos, sys_hello_world, sys_hello_world_print,
+            sys_kernel_print, sys_print_apps,
+        },
+        sys_shell_and_keys::{
+            sys_activate_shell, sys_clear_screen, sys_deactivate_shell, sys_getlastkey,
+        },
+        sys_simple_getter::{
+            sys_get_datetime, sys_get_screen_height, sys_get_screen_witdh, sys_get_systime,
+            sys_get_systime_intervall,
+        },
+        sys_thread_process_management::{
+            sys_exit_process, sys_exit_thread, sys_getpid, sys_gettid, sys_kill_process,
+            sys_read_process_name, sys_show_threads,
+        },
+    },
+};
 
 // Anzahl an Systemaufrufen
 // Muss mit NO_SYSCALLS in 'kernel/syscall/syscalls.asm' konsistent sein!
-pub const NO_SYSCALLS: usize = 16;
+#[no_mangle] // No mangle, weil ich versuche die Variable direkt in Assembler zu benutzen
+pub static NO_SYSCALLS: usize = NUM_SYSCALLS;
+pub const NO_SYSCALLS_CONST: usize = NUM_SYSCALLS; // NUM_SYSCALLS aus der userlib
 
 extern "C" {
     fn _init_syscalls();
@@ -53,7 +66,7 @@ pub static SYSCALL_FUNCTABLE: SyscallFuncTable = SyscallFuncTable::new();
 #[repr(align(64))]
 #[repr(C)]
 pub struct SyscallFuncTable {
-    handle: [*const usize; NO_SYSCALLS],
+    handle: [*const usize; NO_SYSCALLS_CONST],
 }
 
 impl SyscallFuncTable {
@@ -63,19 +76,39 @@ impl SyscallFuncTable {
                 sys_hello_world as *const _,
                 sys_hello_world_print as *const _,
                 sys_getlastkey as *const _,
+                //
                 sys_gettid as *const _,
-                sys_write as *const _,
-                sys_read as *const _,
-                sys_get_systime as *const _,
-                sys_graphical_print as *const _,
-                sys_graphical_print_pos as *const _,
-                sys_get_screen_witdh as *const _,
                 sys_getpid as *const _,
                 sys_read_process_name as *const _,
-                sys_dump_vmas as *const _,
+                //
+                sys_get_systime as *const _,
+                sys_get_screen_witdh as *const _,
+                sys_get_screen_height as *const _,
+                //
                 sys_mmap_heap_space as *const _,
+                //
+                sys_exit_thread as *const _,
+                sys_exit_process as *const _,
+                sys_kill_process as *const _,
+                //
+                sys_dump_vmas as *const _,
+                sys_graphical_print as *const _,
+                sys_graphical_print_pos as *const _,
                 sys_paint_picture_on_pos as *const _,
-                sys_play_song as *const _,
+                sys_clear_screen as *const _,
+                //
+                sys_kernel_print as *const _,
+                sys_print_apps as *const _,
+                sys_show_threads as *const _,
+                //
+                sys_play_song_by_notes as *const _,
+                //
+                sys_draw_pixel as *const _,
+                sys_get_datetime as *const _,
+                sys_get_systime_intervall as *const _,
+                //
+                sys_activate_shell as *const _,
+                sys_deactivate_shell as *const _,
             ],
         }
     }
@@ -83,6 +116,215 @@ impl SyscallFuncTable {
 
 unsafe impl Send for SyscallFuncTable {}
 unsafe impl Sync for SyscallFuncTable {}
+
+// * Eigener Enum Dispatcher * //
+
+/*
+fn get_syscall_function(syscall_no: usize) -> *const fn() {
+    match SystemCall::try_from(syscall_no) {
+        Ok(SystemCall::HelloWorld) => sys_hello_world as *const _,
+        Ok(SystemCall::HelloWorldWithPrint) => sys_hello_world_print as *const _,
+        Ok(SystemCall::GetLastKey) => sys_getlastkey as *const _,
+        Ok(SystemCall::GetCurrentThreadID) => sys_gettid as *const _,
+        Ok(SystemCall::GetCurrentProcessID) => sys_getpid as *const _,
+        Ok(SystemCall::GetCurrentProcessName) => sys_read_process_name as *const _,
+        Ok(SystemCall::GetSystime) => sys_get_systime as *const _,
+        Ok(SystemCall::GetScreenWidth) => sys_get_screen_witdh as *const _,
+        Ok(SystemCall::MMapHeapSpace) => sys_mmap_heap_space as *const _,
+        Ok(SystemCall::ExitThread) => sys_exit_thread as *const _,
+        Ok(SystemCall::ExitProcess) => sys_exit_process as *const _,
+        Ok(SystemCall::KillProcess) => sys_kill_process as *const _,
+        Ok(SystemCall::DumpVMAsOfCurrentProcess) => sys_dump_vmas as *const _,
+        Ok(SystemCall::GraphicalPrint) => sys_graphical_print as *const _,
+        Ok(SystemCall::GraphicalPrintWithPosition) => sys_graphical_print_pos as *const _,
+        Ok(SystemCall::PaintPictureOnPos) => sys_paint_picture_on_pos as *const _,
+        Ok(SystemCall::KernelPrint) => sys_kernel_print as *const _,
+        Ok(SystemCall::PrintAppNames) => sys_print_apps as *const _,
+        Ok(SystemCall::PrintRunningThreads) => sys_show_threads as *const _,
+        Ok(SystemCall::PlaySongOnNoteList) => sys_play_song_by_notes as *const _,
+        Ok(SystemCall::DrawPixel) => sys_draw_pixel as *const _,
+        Ok(SystemCall::GetDateTime) => sys_get_datetime as *const _,
+        Ok(SystemCall::GetPitInterval) => sys_get_systime_intervall as *const _,
+        Ok(SystemCall::ActivateShell) => sys_activate_shell as *const _,
+        Ok(SystemCall::DeactivateShell) => sys_deactivate_shell as *const _,
+        Err(_) => syscall_abort as *const _,
+        _ => sys_call_not_implemented as *const _,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn syscall_disp() {
+    // Syscallnummer holen
+    let mut syscall_no: usize;
+    let function: *const ();
+
+    // Syscallnummer holen (aus rax)
+    asm!(
+        "mov {}, rax",
+        out(reg) syscall_no,
+        options(nomem, nostack, preserves_flags)
+    );
+
+    // Funktionspointer holen
+    function = get_syscall_function(syscall_no) as *const ();
+
+    // Funktionsaufruf: Pointer in rax -> call rax
+    asm!(
+        "mov rax, {}",
+        "call rax",
+        "ret",
+        in(reg) function,
+    );
+}
+*/
+
+// * GPT Funktionen * //
+/*
+#[no_mangle]
+pub unsafe extern "C" fn syscall_disp_new() {
+    let syscall_no: usize;
+    let arg1: usize;
+    let arg2: usize;
+    let arg3: usize;
+    let arg4: usize;
+    let arg5: usize;
+    let arg6: usize;
+
+    asm!(
+    "mov {}, rax",
+    "mov {}, rdi",
+    "mov {}, rsi",
+    "mov {}, rdx",
+    "mov {}, rcx",
+    "mov {}, r8",
+    "mov {}, r9",
+    out(reg) syscall_no,
+    out(reg) arg1,
+    out(reg) arg2,
+    out(reg) arg3,
+    out(reg) arg4,
+    out(reg) arg5,
+    out(reg) arg6,
+    );
+
+    let result = dispatch_syscall(syscall_no, arg1, arg2, arg3, arg4, arg5, arg6);
+
+    asm!("mov rax, {}", in(reg) result);
+}
+
+fn dispatch_syscall(
+    syscall_no: usize,
+    arg1: usize,
+    arg2: usize,
+    arg3: usize,
+    arg4: usize,
+    arg5: usize,
+    arg6: usize,
+) -> usize {
+    match SystemCall::try_from(syscall_no) {
+        Ok(SystemCall::HelloWorld) => {
+            sys_hello_world();
+            0
+        }
+
+        Ok(SystemCall::HelloWorldWithPrint) => {
+            sys_hello_world_print(arg1);
+            0
+        }
+
+        Ok(SystemCall::GetLastKey) => sys_getlastkey(),
+
+        Ok(SystemCall::GetCurrentThreadID) => sys_gettid(),
+
+        Ok(SystemCall::GetCurrentProcessID) => sys_getpid(),
+
+        Ok(SystemCall::GetCurrentProcessName) => sys_read_process_name(arg1 as *mut u8, arg2),
+
+        Ok(SystemCall::GetSystime) => sys_get_systime(),
+
+        Ok(SystemCall::GetScreenWidth) => sys_get_screen_witdh(),
+
+        Ok(SystemCall::MMapHeapSpace) => sys_mmap_heap_space(arg1, arg2),
+
+        Ok(SystemCall::ExitThread) => {
+            sys_exit_thread();
+            0
+        }
+
+        Ok(SystemCall::ExitProcess) => {
+            sys_exit_process();
+            0
+        }
+
+        Ok(SystemCall::KillProcess) => {
+            sys_kill_process(arg1);
+            0
+        }
+
+        Ok(SystemCall::DumpVMAsOfCurrentProcess) => {
+            sys_dump_vmas();
+            0
+        }
+
+        Ok(SystemCall::GraphicalPrint) => sys_graphical_print(arg1 as *const u8, arg2),
+
+        Ok(SystemCall::GraphicalPrintWithPosition) => sys_graphical_print_pos(arg1, arg2, arg3 as *const u8, arg4),
+
+        Ok(SystemCall::PaintPictureOnPos) => sys_paint_picture_on_pos(arg1, arg2, arg3, arg4, arg5, arg6 as *const u8),
+
+        Ok(SystemCall::KernelPrint) => sys_kernel_print(arg1 as *const u8, arg2),
+
+        Ok(SystemCall::PrintAppNames) => {
+            sys_print_apps();
+            0
+        }
+
+        Ok(SystemCall::PrintRunningThreads) => {
+            sys_show_threads();
+            0
+        }
+
+        Ok(SystemCall::PlaySongOnNoteList) => {
+            sys_play_song_by_notes(arg1 as *const u8, arg2);
+            0
+        }
+
+        Ok(SystemCall::DrawPixel) => {
+            sys_draw_pixel(arg1, arg2, arg3);
+            0
+        }
+
+        Ok(SystemCall::GetDateTime) => {
+            sys_get_datetime(arg1);
+            0
+        }
+
+        Ok(SystemCall::GetPitInterval) => sys_get_systime_intervall(),
+
+        Ok(SystemCall::ActivateShell) => {
+            sys_activate_shell();
+            0
+        }
+
+        Ok(SystemCall::DeactivateShell) => {
+            sys_deactivate_shell();
+            0
+        }
+
+        Err(_) => {
+            unsafe { syscall_abort(); }
+            0
+        }
+
+        _ => {
+            unsafe { sys_call_not_implemented(); }
+            0
+        }
+    }
+}
+*/
+
+// * * * * * * * * //
 
 /*****************************************************************************
  * Funktion:        syscall_disp                                             *
@@ -96,9 +338,9 @@ unsafe impl Sync for SyscallFuncTable {}
 #[no_mangle]
 pub unsafe extern "C" fn syscall_disp() {
     naked_asm!(
-						"call [{syscall_functable}+8*rax]",
-						"ret",
-      syscall_functable = sym SYSCALL_FUNCTABLE);
+        "call [{syscall_functable}+8*rax]",
+        "ret",
+        syscall_functable = sym SYSCALL_FUNCTABLE);
 }
 
 /*****************************************************************************
