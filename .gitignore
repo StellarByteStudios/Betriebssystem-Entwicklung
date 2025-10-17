@@ -9,6 +9,11 @@ Betriebssystem Source-Code/.idea/
 Betriebssystem Source-Code/loader/isofiles/
 !Betriebssystem Source-Code/loader/isofiles/boot/grub/
 
+# Abgabe
+Abgabe/*
+Abgabe.zip
+
+
 # Mac-Dateien
 *.DS_Store
 
